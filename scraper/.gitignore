@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#Mongodb connection details & API keys
+/connectionsconfig.py
+
 # C extensions
 *.so
 
