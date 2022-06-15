@@ -1,0 +1,19 @@
+version: "3.3"
+services:
+  web:
+    build: web/
+    ports:
+      - 80:80
+    #depends_on:
+    #  - go
+  scraper:
+    build: scraper/
+    depends_on:
+      - mongo
+  mongo:
+    image: "mongo"
+    # uncomment below 2 lines to expose mongo service to host machine
+    #ports:
+    #  - 27017:27017
+    volumes:
+      - /usr/local/dublinbus/database:/data/db
