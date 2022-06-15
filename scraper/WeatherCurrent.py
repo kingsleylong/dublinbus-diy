@@ -35,7 +35,7 @@ def weather_current_main():
 
     # inserting data to mongodb database
     print('[*] Pushing data to MongoDB ')
-    cluster = MongoClient(connectionsconfig.uri)
+    cluster = MongoClient(os.environ['MONGODB_CONNSTRING'])
     db = cluster["Weather"]
     collection = db["currentWeather"]
 

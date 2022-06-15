@@ -8,6 +8,10 @@ services:
     #  - go
   scraper:
     build: scraper/
+    environment:
+      - MONGODB_CONNSTRING=mongodb://localhost@mongodb
+    volumes:
+      - /usr/local/dublinbus/config/scraper/:/app/config/
     depends_on:
       - mongo
   mongo:
