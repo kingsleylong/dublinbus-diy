@@ -32,7 +32,7 @@ def weather_current_main():
             connectionsconfig['api_key_current']) 
     response = requests.get(urlWeatherCurrent)
 
-    response = requests.get(connectionsconfig.urlWeatherCurrent)
+    response = requests.get(urlWeatherCurrent)
     data = response.text
 
     # testing to ensure the data was scraped
