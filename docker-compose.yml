@@ -11,7 +11,7 @@ services:
     environment:
       - MONGODB_CONNSTRING=mongodb://localhost@mongodb
     volumes:
-      - /usr/local/dublinbus/config/scraper/:/app/config/
+      - /usr/local/dublinbus/config/scraper:/app/config:ro
     depends_on:
       - mongo
   mongo:
