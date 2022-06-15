@@ -18,7 +18,7 @@ except ImportError:
 
 
 def weather_current_main():
-    response = requests.get(connectionsconfig.urlWeather)
+    response = requests.get(connectionsconfig.urlWeatherCurrent)
     data = response.text
 
     # testing to ensure the data was scraped
@@ -35,7 +35,7 @@ def weather_current_main():
 
     # inserting data to mongodb database
     print('[*] Pushing data to MongoDB ')
-    cluster = MongoClient(os.environ['MONGODB_CONNSTRING'])
+    cluster = MongoClient(connectionsconfig.uri)
     db = cluster["Weather"]
     collection = db["currentWeather"]
 
