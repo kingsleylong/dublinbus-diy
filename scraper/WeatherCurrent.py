@@ -8,7 +8,8 @@
 import requests
 import json
 import time
-import connectionsconfig
+import os
+import configparser
 
 # error checking when connecting to MongoClient
 try:
@@ -16,8 +17,21 @@ try:
 except ImportError:
     raise ImportError('PyMongo is not installed')
 
+# load config file
+print('reading configurations')
+config = configparser.ConfigParser()
+config.read('../config/scrapercfg.ini')
+connectionsconfig = config['scraper']
 
 def weather_current_main():
+    urlWeatherCurrent = connectionsconfig['urlWeatherCurrent']
+    urlWeatherCurrent = urlWeatherCurrent + "?lat=%s&lon=%s&appid=%s&units=metric"
+    urlWeatherCurrent = urlWeatherCurrent % (
+            connectionsconfig['lat'],
+            connectionsconfig['lon'],
+            connectionsconfig['api_key_current']) 
+    response = requests.get(urlWeatherCurrent)
+
     response = requests.get(connectionsconfig.urlWeatherCurrent)
     data = response.text
 
@@ -35,7 +49,7 @@ def weather_current_main():
 
     # inserting data to mongodb database
     print('[*] Pushing data to MongoDB ')
-    cluster = MongoClient(connectionsconfig.uri)
+    cluster = MongoClient(connectionsconfig['uri'])
     db = cluster["Weather"]
     collection = db["currentWeather"]
 

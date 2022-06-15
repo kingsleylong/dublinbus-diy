@@ -13,4 +13,4 @@ VOLUME ["/app/config"]
 WORKDIR /app/scripts
 COPY *.py /app/scripts/
 
-CMD ["python3", "WeatherCurrent.py"]
+CMD ["python3", "-u", "WeatherCurrent.py"]

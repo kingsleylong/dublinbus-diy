@@ -8,16 +8,16 @@ services:
     #  - go
   scraper:
     build: scraper/
-    environment:
-      - MONGODB_CONNSTRING=mongodb://localhost@mongodb
+    #environment:
+    #  - MONGODB_CONNSTRING=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb
     volumes:
       - /usr/local/dublinbus/config/scraper:/app/config:ro
     depends_on:
-      - mongo
-  mongo:
+      - mongodb
+  mongodb:
     image: "mongo"
-    # uncomment below 2 lines to expose mongo service to host machine
-    #ports:
-    #  - 27017:27017
     volumes:
       - /usr/local/dublinbus/database:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
