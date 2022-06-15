@@ -14,7 +14,7 @@ import connectionsconfig
 
 # function to insert the forecast weather to the mongodb collection
 def weather_forecast_main(self):
-    response = requests.get(connectionsconfig.urlWeather)
+    response = requests.get(connectionsconfig.urlForecast)
     data = response.text
 
     # testing to ensure the data was scraped
