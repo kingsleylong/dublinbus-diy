@@ -1,7 +1,5 @@
 # SCRIPT FOR SCRAPING FORECAST WEATHER DATA
 # DATA IS SCRAPED EVERY 2 HRS AND INSERTED IN MONGODDB - FORECAST COLLECTION
-# TODO:
-#  (1) REMOVE DUPLICATES BEFORE THEY ARE INSERTED IN THE COLLECTION
 
 
 # importing libraries
@@ -9,12 +7,32 @@ import requests
 import json
 import time
 from pymongo import MongoClient
-import connectionsconfig
+import os
+import configparser
+
+
+# load config file
+print('reading configurations')
+config = configparser.ConfigParser()
+config.read('config/scrapercfg.ini')
+connectionsconfig = config['scraper']
+
+
+# function to drop the collection every 2 hrs
+def drop_collection(self):
+    self.drop()
 
 
 # function to insert the forecast weather to the mongodb collection
-def weather_forecast_main(self):
-    response = requests.get(connectionsconfig.urlForecast)
+def weather_forecast_main():
+    urlForecast = connectionsconfig['urlForecast']
+    urlForecast = urlForecast + "?lat=%s&lon=%s&appid=%s&units=metric"
+    urlForecast = urlForecast % (
+            connectionsconfig['lat'],
+            connectionsconfig['lon'],
+            connectionsconfig['api_key_forecast'])
+
+    response = requests.get(urlForecast)
     data = response.text
 
     # testing to ensure the data was scraped
@@ -31,10 +49,13 @@ def weather_forecast_main(self):
     print('[*] Pushing data to MongoDB ')
     cluster = MongoClient(connectionsconfig.uri)
     db = cluster["Weather"]
-    collection = db["forecast"]
+    collection = db["Forecast"]
 
     # inserting data in mongodb
     try:
+        # dropping the forecast collection
+        drop_collection(collection)
+        # creating a new collection and inserting new data
         collection.insert_one(data)
     except Exception as ex:
         print(ex)
@@ -50,4 +71,4 @@ def weather_forecast_main(self):
 
 
 while True:
-    weather_forecast_main(connectionsconfig.url)
+    weather_forecast_main()
