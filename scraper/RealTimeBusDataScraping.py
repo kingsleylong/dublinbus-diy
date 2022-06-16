@@ -44,22 +44,22 @@ def gtfs_r():
         # reading the API response
         gtfs_data = response.read()
 
-        if isinstance(gtfs_data, dict):
+
     # loading the response into a json file
-            json_response = json.loads(gtfs_data.decode('utf-8'))
+        json_response = json.loads(gtfs_data.decode('utf-8'))
 
 # inserting the data in mongodb collection
-            collection.insert_one(json_response)
+        collection.insert_one(json_response)
 
         # print("loading the data to json file")
         # # loading the response into a json file
         # json_response = json.loads(gtfs_data.decode('utf-8'))
 
             # dropping the collection to have only most recent data
-            collection.drop()
+        collection.drop()
 
             # inserting the data in mongodb collection
-            collection.insert_one(json_response)
+        collection.insert_one(json_response)
 
     except Exception as e:
         print(e)
