@@ -12,6 +12,7 @@ services:
     #  - MONGODB_CONNSTRING=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb
     volumes:
       - /usr/local/dublinbus/config/scraper:/app/scripts/config:ro
+      - /usr/local/dublinbus/data:/app/scripts/data:ro
     depends_on:
       - mongodb
   mongodb:
