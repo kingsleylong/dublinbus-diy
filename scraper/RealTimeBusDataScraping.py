@@ -34,14 +34,17 @@ def gtfs_r():
     collection = db["real-timeData"]  # and inside that DB, a collection called "real-timeData"
 
     try:
+        print("making the request")
         req = urllib.request.Request(url, headers=hdr)
 
         req.get_method = lambda: 'GET'
         response = urllib.request.urlopen(req, context=ssl.create_default_context(cafile=certifi.where()))
 
+        print("reading the data")
         # reading the API response
         gtfs_data = response.read()
 
+        print("loading the data to json file")
         # loading the response into a json file
         json_response = json.loads(gtfs_data.decode('utf-8'))
 
