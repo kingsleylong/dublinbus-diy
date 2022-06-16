@@ -33,8 +33,8 @@ def weather_forecast_main():
     # testing to ensure the data was scraped
     if response.status_code != 200:
         print('Failed to get data:', response.status_code)
-    else:
-        print('Data is: ', data)
+    #else:
+    #    print('Data is: ', data)
 
     # parsing response text to json format
     print('[*] Parsing response text')
