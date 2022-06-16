@@ -6,6 +6,12 @@ from pymongo import MongoClient
 import os
 import configparser
 
+# load config file
+print('reading configurations')
+config = configparser.ConfigParser()
+config.read('config/scrapercfg.ini')
+connectionsconfig = config['scraper']
+
 # connecting to MongoDB 
 uri = connectionsconfig['uri']
 
