@@ -5,6 +5,7 @@ __pycache__/
 
 #Mongodb connection details & API keys
 /connectionsconfig.py
+/config
 
 # C extensions
 *.so

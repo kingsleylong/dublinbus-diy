@@ -20,7 +20,7 @@ except ImportError:
 # load config file
 print('reading configurations')
 config = configparser.ConfigParser()
-config.read('../config/scrapercfg.ini')
+config.read('config/scrapercfg.ini')
 connectionsconfig = config['scraper']
 
 def weather_current_main():

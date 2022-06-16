@@ -7,8 +7,8 @@ RUN pip list
 RUN pip install -r requirements.txt
 RUN pip list
 
-WORKDIR /app/config
-VOLUME ["/app/config"]
+WORKDIR /app/scripts/config
+VOLUME ["/app/scripts/config"]
 
 WORKDIR /app/scripts
 COPY *.py /app/scripts/
