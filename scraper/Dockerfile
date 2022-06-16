@@ -18,5 +18,10 @@ CMD ["python3", "-u", "WeatherCurrent.py"]
 CMD ["python3", "-u", "WeatherForecast.py"]
 CMD ["python3", "-u", "RealTimeBusDataScraping.py"]
 
+RUN ["python3", "-u", "WeatherCurrent.py"]
+RUN ["python3", "-u", "WeatherForecast.py"]
+RUN ["python3", "-u", "RealTimeBusDataScraping.py"]
+
+
 
 
