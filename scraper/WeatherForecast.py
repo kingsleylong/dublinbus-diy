@@ -42,7 +42,7 @@ def weather_forecast_main():
 
     # connecting to mongodb collection
     print('[*] Pushing data to MongoDB ')
-    cluster = MongoClient(connectionsconfig.uri)
+    cluster = MongoClient(connectionsconfig['uri'])
     db = cluster["Weather"]
     collection = db["Forecast"]
 
