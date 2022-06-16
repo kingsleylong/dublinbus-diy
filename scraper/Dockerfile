@@ -14,3 +14,6 @@ WORKDIR /app/scripts
 COPY *.py /app/scripts/
 
 CMD ["python3", "-u", "WeatherCurrent.py"]
+CMD ["python3", "-u", "WeatherForecast.py"]
+CMD ["python3", "-u", "RealTimeBusDataScraping.py"]
+CMD ["python3", "-u", "HistBusData.py"]
