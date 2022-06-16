@@ -31,7 +31,7 @@ def gtfs_r():
 
     cluster = MongoClient(uri)
     db = cluster["BusData"]  # use a database called "BusData"
-    collection = db["real-timeData"]  # and inside that DB, a collection called "real-timeData"
+    collection = db["realTimeData"]  # and inside that DB, a collection called "real-timeData"
 
     try:
         print("making the request")
