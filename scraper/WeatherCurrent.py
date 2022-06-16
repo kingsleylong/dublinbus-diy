@@ -56,7 +56,7 @@ def weather_current_main():
     # inserting data in mongodb
     try:
         #creating index - date-time is unique 
-        collection.create_index([('dt', 1)], unique=True)
+        collection.create_index([('dt', -1)], unique=True)
         # inserting data 
         collection.insert_one(data)
     except Exception as ex:
