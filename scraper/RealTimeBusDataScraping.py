@@ -24,10 +24,10 @@ config.read('config/scrapercfg.ini')
 connectionsconfig = config['scraper']
 
 def gtfs_r():
-    # # connecting to MongoDB & gtfs_data
-        uri = connectionsconfig['uri']
-        url = connectionsconfig['url']
-        hdr = connectionsconfig['hdr']
+    # connecting to MongoDB & gtfs_data
+    uri = connectionsconfig['uri']
+    url = connectionsconfig['url']
+    hdr = connectionsconfig['hdr']
 
     cluster = MongoClient(uri)
     db = cluster["BusData"]  # use a database called "BusData"
