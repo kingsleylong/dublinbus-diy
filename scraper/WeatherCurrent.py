@@ -51,7 +51,7 @@ def weather_current_main():
     print('[*] Pushing data to MongoDB ')
     cluster = MongoClient(connectionsconfig['uri'])
     db = cluster["Weather"]
-    collection = db["currentWeather"]
+    collection = db["CurrentWeather"]
 
     # inserting data in mongodb
     try:
