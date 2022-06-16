@@ -18,11 +18,6 @@ config.read('config/scrapercfg.ini')
 connectionsconfig = config['scraper']
 
 
-# function to drop the collection every 2 hrs
-def drop_collection(self):
-    self.drop()
-
-
 # function to insert the forecast weather to the mongodb collection
 def weather_forecast_main():
     urlForecast = connectionsconfig['urlForecast']
@@ -54,7 +49,7 @@ def weather_forecast_main():
     # inserting data in mongodb
     try:
         # dropping the forecast collection
-        drop_collection(collection)
+        collection.drop()
         # creating a new collection and inserting new data
         collection.insert_one(data)
     except Exception as ex:
