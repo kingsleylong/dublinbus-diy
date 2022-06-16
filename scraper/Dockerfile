@@ -6,6 +6,7 @@ COPY requirements2.txt requirements.txt
 RUN pip list
 RUN pip install -r requirements.txt
 RUN pip list
+COPY rt_leavetimes_DB_2018.txt
 
 WORKDIR /app/scripts/config
 VOLUME ["/app/scripts/config"]
