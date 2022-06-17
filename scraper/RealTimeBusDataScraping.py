@@ -35,7 +35,7 @@ def gtfs_r():
 
     try:
         print("making the request & getting data")
-        response = requests.get(connectionsconfig.url, headers=connectionsconfig.hdr)
+        response = requests.get(url, headers=hdr)
         data = response.text
 
         print("loading the response into a json file")
