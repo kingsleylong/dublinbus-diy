@@ -7,6 +7,7 @@ import time
 import certifi
 import ssl
 import json
+import requests
 import os
 import configparser
 from pymongo import MongoClient
