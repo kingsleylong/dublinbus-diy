@@ -4,8 +4,16 @@ services:
     build: web/
     ports:
       - 80:80
-    #depends_on:
-    #  - go
+    depends_on:
+      - api
+  api:
+    build: api/
+    volumes:
+      - /usr/local/dublinbus/config/api:/app/config:ro
+    ports:
+      - 10000
+    depends_on:
+      mongodb
   scraper:
     build: scraper/
     #environment:
