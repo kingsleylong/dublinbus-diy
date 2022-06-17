@@ -28,14 +28,14 @@ def gtfs_r():
     # connecting to MongoDB & gtfs_data
     uri = connectionsconfig['uri']
     url = connectionsconfig['url']
-    hdr = connectionsconfig['hdr']
+    hdr = connectionsconfig.items['hdr']
 
     cluster = MongoClient(uri)
     db = cluster["BusData"]  # use a database called "BusData"
     collection = db["realTimeData"]  # and inside that DB, a collection called "real-timeData"
 
     try:
-        print("making the request & getting data")
+        print("P2 making the request & getting data")
         response = requests.get(url, headers=hdr)
         data = response.text
 
