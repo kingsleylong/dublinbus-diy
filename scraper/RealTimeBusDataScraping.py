@@ -28,7 +28,7 @@ def gtfs_r():
     # connecting to MongoDB & gtfs_data
     uri = connectionsconfig['uri']
     url = connectionsconfig['url']
-    hdr = dict(connectionsconfig('hdr'))
+    hdr = dict(connectionsconfig.items('hdr'))
 
     cluster = MongoClient(uri)
     db = cluster["BusData"]  # use a database called "BusData"
