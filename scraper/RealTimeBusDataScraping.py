@@ -42,11 +42,11 @@ def gtfs_r():
 
         print("reading the data")
         # reading the API response
-        gtfs_data = response.read()
+        #gtfs_data = response.read()
 
 
     # loading the response into a json file
-        json_response = json.loads(gtfs_data.decode('utf-8'))
+        json_response = json.loads(response.read().decode('utf-8'))
 
     # dropping the collection to have only most recent data
         collection.drop()
