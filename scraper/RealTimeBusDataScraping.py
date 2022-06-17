@@ -29,6 +29,7 @@ def gtfs_r():
     uri = connectionsconfig['uri']
     url = connectionsconfig['url']
     hdr = connectionsconfig['hdr']
+    http_header = {"x-api-key":hdr}
 
     cluster = MongoClient(uri)
     db = cluster["BusData"]  # use a database called "BusData"
@@ -36,7 +37,7 @@ def gtfs_r():
 
     try:
         print("P4 making the request & getting data")
-        response = requests.get(url, headers=hdr)
+        response = requests.get(url, headers=http_header)
         data = response.text
 
         print("loading the response into a json file")
