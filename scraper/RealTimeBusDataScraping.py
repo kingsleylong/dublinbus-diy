@@ -37,14 +37,15 @@ def gtfs_r():
         print("making the request")
         req = urllib.request.Request(url, headers=hdr)
 
+        print("getting the data from the request")
         req.get_method = lambda: 'GET'
         response = urllib.request.urlopen(req, context=ssl.create_default_context(cafile=certifi.where()))
 
-        print("reading the data")
+        
         # reading the API response
         #gtfs_data = response.read()
 
-
+        print("reading the json string from request & loading it in python dict to insert in collection")
     # loading the response into a json file
         json_response = json.loads(response.read().decode('utf-8'))
 
