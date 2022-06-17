@@ -18,7 +18,7 @@ uri = connectionsconfig['uri']
 def histData():
     try:
         # reading the csv files and creating a pandas df
-        df = pd.read_csv("routes.txt", sep=",", decimal=',')
+        df = pd.read_csv("/app/scripts/data/routes.txt", sep=",", decimal=',')
         df.replace({',', ' '}, {'"', ' '}, regex=True, inplace=True)
 
         # Write to a separate JSON file
@@ -45,8 +45,8 @@ def histData():
         print("Data inserted successfully.")
 
     # close the connection
-    finally:
-        cluster.close()
+    # finally:
+    #     cluster.close()
 
     # exit the script after it run 
     quit()
