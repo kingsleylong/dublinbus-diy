@@ -36,7 +36,7 @@ def gtfs_r():
     collection = db["realTimeData"]  # and inside that DB, a collection called "real-timeData"
 
     try:
-        print("P4 making the request & getting data")
+        print("P5 making the request & getting data")
         response = requests.get(url, headers=http_header)
         data = response.text
 
