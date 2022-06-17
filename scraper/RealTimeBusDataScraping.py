@@ -34,26 +34,20 @@ def gtfs_r():
     collection = db["realTimeData"]  # and inside that DB, a collection called "real-timeData"
 
     try:
-        print("making the request")
-        req = urllib.request.Request(url, headers=hdr)
+        print("making the request & getting data")
+        response = requests.get(connectionsconfig.url, headers=connectionsconfig.hdr)
+        data = response.text
 
-        print("getting the data from the request")
-        req.get_method = lambda: 'GET'
-        response = urllib.request.urlopen(req, context=ssl.create_default_context(cafile=certifi.where()))
+        print("loading the response into a json file")
+        json_response = json.loads(data)
 
-        
-        # reading the API response
-        #gtfs_data = response.read()
-
-        print("reading the json string from request & loading it in python dict to insert in collection")
-    # loading the response into a json file
-        json_response = json.loads(response.read().decode('utf-8'))
-
-    # dropping the collection to have only most recent data
+        # dropping the collection to have only most recent data
         collection.drop()
 
-    # inserting the data in mongodb collection
+        print("inserting data")
+        # inserting the data in mongodb collection
         collection.insert_one(json_response)
+
 
     except Exception as e:
         print(e)
