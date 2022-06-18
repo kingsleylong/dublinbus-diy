@@ -28,8 +28,8 @@ COPY *.py /app/scripts/
 
 # start the scraper scripts one by one
 #CMD ["python3", "-u", "WeatherCurrent.py"]
-#RUN ["python3", "-u", "WeatherForecast.py"]
-CMD ["python3", "-u", "RealTimeBusDataScraping.py"]
+CMD ["python3", "-u", "WeatherForecast.py"]
+#CMD ["python3", "-u", "RealTimeBusDataScraping.py"]
 #RUN ["python3", "-u", "HistBusData.py"]
 
 
