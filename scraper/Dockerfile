@@ -24,7 +24,7 @@ COPY *.py /app/scripts/
 #COPY run.sh /app/scripts/
 #RUN chmod a+x run.sh
 
-CMD ["-u", "./run.sh"]
+CMD ["./run.sh"]
 
 # start the scraper scripts one by one
 #CMD ["python3", "-u", "WeatherCurrent.py"]
