@@ -24,12 +24,12 @@ COPY *.py /app/scripts/
 #COPY run.sh /app/scripts/
 #RUN chmod a+x run.sh
 
-#CMD ["./run.sh"]
+CMD ["-u", "./run.sh"]
 
 # start the scraper scripts one by one
 #CMD ["python3", "-u", "WeatherCurrent.py"]
 #CMD ["python3", "-u", "WeatherForecast.py"]
-CMD ["python3", "-u", "RealTimeBusDataScraping.py"]
+#CMD ["python3", "-u", "RealTimeBusDataScraping.py"]
 #RUN ["python3", "-u", "HistBusData.py"]
 
 
