@@ -21,8 +21,8 @@ WORKDIR /app/scripts
 # copy the scraper scritps in the current folder
 COPY *.py /app/scripts/
 
-#COPY run.sh /app/scripts/
-#RUN chmod a+x run.sh
+COPY run.sh /app/scripts/
+RUN chmod a+x run.sh
 
 CMD ["./run.sh"]
 
