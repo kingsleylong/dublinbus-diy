@@ -22,13 +22,13 @@ WORKDIR /app/scripts
 COPY *.py /app/scripts/
 
 # start the scraper scripts one by one
-RUN python3 WeatherCurrent.py
-RUN python3 WeatherForecast.py
-RUN python3 RealTimeBusDataScraping.py
+#RUN python3 WeatherCurrent.py
+#RUN python3 WeatherForecast.py
+#RUN python3 RealTimeBusDataScraping.py
 
-#COPY run.sh /app/scripts/
-#RUN chmod a+x run.sh
-#CMD ["/bin/bash", "./run.sh", "start"]
+COPY run.sh /app/scripts/
+RUN chmod a+x run.sh
+CMD [ "bash", "./run.sh"]
 
 
 
