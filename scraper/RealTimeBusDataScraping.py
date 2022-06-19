@@ -1,5 +1,5 @@
 # THIS SCRIPT WILL SCRAPE THE GTFS-R DATA AND INSERT THE DATA IN THE COLLECTION
-# DATA WILL BE SCRAPED EVERY MINUTE 
+# DATA WILL BE SCRAPED EVERY 2 MINUTES 
 
 
 import urllib.request
@@ -60,8 +60,8 @@ def gtfs_r():
     finally:
         cluster.close()
 
-    # real-time data will be scraped every 10 minutes
-    time.sleep(1 * 60)
+    # real-time data will be scraped every 2 minutes
+    time.sleep(2 * 60)
 
 
 while True:
