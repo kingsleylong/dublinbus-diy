@@ -28,7 +28,7 @@ COPY *.py /app/scripts/
 
 COPY run.sh /app/scripts/
 RUN chmod a+x run.sh
-CMD [ "bash", "./run.sh"]
+CMD ["./run.sh"]
 
 
 
