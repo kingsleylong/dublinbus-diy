@@ -9,7 +9,7 @@ scripts=( "WeatherCurrent.py" "WeatherForecast" "RealTimeBusDataScraping" )
 
 printf "Creating for loop to run all scripts"
 for x in scripts
-    python3 ${scripts[@]}
+    python ${scripts[@]} 
 done
 
 printf "This is running on 19/06 @19:30"
