@@ -28,7 +28,7 @@ COPY *.py /app/scripts/
 
 COPY run.sh /app/scripts/
 RUN chmod a+x run.sh
-ENTRYPOINT ["./run.sh"]
+ENTRYPOINT ["-u", "./run.sh"]
 
 
 
