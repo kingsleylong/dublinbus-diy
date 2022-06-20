@@ -31,7 +31,7 @@ def histData():
         # connecting to mongodb
         cluster = MongoClient(uri)
         db = cluster["BusData"]  # use a database called "BusData"
-        collection = db["historicalData"]  # and inside that DB, a collection called "bus"
+        collection = db["staticData"]  # and inside that DB, a collection called "bus"
 
         # opening the json file created to insert it in the mongodb collection
         with open('json_data.json') as file:
@@ -45,8 +45,8 @@ def histData():
         print("Data inserted successfully.")
 
     # close the connection
-    # finally:
-    #     cluster.close()
+    finally:
+        cluster.close()
 
     # exit the script after it run 
     quit()
