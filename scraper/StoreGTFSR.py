@@ -8,7 +8,9 @@ import time
 import certifi
 import ssl
 import json
-import connectionsconfig
+import requests
+import os
+import configparser
 from pymongo import MongoClient
 
 # error checking when connecting to MongoClient
@@ -17,26 +19,37 @@ try:
 except ImportError:
     raise ImportError('PyMongo is not installed')
 
+# load config file
+print('reading configurations')
+config = configparser.ConfigParser()
+config.read('config/scrapercfg.ini')
+connectionsconfig = config['scraper']
 
 def gtfs_r():
+    # connecting to MongoDB & gtfs_data
+    uri = connectionsconfig['uri']
+    url = connectionsconfig['url']
+    hdr = connectionsconfig['hdr']
+    http_header = {"x-api-key":hdr}
+
     # # connecting to MongoDB
     cluster = MongoClient(connectionsconfig.uri)
     db = cluster["BusData"]  # use a database called "BusData"
     collection = db["GTFSRdata"]  # and inside that DB, a collection called "bus"
 
     try:
-        req = urllib.request.Request(connectionsconfig.url, headers=connectionsconfig.hdr)
+        print("making the request & getting data")
+        response = requests.get(url, headers=http_header)
+        data = response.text
 
-        req.get_method = lambda: 'GET'
-        response = urllib.request.urlopen(req, context=ssl.create_default_context(cafile=certifi.where()))
+        print("loading the response into a json file")
+        json_response = json.loads(data)
 
-        # reading the API response & loading the response into a json file
-        json_response = json.loads(response.read())
-
+        # checking that timestamp is unique
         collection.create_index([('timestamp', 1)], unique=True)
-        print("inserting data")
-
+        
         # inserting the data in mongodb collection
+        print("inserting data")
         collection.insert_one(json_response)
 
     except Exception as e:
