@@ -18,7 +18,7 @@ uri = connectionsconfig['uri']
 def histData():
     try:
         # reading the csv files and creating a pandas df
-        df = pd.read_csv("/app/scripts/data/rt_leavetimes_DB_2018.txt", sep=",", decimal=',')
+        df = pd.read_csv("/app/scripts/data/trips.txt", sep=",", decimal=',')
         df.replace({',', ' '}, {'"', ' '}, regex=True, inplace=True)
 
         # Write to a separate JSON file
@@ -31,7 +31,7 @@ def histData():
         # connecting to mongodb
         cluster = MongoClient(uri)
         db = cluster["BusData"]  # use a database called "BusData"
-        collection = db["historicalData"]  # and inside that DB, a collection called "bus"
+        collection = db["trips"]  # and inside that DB, a collection called "bus"
 
         # opening the json file created to insert it in the mongodb collection
         with open('json_data.json') as file:
