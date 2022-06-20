@@ -18,7 +18,7 @@ uri = connectionsconfig['uri']
 def histData():
     try:
         # reading the csv files and creating a pandas df
-        df = pd.read_csv("/app/scripts/data/rt_leavetimes_DB_2018.txt", sep=",", decimal=',')
+        df = pd.read_csv("/app/scripts/data/routes.txt", sep=",", decimal=',')
         df.replace({',', ' '}, {'"', ' '}, regex=True, inplace=True)
 
         # Write to a separate JSON file
