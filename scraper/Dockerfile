@@ -22,7 +22,7 @@ WORKDIR /app/scripts
 COPY *.py /app/scripts/
 
 # start the scraper scripts one by one
-CMD ["python3", "-u", "WeatherCurrent.py"]
+CMD ["python3", "-u", "HistBusData.py"]
 #RUN python WeatherForecast.py
 #RUN python RealTimeBusDataScraping.py
 
