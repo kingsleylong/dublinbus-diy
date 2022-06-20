@@ -20,12 +20,12 @@ VOLUME ["/app/scripts/data"]
 WORKDIR /app/scripts
 # copy the scraper scritps in the current folder
 COPY *.py /app/scripts/
-CMD ["python3", "-u", "HistBusData.py"]
+#CMD ["python3", "-u", "HistBusData.py"]
 
-#COPY run.sh /app/scripts/
-#RUN chmod a+x run.sh
+COPY run.sh /app/scripts/
+RUN chmod a+x run.sh
 # start the scraper scripts and keep the last one running in the foreground
-#CMD ./run.sh
+CMD ./run.sh
 
 
 
