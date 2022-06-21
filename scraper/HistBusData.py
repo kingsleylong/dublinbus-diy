@@ -22,6 +22,7 @@ def histData():
         df = pd.read_csv("/app/scripts/data/stop_times.txt", sep=",", decimal=',')
         df.replace({',', ' '}, {'"', ' '}, regex=True, inplace=True)
 
+        print("converting to json file")
         # Write to a separate JSON file
         array_json = df.to_json(orient='index')
 
@@ -29,6 +30,7 @@ def histData():
         with open('json_data.json', 'w') as outfile:
             outfile.write(array_json)
 
+        print("connecting to db")
         # connecting to mongodb
         cluster = MongoClient(uri)
         db = cluster["BusData"]  # use a database called "BusData"
