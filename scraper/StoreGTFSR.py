@@ -30,7 +30,7 @@ def gtfs_r():
     http_header = {"x-api-key":hdr}
 
     # # connecting to MongoDB
-    cluster = MongoClient(connectionsconfig.uri)
+    cluster = MongoClient(uri)
     db = cluster["BusData"]  # use a database called "BusData"
     collection = db["GTFSRdata"]  # and inside that DB, a collection called "bus"
 
