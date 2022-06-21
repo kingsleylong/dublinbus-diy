@@ -17,6 +17,7 @@ uri = connectionsconfig['uri']
 
 def histData():
     try:
+        print("reading the file")
         # reading the csv files and creating a pandas df
         df = pd.read_csv("/app/scripts/data/stop_times.txt", sep=",", decimal=',')
         df.replace({',', ' '}, {'"', ' '}, regex=True, inplace=True)
@@ -33,6 +34,7 @@ def histData():
         db = cluster["BusData"]  # use a database called "BusData"
         collection = db["stop_times"]  # and inside that DB, a collection called "bus"
 
+        print("inserting in mongodb")
         # opening the json file created to insert it in the mongodb collection
         with open('json_data.json') as file:
             file_data = json.load(file)
@@ -45,11 +47,11 @@ def histData():
         print("Data inserted successfully.")
 
     # close the connection
-    # finally:
-    #     cluster.close()
+    finally:
+        cluster.close()
 
     # exit the script after it run 
-    quit()
+    # quit()
 
 
 histData()
