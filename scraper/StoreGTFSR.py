@@ -43,7 +43,7 @@ def gtfs_r():
         json_response = json.loads(data)
 
         # checking that timestamp is unique
-        collection.create_index([('timestamp', 1)], unique=True)
+        collection.create_index([('timestamp', -1)], unique=True)
         
         # inserting the data in mongodb collection
         print("inserting data")
