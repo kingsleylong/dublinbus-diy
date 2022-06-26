@@ -1,40 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:web/views/home_page.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(const DublinBusDiyApp());
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+class DublinBusDiyApp extends StatefulWidget {
+  const DublinBusDiyApp({Key? key}) : super(key: key);
 
   @override
-  _MyAppState createState() => _MyAppState();
+  _DublinBusDiyAppState createState() => _DublinBusDiyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
-  late GoogleMapController mapController;
-
-  final LatLng _center = const LatLng(53.34571963981868, -6.264174663517609);
-
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-  }
+class _DublinBusDiyAppState extends State<DublinBusDiyApp> {
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Maps Sample App'),
-          backgroundColor: Colors.green[700],
-        ),
-        body: GoogleMap(
-          onMapCreated: _onMapCreated,
-          initialCameraPosition: CameraPosition(
-            target: _center,
-            zoom: 11.0,
-          ),
-        ),
+      // debugShowCheckedModeBanner: false,
+      home: const HomePage(),
+      theme: ThemeData(primarySwatch: Colors.green),
+    );
+  }
+
+  ThemeData buildThemeData() {
+    return ThemeData(
+      colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.green,
       ),
+      scaffoldBackgroundColor: Colors.green[100],
     );
   }
 }
