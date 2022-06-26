@@ -16,7 +16,7 @@ class ResponsiveLayout extends StatelessWidget {
         // The most common mobile screen sizes for 2021
         // https://worship.agency/mobile-screen-sizes-for-2021
         // https://www.youtube.com/watch?v=MrPJBAOzKTQ&list=PLn3LDx3baxQHtXo8_5p1KCB5MLvbdonSU&index=1&t=76s
-        if (constraints.maxWidth < 600) {
+        if (constraints.maxWidth < 650) {
           return mobileBody;
         } else {
           return desktopBody;
