@@ -21,15 +21,10 @@ WORKDIR /app/scripts
 # copy the scraper scritps in the current folder
 COPY *.py /app/scripts/
 
-# start the scraper scripts one by one
-CMD ["python3", "-u", "HistBusData.py"]
-#RUN python WeatherForecast.py
-#RUN python RealTimeBusDataScraping.py
-
-#COPY run.sh /app/scripts/
-#RUN chmod a+x run.sh
-#ENTRYPOINT ["-u", "./run.sh"]
-
+COPY run.sh /app/scripts/
+RUN chmod a+x run.sh
+# start the scraper scripts and keep the last one running in the foreground
+CMD ./run.sh
 
 
 

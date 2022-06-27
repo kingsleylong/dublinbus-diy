@@ -1,6 +1,5 @@
 # SCRIPT FOR SCRAPING CURRENT WEATHER DATA
-# DATA IS SCRAPED EVERY 10 MINS AND INSERTED IN MONGODDB - CURRENTWEATHER COLLECTION
-
+# DATA IS SCRAPED EVERY 20 MINS AND INSERTED IN MONGODDB - CURRENTWEATHER COLLECTION
 
 # importing libraries
 import requests
@@ -66,8 +65,8 @@ def weather_current_main():
     finally:
         cluster.close()
 
-    # weather info will be scraped every 10 minutes
-    time.sleep(10 * 60)
+    # weather info will be scraped every 20 minutes
+    time.sleep(20 * 60)
 
 
 while True:
