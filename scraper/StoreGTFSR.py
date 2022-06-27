@@ -36,7 +36,7 @@ def gtfs_r():
 
     try:
         print("making the request & getting data")
-        # time.sleep(1*60)
+        time.sleep(1*60)
         response = requests.get(url, headers=http_header)
         data = response.text
 
@@ -56,8 +56,8 @@ def gtfs_r():
     finally:
         cluster.close()
 
-    # real-time data will be scraped every 4hrs
-    time.sleep(10 * 60)
+    # real-time data will be scraped every 3hrs
+    time.sleep(10800 * 60)
 
 
 while True:
