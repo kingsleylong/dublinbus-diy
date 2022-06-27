@@ -32,11 +32,11 @@ def gtfs_r():
     # # connecting to MongoDB
     cluster = MongoClient(uri)
     db = cluster["BusData"]  # use a database called "BusData"
-    collection = db["GTFSRdata"]  # and inside that DB, a collection called "bus"
+    collection = db["GtfsrData"]  # and inside that DB, a collection called "bus"
 
     try:
         print("making the request & getting data")
-        time.sleep(1*60)
+        # time.sleep(1*60)
         response = requests.get(url, headers=http_header)
         data = response.text
 
