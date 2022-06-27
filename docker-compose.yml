@@ -24,4 +24,10 @@ services:
     volumes:
       - /usr/local/dublinbus/mysql/:/var/lib/mysql
     environment:
+      # Initialize the database with proper permissions. Refer to https://hub.docker.com/_/mysql
+      # - The MYSQL_ROOT_PASSWORD is mandatory
+      # - The MYSQL_USER and MYSQL_PASSWORD are created for project use with access to MYSQL_DATABASE
       - MYSQL_ROOT_PASSWORD={MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=diytest
+      - MYSQL_PASSWORD=${MYSQL_USER_PASSWORD}
+      - MYSQL_DATABASE=diyTestDb
