@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:web/views/googlemap.dart';
+import 'package:http/http.dart' as http;
 
 class DesktopBody extends StatefulWidget {
   const DesktopBody({Key? key}) : super(key: key);
@@ -13,6 +14,10 @@ class _DesktopBodyState extends State<DesktopBody>
 
   late TabController _tabController;
   final _lines = <String>["175", "C1", "46A", "52"];
+
+  Future<http.Response> fetchLines() {
+    return http.get(Uri.parse(''));
+  }
 
   @override
   void initState() {
