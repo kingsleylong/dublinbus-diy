@@ -1,7 +1,6 @@
 #!/bin/bash
 
-python3 RealTimeBusDataScraping.py &
-python3 WeatherCurrent.py 
-python3 WeatherForecast.py & 
-python3 HistBusData.py &
-
+nohup python3 -u RealTimeBusDataScraping.py &
+nohup python3 -u WeatherCurrent.py &
+nohup python3 -u StoreGTFSR.py &
+python3 -u WeatherForecast.py

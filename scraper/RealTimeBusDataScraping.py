@@ -47,8 +47,18 @@ def gtfs_r():
         collection.drop()
 
         print("inserting data")
-        # inserting the data in mongodb collection
         collection.insert_one(json_response)
+
+                        # Aggregation
+        print("Creating aggregation")
+        cursor = collection.aggregate([{"$project" : {"_id":0}},
+                                      {"$unwind": "$Entity"},
+                                       {"$out": "realTimeData"}
+                                  ])
+                                  
+        #  inserting the data in mongodb collection
+        for document in cursor:
+            collection.insert_many(document)
 
 
     except Exception as e:
@@ -61,7 +71,7 @@ def gtfs_r():
         cluster.close()
 
     # real-time data will be scraped every 10 minutes
-    time.sleep(1 * 60)
+    time.sleep(10 * 60)
 
 
 while True:

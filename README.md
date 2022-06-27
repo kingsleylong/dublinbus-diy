@@ -1,8 +1,10 @@
-# Sample GitLab Project
+# Modules
 
-This sample project shows how a project in GitLab looks for demonstration purposes. It contains issues, merge requests and Markdown files in many branches,
-named and filled with lorem ipsum.
+- api  
+    The back-end services provided as restful APIs
 
-You can look around to get an idea how to structure your project and, when done, you can safely delete this project.
+- scraper  
+    The scrapers that collect data from data sources
 
-[Learn more about creating GitLab projects.](https://docs.gitlab.com/ee/gitlab-basics/create-project.html)
+- web  
+    The front-end static files
