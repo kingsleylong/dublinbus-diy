@@ -2,12 +2,14 @@ package databaseQueries
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -19,13 +21,29 @@ type busStop struct {
 	stopLon    string `json:"stop_lon"`
 }
 
+var mongoUsername string
+var mongoPassword string
+var mongoHost string
+var mongoPort string
+
 // GetDatabases returns one collection from the DB that has all routes with
 // their ids and service route names
 func GetDatabases(c *gin.Context) {
 
+	mongoHost = "ec2-44-202-246-86.compute-1.amazonaws.com"
+	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
+	mongoPort = "80"
+
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
-		ApplyURI("mongodb://<username>:<password>@<host>:<port>/?retryWrites=true&w=majority"))
+		ApplyURI(
+			fmt.Sprintf(
+				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
+				mongoUsername,
+				mongoPassword,
+				mongoHost,
+				mongoPort)))
 	if err != nil {
 		log.Print(err)
 	}
@@ -46,12 +64,23 @@ func GetDatabases(c *gin.Context) {
 
 func GetBusStop(c *gin.Context) {
 
+	mongoHost = "ec2-44-202-246-86.compute-1.amazonaws.com"
+	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
+	mongoPort = "80"
+
 	stopNum := c.Param("stopNum")
 	stopNumString := "stop " + string(stopNum)
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
-		ApplyURI("mongodb://<username>:<password>@<host>:<port>/?retryWrites=true&w=majority"))
+		ApplyURI(
+			fmt.Sprintf(
+				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
+				mongoUsername,
+				mongoPassword,
+				mongoHost,
+				mongoPort)))
 	if err != nil {
 		log.Print(err)
 	}
