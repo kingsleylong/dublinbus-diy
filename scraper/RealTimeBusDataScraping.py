@@ -51,7 +51,7 @@ def gtfs_r():
                 # Aggregation
         cursor = collection.aggregate([{"$project" : {"_id":0}},
                                       {"$unwind": "$Entity"},
-                                       {"$out": "realTimeData"}
+                                       {"$out": "realTimeData2"}
                                   ])
                                   
          # inserting the data in mongodb collection
