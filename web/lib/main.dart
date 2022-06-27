@@ -18,8 +18,7 @@ class _DublinBusDiyAppState extends State<DublinBusDiyApp> {
       // Title for web page
       title: "Dublin Bus DIY",
       home: const HomePage(),
-      theme: ThemeData(primarySwatch: Colors.green),
-      // debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: true,
     );
   }
 

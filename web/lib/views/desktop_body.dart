@@ -67,7 +67,7 @@ class _DesktopBodyState extends State<DesktopBody>
       child: Column(
         children: [
           ColoredBox(
-            color: Colors.grey,
+            color: Colors.red,
             child: TabBar(
               // expand the tab bar out of range and slide the bar when clicking
               // tabs at the edges https://stackoverflow.com/a/60636918
