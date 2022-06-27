@@ -47,17 +47,18 @@ def gtfs_r():
         collection.drop()
 
         print("inserting data")
-                # Aggregation
-        # cursor = collection.aggregate([{"$project" : {"_id":0}},
-        #                               {"$unwind": "$Entity"},
-        #                                {"$out": "realTimeData2"}
-        #                           ])
-                                  
-         # inserting the data in mongodb collection
-        # for document in cursor:
-        #     collection.insert_many(document)
-       
         collection.insert_one(json_response)
+
+                        # Aggregation
+        print("Creating aggregation")
+        cursor = collection.aggregate([{"$project" : {"_id":0}},
+                                      {"$unwind": "$Entity"},
+                                       {"$out": "realTimeData"}
+                                  ])
+                                  
+        #  inserting the data in mongodb collection
+        for document in cursor:
+            collection.insert_many(document)
 
 
     except Exception as e:
