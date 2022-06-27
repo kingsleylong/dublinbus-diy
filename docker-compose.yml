@@ -24,4 +24,4 @@ services:
     volumes:
       - /usr/local/dublinbus/mysql/:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD_FILE=/usr/local/dublinbus/secrets/mysql-root
+      - MYSQL_ROOT_PASSWORD={MYSQL_ROOT_PASSWORD}
