@@ -46,19 +46,18 @@ def gtfs_r():
         # dropping the collection to have only most recent data
         collection.drop()
 
-        coll = db["realTimeData2"]
         print("inserting data")
                 # Aggregation
-        cursor = collection.aggregate([{"$project" : {"_id":0}},
-                                      {"$unwind": "$Entity"},
-                                       {"$out": "realTimeData2"}
-                                  ])
+        # cursor = collection.aggregate([{"$project" : {"_id":0}},
+        #                               {"$unwind": "$Entity"},
+        #                                {"$out": "realTimeData2"}
+        #                           ])
                                   
          # inserting the data in mongodb collection
-        for document in cursor:
-            coll.insert_many(document)
+        # for document in cursor:
+        #     collection.insert_many(document)
        
-        # collection.insert_one(json_response)
+        collection.insert_one(json_response)
 
 
     except Exception as e:
