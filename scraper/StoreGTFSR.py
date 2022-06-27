@@ -43,7 +43,12 @@ def gtfs_r():
         print("loading the response into a json file")
         json_response = json.loads(data)
         
-                        # Aggregation
+
+        # inserting the data in mongodb collection
+        print("inserting data")
+        collection.insert_one(json_response)
+
+                                # Aggregation
         cursor = collection.aggregate([{"$project" : {"_id":0}},
                                       {"$unwind": "$Entity"},
                                        {"$out": "storeGtfrs"}
@@ -52,10 +57,7 @@ def gtfs_r():
         #  inserting the data in mongodb collection
         for document in cursor:
             collection.insert_many(document)
-
-        # inserting the data in mongodb collection
-        # print("inserting data")
-        # collection.insert_one(json_response)
+            
 
     except Exception as e:
         print(e)
