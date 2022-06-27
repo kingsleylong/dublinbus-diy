@@ -35,8 +35,6 @@ def weather_current_main():
     # testing to ensure the data was scraped
     if response.status_code != 200:
         print('Failed to get data:', response.status_code)
-    #else:
-    #    print('Data is: ', data)
 
     # parsing response text to json format
     print('[*] Parsing response text')
@@ -52,10 +50,12 @@ def weather_current_main():
 
     # inserting data in mongodb
     try:
-        #creating index - date-time is unique 
+        #creating index - datetime is unique 
         collection.create_index([('dt', -1)], unique=True)
+
         # inserting data 
         collection.insert_one(data)
+        
     except Exception as ex:
         print(ex)
     else:
