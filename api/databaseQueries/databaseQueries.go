@@ -30,10 +30,10 @@ var mongoPort string
 // their ids and service route names
 func GetDatabases(c *gin.Context) {
 
-	mongoHost = "ec2-44-202-246-86.compute-1.amazonaws.com"
+	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	mongoPort = "80"
+	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -64,10 +64,10 @@ func GetDatabases(c *gin.Context) {
 
 func GetBusStop(c *gin.Context) {
 
-	mongoHost = "ec2-44-202-246-86.compute-1.amazonaws.com"
+	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	mongoPort = "80"
+	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
 
 	stopNum := c.Param("stopNum")
 	stopNumString := "stop " + string(stopNum)
