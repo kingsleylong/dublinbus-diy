@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:web/models/bus_stop.dart';
 
 import 'tabs.dart';
 
@@ -14,9 +17,31 @@ class DesktopBody extends StatefulWidget {
 
 class _DesktopBodyState extends State<DesktopBody> {
   final _lines = <String>["175", "C1", "46A", "52"];
+  late Future<BusStop> futureBusStop;
 
-  Future<http.Response> fetchLines() {
-    return http.get(Uri.parse(''));
+  @override
+  void initState() {
+    super.initState();
+    futureBusStop = fetchBusStop();
+  }
+
+  Future<BusStop> fetchBusStop() async {
+    final response = await http.get(
+      Uri.parse('http://localhost:1080/busStop/1'),
+      headers: {
+        "Accept": "application/json",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return BusStop.fromJson(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load bus stop');
+    }
   }
 
   @override
@@ -90,9 +115,27 @@ class _DesktopBodyState extends State<DesktopBody> {
                 );
               }
             ),
-          )
+          ),
 
-          //weather info
+          Expanded(
+              child: FutureBuilder<BusStop>(
+              future: futureBusStop,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  print(snapshot.data!.name);
+                  return Text(snapshot.data!.name);
+                } else if (snapshot.hasError) {
+                  print('${snapshot.error}');
+                  return Text('${snapshot.error}');
+                }
+
+                // By default, show a loading spinner.
+                return const CircularProgressIndicator();
+              },
+            )
+          ),
+
+        //weather info
           // TODO
 
         ],
