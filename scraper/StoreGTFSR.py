@@ -32,7 +32,7 @@ def gtfs_r():
     # # connecting to MongoDB
     cluster = MongoClient(uri)
     db = cluster["BusData"]  # use a database called "BusData"
-    collection = db["GtfsrData"]  # and inside that DB, a collection called "bus"
+    collection = db["storeGtfrs"]  # and inside that DB, a collection called "bus"
 
     try:
         print("making the request & getting data")
