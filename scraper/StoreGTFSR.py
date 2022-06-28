@@ -68,8 +68,8 @@ def gtfs_r():
     finally:
         cluster.close()
 
-    # real-time data will be scraped every 3hrs
-    time.sleep(10800 * 60)
+    # real-time data will be scraped every 10 mins
+    time.sleep(10 * 60)
 
 
 while True:
