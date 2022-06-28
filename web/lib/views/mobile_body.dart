@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'tabs.dart';
+
 class MobileBody extends StatefulWidget {
   const MobileBody({Key? key, required this.tabController}) : super(key: key);
 
@@ -29,7 +31,18 @@ class _MobileBodyState extends State<MobileBody> {
           ],
         ),
       ),
-      body: const Text("Mobile Body"),
+      body: TabBarView(
+          controller: widget.tabController,
+          children: <Widget>[
+            PlanMyJourneyTab(),
+            Center(
+              child: Text("It's rainy here"),
+            ),
+            Center(
+              child: Text("It's sunny here"),
+            ),
+          ]
+      ),
     );
   }
 }

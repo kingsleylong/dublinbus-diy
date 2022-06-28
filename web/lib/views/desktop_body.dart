@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'tabs.dart';
+
 class DesktopBody extends StatefulWidget {
   const DesktopBody({Key? key, required this.tabController}) : super(key: key);
 
@@ -38,11 +40,8 @@ class _DesktopBodyState extends State<DesktopBody> {
   TabBarView buildRightInformationBox() {
     return TabBarView(
       controller: widget.tabController,
-      children: const <Widget>[
-        Center(
-          child: Text("It's cloudy here"),
-          // child: ,
-        ),
+      children: <Widget>[
+        PlanMyJourneyTab(),
         Center(
           child: Text("It's rainy here"),
         ),
