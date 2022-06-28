@@ -1,28 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:web/views/googlemap.dart';
 import 'package:http/http.dart' as http;
 
 class DesktopBody extends StatefulWidget {
-  const DesktopBody({Key? key}) : super(key: key);
+  const DesktopBody({Key? key, required this.tabController}) : super(key: key);
+
+  final TabController tabController;
 
   @override
   State<DesktopBody> createState() => _DesktopBodyState();
 }
 
-class _DesktopBodyState extends State<DesktopBody>
-    with TickerProviderStateMixin{
-
-  late TabController _tabController;
+class _DesktopBodyState extends State<DesktopBody> {
   final _lines = <String>["175", "C1", "46A", "52"];
 
   Future<http.Response> fetchLines() {
     return http.get(Uri.parse(''));
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -45,7 +37,7 @@ class _DesktopBodyState extends State<DesktopBody>
 
   TabBarView buildRightInformationBox() {
     return TabBarView(
-      controller: _tabController,
+      controller: widget.tabController,
       children: const <Widget>[
         Center(
           child: Text("It's cloudy here"),
@@ -72,7 +64,8 @@ class _DesktopBodyState extends State<DesktopBody>
               // expand the tab bar out of range and slide the bar when clicking
               // tabs at the edges https://stackoverflow.com/a/60636918
               isScrollable: true,
-              controller: _tabController,
+              // Access a field of the widget in its state https://stackoverflow.com/a/58767810
+              controller: widget.tabController,
               tabs: const [
                 Tab(text: "Plan My Journey"),
                 Tab(text: "Find My Route"),
