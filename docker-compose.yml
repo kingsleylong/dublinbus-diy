@@ -11,9 +11,14 @@ services:
     volumes:
       - /usr/local/dublinbus/config/api:/app/config:ro
     ports:
-      - 10000
-    depends_on:
-      - mongodb
+      - 10000:8080
+        #    depends_on:
+      #- mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_ROOT_HOST=${MONGO_INITDB_ROOT_HOST}
+      - MONGO_INITDB_ROOT_PORT=${MONGO_INITDB_ROOT_PORT}
   scraper:
     build: scraper/
     #environment:
