@@ -8,7 +8,7 @@ WORKDIR /app/api/config
 VOLUME ["/app/api/config"]
 
 WORKDIR /app/api/databaseQueries
-COPY ./databaseQueries/* ./app/api/databaseQueries
+COPY databaseQueries/* ./
 RUN ls -l
 # pre-copy/cache go.mod for pre-downloading dependencies and only
 # redownloading them in subsequent builds if they change
@@ -16,7 +16,7 @@ RUN ls -l
 RUN go mod download && go mod verify && go mod tidy
 
 WORKDIR /app/api/main
-COPY ./main/* /app/api/main
+COPY main/* ./
 RUN ls -l
 # COPY go.mod go.sum ./
 RUN go mod download && go mod verify && go mod tidy
