@@ -21,19 +21,21 @@ services:
       - MONGO_INITDB_ROOT_PORT=${MONGO_INITDB_ROOT_PORT}
   scraper:
     build: scraper/
-    #environment:
-    #  - MONGODB_CONNSTRING=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb
     volumes:
       - /usr/local/dublinbus/config/scraper:/app/scripts/config:ro
       - /usr/local/dublinbus/data:/app/scripts/data:ro
-    depends_on:
-      - mongodb
-  mongodb:
-    image: "mongo"
-    volumes:
-      - /usr/local/dublinbus/database:/data/db
+  mysql:
+    image: "mysql:8.0.29"
     ports:
-      - 442:27017
+      - 442:3306
+    volumes:
+      - /usr/local/dublinbus/mysql/:/var/lib/mysql
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      # Initialize the database with proper permissions. Refer to https://hub.docker.com/_/mysql
+      # - The MYSQL_ROOT_PASSWORD is mandatory
+      # - The MYSQL_USER and MYSQL_PASSWORD are created for project use with access to MYSQL_DATABASE
+      - MYSQL_ROOT_PASSWORD={MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=diytest
+      - MYSQL_PASSWORD=${MYSQL_USER_PASSWORD}
+      - MYSQL_DATABASE=diyTestDb
+
