@@ -11,3 +11,7 @@ func TestGetBusRoutes(t *testing.T) {
 func TestGetBusStopCoordinates(t *testing.T) {
 	return
 }
+
+func TestGetAllStops(t *testing.T) {
+	return
+}
