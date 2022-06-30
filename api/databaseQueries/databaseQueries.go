@@ -21,15 +21,17 @@ type busStop struct {
 	stopLon    string `json:"stop_lon"`
 }
 
+// Variables to hold connection string values
 var mongoUsername string
 var mongoPassword string
 var mongoHost string
 var mongoPort string
 
-// GetDatabases returns one collection from the DB that has all routes with
-// their ids and service route names
+// GetDatabases returns the databases present in the MongoDB connection.
+// Useful debugging query
 func GetDatabases(c *gin.Context) {
 
+	// Assign values to connection string variables
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
@@ -57,20 +59,24 @@ func GetDatabases(c *gin.Context) {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
 
+	// Create list of databases and return as JSON
 	databases, err := client.ListDatabases(ctx, bson.D{})
 
 	c.IndentedJSON(http.StatusOK, databases)
 }
 
+// GetBusStop returns a single JSON object representing a bus stop from the
+// MongoDB instance. Includes name, number and coordinates of the stop.
 func GetBusStop(c *gin.Context) {
 
+	// Assign values to connection string variables
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
 
+	// Read in bus stop number parameter provided in URL
 	stopNum := c.Param("stopNum")
-	stopNumString := "stop " + string(stopNum)
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -97,12 +103,13 @@ func GetBusStop(c *gin.Context) {
 	var result bson.M
 
 	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("BusStops")
+	collectionPointer := dbPointer.Collection("stops")
 
 	// Find one document that matches criteria and decode results into result address
-	err = collectionPointer.FindOne(ctx, bson.D{{"stop_number", string(stopNumString)}}).
+	err = collectionPointer.FindOne(ctx, bson.D{{"stop_number", string(stopNum)}}).
 		Decode(&result)
 
+	// Check for any errors associated with the query and if there are, log them
 	if err != nil {
 		// Specific condition for valid query without matching documents
 		if err == mongo.ErrNoDocuments {
@@ -116,8 +123,11 @@ func GetBusStop(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, result)
 }
 
+// GetAllStops returns an array of JSON objects. Each object is a bus stop object as
+// per the above query. Each stop object includes the stop name, number and coordinates.
 func GetAllStops(c *gin.Context) {
 
+	// Assign values to connection string variables
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
@@ -146,9 +156,10 @@ func GetAllStops(c *gin.Context) {
 	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
 
 	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("BusStops")
+	collectionPointer := dbPointer.Collection("stops")
 
-	// Find one document that matches criteria and decode results into result address
+	// Return all documents in the collection by leaving filter parameters empty.
+	// Filter parameters specified in the bson.D{{}}
 	busStops, err := collectionPointer.Find(ctx, bson.D{{}})
 	if err != nil {
 		log.Print(err)
@@ -156,10 +167,13 @@ func GetAllStops(c *gin.Context) {
 
 	var busStopResults []bson.M
 
+	// Check for an error while reading through all the documents found in
+	// the query and as they are read, append them to the busStopResults slice
+	// using that slice's memory address reference
 	if err = busStops.All(ctx, &busStopResults); err != nil {
 		log.Print(err)
 	}
 
-	// Return result as JSON along with code 200
+	// Return result slice as JSON along with code 200
 	c.IndentedJSON(http.StatusOK, busStopResults)
 }
