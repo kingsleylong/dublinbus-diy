@@ -4,11 +4,7 @@ import (
 	"testing"
 )
 
-func TestGetBusRoutes(t *testing.T) {
-	return
-}
-
-func TestGetBusStopCoordinates(t *testing.T) {
+func TestGetBusStop(t *testing.T) {
 	return
 }
 
