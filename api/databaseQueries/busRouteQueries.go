@@ -52,7 +52,7 @@ func GetBusRoute(c *gin.Context) {
 	var result bson.M
 
 	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("stops")
+	collectionPointer := dbPointer.Collection("routes")
 
 	// Find one document that matches criteria and decode results into result address
 	err = collectionPointer.FindOne(ctx, bson.D{{"route_short_name", string(routeNum)}}).
