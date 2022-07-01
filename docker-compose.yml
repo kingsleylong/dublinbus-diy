@@ -4,6 +4,12 @@ services:
     build: web/
     ports:
       - "80:80"
+    volumes:
+      # Nginx settings refer to http://nginx.org/en/docs/beginners_guide.html
+      - /usr/local/dublinbus/config/web/nginx.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      - NGINX_HOST=${NGINX_HOST}
+      - NGINX_PORT=80
     depends_on:
       - api
   api:
