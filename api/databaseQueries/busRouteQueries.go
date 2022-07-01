@@ -159,16 +159,24 @@ func GetStopsOnRoute(c *gin.Context) {
 	if err != nil {
 		log.Print(err)
 	}
-	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
+	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
 	var busStopTimesResults []bson.M
 
 	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("stop_times")
+	collectionPointer := dbPointer.Collection("storeGtfrs")
 
 	// Find one document that matches criteria and decode results into result address
-	busStopTimes, err := collectionPointer.Find(ctx, bson.D{{"trip_id", ""}})
+	busStopTimes, err := collectionPointer.Find(ctx, bson.D{
+		{"Entity.TripUpdate.Trip.RouteId", string(routeId)}})
 	if err != nil {
 		log.Print(err)
 	}
+
+	if err = busStopTimes.All(ctx, &busStopTimesResults); err != nil {
+		log.Print(err)
+	}
+
+	// Return result as JSON along with code 200
+	c.IndentedJSON(http.StatusOK, busStopTimesResults)
 }
