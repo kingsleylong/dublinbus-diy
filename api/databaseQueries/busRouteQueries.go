@@ -137,7 +137,7 @@ func GetStopsOnRoute(c *gin.Context) {
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
 
 	// Read in route number parameter provided in URL
-	routeId := c.Param("routeId")
+	routeNum := c.Param("routeNum")
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -161,14 +161,23 @@ func GetStopsOnRoute(c *gin.Context) {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
-	var busStopTimesResults []bson.M
+	var result bson.M
 
 	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("storeGtfrs")
+	collectionPointer := dbPointer.Collection("routes")
+
+	// Find one document that matches criteria and decode results into result address
+	err = collectionPointer.FindOne(ctx, bson.D{{"route_short_name", string(routeNum)}}).
+		Decode(&result)
+
+	var busStopTimesResults []bson.M
+
+	dbPointer = client.Database("BusData")
+	collectionPointer = dbPointer.Collection("storeGtfrs")
 
 	// Find one document that matches criteria and decode results into result address
 	busStopTimes, err := collectionPointer.Find(ctx, bson.D{
-		{"Entity.TripUpdate.Trip.RouteId", string(routeId)}})
+		{"Entity.TripUpdate.Trip.RouteId", result["route_id"]}})
 	if err != nil {
 		log.Print(err)
 	}
