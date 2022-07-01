@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ResponsiveLayout(
-        mobileBody: MobileBody(tabController: _tabController,),
+        mobileBody: MobileBody(tabController: _tabController),
         desktopBody: DesktopBody(tabController: _tabController),
       )
     );

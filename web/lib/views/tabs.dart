@@ -1,21 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:web/views/googlemap.dart';
 
-class GetMeThereOnTimeTab extends StatefulWidget {
-  const GetMeThereOnTimeTab({Key? key}) : super(key: key);
-
-  @override
-  State<GetMeThereOnTimeTab> createState() => _GetMeThereOnTimeTabState();
-}
-
-class _GetMeThereOnTimeTabState extends State<GetMeThereOnTimeTab> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        child: const Text("Get me there on time")
-    );
-  }
-}
+const List<Tab> tabList = [
+  Tab(text: "Plan My Journey"),
+  Tab(text: "Find My Route"),
+  Tab(text: "Get Me There On-Time"),
+];
 
 class PlanMyJourneyTab extends StatefulWidget {
   const PlanMyJourneyTab({Key? key}) : super(key: key);
@@ -27,9 +16,8 @@ class PlanMyJourneyTab extends StatefulWidget {
 class _PlanMyJourneyTabState extends State<PlanMyJourneyTab> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: GoogleMapComponent(),
-    );
+    return Container();
   }
 }
+
 

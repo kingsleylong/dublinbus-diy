@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:web/models/bus_stop.dart';
+import 'package:web/views/googlemap.dart';
 
+import 'tab_views.dart';
 import 'tabs.dart';
 
 class DesktopBody extends StatefulWidget {
@@ -54,9 +56,28 @@ class _DesktopBodyState extends State<DesktopBody> {
           // left bar
           buildLeftBar(),
           // right information box, use Expanded class to take the rest of space
+          // const Expanded(
+          //   child: GoogleMapComponent(),
+          // )
+          // buildLeftTabViews(),
+
           Expanded(
-            child: buildRightInformationBox(),
-          )
+            child: TabBarView(
+              controller: widget.tabController,
+              children: const <Widget>[
+                // PlanMyJourneyTabView(),
+                Center(
+                  child: Text("It's rainy here"),
+                ),
+                Center(
+                  child: Text("It's sunny here"),
+                ),
+                Center(
+                  child: Text("It's sunny here"),
+                ),
+              ]
+            )
+          ),
         ],
       )
     );
@@ -65,8 +86,8 @@ class _DesktopBodyState extends State<DesktopBody> {
   TabBarView buildRightInformationBox() {
     return TabBarView(
       controller: widget.tabController,
-      children: <Widget>[
-        PlanMyJourneyTab(),
+      children: const <Widget>[
+        PlanMyJourneyTabView(),
         Center(
           child: Text("It's rainy here"),
         ),
@@ -74,6 +95,21 @@ class _DesktopBodyState extends State<DesktopBody> {
           child: Text("It's sunny here"),
         ),
       ]
+    );
+  }
+
+  TabBarView buildLeftTabViews() {
+    return TabBarView(
+        controller: widget.tabController,
+        children: const <Widget>[
+          PlanMyJourneyTabView(),
+          Center(
+            child: Text("It's rainy here"),
+          ),
+          Center(
+            child: Text("It's sunny here"),
+          ),
+        ]
     );
   }
 
@@ -90,32 +126,12 @@ class _DesktopBodyState extends State<DesktopBody> {
               isScrollable: true,
               // Access a field of the widget in its state https://stackoverflow.com/a/58767810
               controller: widget.tabController,
-              tabs: const [
-                Tab(text: "Plan My Journey"),
-                Tab(text: "Find My Route"),
-                Tab(text: "Get Me There On-Time"),
-              ],
+              tabs: tabList,
             ),
           ),
-
-          //search fields
-          Expanded(
-            // build a list view from data
-            // https://codelabs.developers.google.com/codelabs/first-flutter-app-pt1/#5
-            child: ListView.builder(
-              // specify the length of data, without this an index out of range error will be
-              // thrown. https://stackoverflow.com/a/58850610
-              itemCount: _lines.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(
-                    _lines[index],
-                    // strutStyle: ,
-                  ),
-                );
-              }
-            ),
-          ),
+          //
+          // // tab views
+          // buildLeftTabViews(),
 
           Expanded(
               child: FutureBuilder<BusStop>(
