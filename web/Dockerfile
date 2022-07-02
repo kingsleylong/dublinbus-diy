@@ -1,6 +1,18 @@
 # syntax=docker/dockerfile:1
 
-# 1.==============================================================
+# 1.=======================IMPORT CONFIG===========================
+#
+# !!!Important!!! The dublinbus-config image needs to be built locally before
+# building this Dockerfile. The repo url for dublinbus-config projeact is
+# https://csgitlab.ucd.ie/kingsley/dublinbus-config.
+#
+# This FROM instruction imports the dublinbus-config image which contains the
+# compiling time configuration (web/index.html). It should be placed in the
+# first stage - configs - so that the later stages can use it.
+FROM dublinbus-config AS configs
+RUN ls -lR /config
+
+# 2.=======================BUILD FLUTTER===========================
 # The build container will only compile flutter project
 FROM fischerscode/flutter:stable AS build
 WORKDIR /flutter
@@ -11,12 +23,16 @@ RUN chown -R flutter:flutter .
 USER flutter
 # permission needs to be in accordance with flutter user
 COPY --chown=flutter:flutter . .
+# copy the compiling time config file to the source folder.
+# the web/index.html can't be loaded using volume as it is required by flutter
+# when building the release packages.
+COPY --from=configs /config/web/index.html /flutter/web/index.html
 # get the dependancies before building
 RUN flutter pub get
-# build flutter web platform
+# build flutter web platform with verbos information
 RUN flutter build -v web
 
-# 2.==============================================================
+# 3.=======================BUILD NGINX==========================
 # The runtime container will be used to build the final image that runs Nginx
 FROM nginx AS runtime
 WORKDIR /data/www
