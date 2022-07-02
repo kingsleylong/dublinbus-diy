@@ -1,5 +1,9 @@
 # syntax=docker/dockerfile:1
 
+# This Dockerfile uses multi-stage builds technic to both read credential files
+# and save space in the final image.
+# Refer to https://docs.docker.com/develop/develop-images/multistage-build/
+
 # 1.=======================IMPORT CONFIG===========================
 #
 # !!!Important!!! The dublinbus-config image needs to be built locally before
