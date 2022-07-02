@@ -27,7 +27,7 @@ class _DesktopBodyState extends State<DesktopBody> {
 
   Future<BusStop> fetchBusStop() async {
     final response = await http.get(
-      Uri.parse('http://localhost:1080/busStop/1'),
+      Uri.parse('http://ipa-003.ucd.ie/api/busStop/2'),
       headers: {
         "Accept": "application/json",
       },
@@ -122,8 +122,8 @@ class _DesktopBodyState extends State<DesktopBody> {
               future: futureBusStop,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  print(snapshot.data!.name);
-                  return Text(snapshot.data!.name);
+                  print(snapshot.data!.stopName);
+                  return Text(snapshot.data!.stopName);
                 } else if (snapshot.hasError) {
                   print('${snapshot.error}');
                   return Text('${snapshot.error}');
