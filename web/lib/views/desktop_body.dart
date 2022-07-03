@@ -10,7 +10,6 @@ import 'tabs.dart';
 
 class DesktopBody extends StatefulWidget {
   const DesktopBody({Key? key, required this.tabController}) : super(key: key);
-
   final TabController tabController;
 
   @override
@@ -25,25 +24,6 @@ class _DesktopBodyState extends State<DesktopBody> {
   void initState() {
     super.initState();
     futureBusStop = fetchBusStop();
-  }
-
-  Future<BusStop> fetchBusStop() async {
-    final response = await http.get(
-      Uri.parse('http://ipa-003.ucd.ie/api/busStop/2'),
-      headers: {
-        "Accept": "application/json",
-      },
-    );
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      return BusStop.fromJson(jsonDecode(response.body));
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load bus stop');
-    }
   }
 
   @override
@@ -62,21 +42,7 @@ class _DesktopBodyState extends State<DesktopBody> {
           // buildLeftTabViews(),
 
           Expanded(
-            child: TabBarView(
-              controller: widget.tabController,
-              children: const <Widget>[
-                // PlanMyJourneyTabView(),
-                Center(
-                  child: Text("It's rainy here"),
-                ),
-                Center(
-                  child: Text("It's sunny here"),
-                ),
-                Center(
-                  child: Text("It's sunny here"),
-                ),
-              ]
-            )
+            child: buildRightInformationBox(),
           ),
         ],
       )
@@ -87,7 +53,7 @@ class _DesktopBodyState extends State<DesktopBody> {
     return TabBarView(
       controller: widget.tabController,
       children: const <Widget>[
-        PlanMyJourneyTabView(),
+        GoogleMapComponent(),
         Center(
           child: Text("It's rainy here"),
         ),
@@ -131,7 +97,9 @@ class _DesktopBodyState extends State<DesktopBody> {
           ),
           //
           // // tab views
-          // buildLeftTabViews(),
+          Expanded(
+            child: buildLeftTabViews(),
+          ),
 
           Expanded(
               child: FutureBuilder<BusStop>(
@@ -157,5 +125,24 @@ class _DesktopBodyState extends State<DesktopBody> {
         ],
       ),
     );
+  }
+
+  Future<BusStop> fetchBusStop() async {
+    final response = await http.get(
+      Uri.parse('http://ipa-003.ucd.ie/api/busStop/2'),
+      headers: {
+        "Accept": "application/json",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return BusStop.fromJson(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load bus stop');
+    }
   }
 }
