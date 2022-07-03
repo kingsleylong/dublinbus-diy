@@ -3,7 +3,14 @@ services:
   web:
     build: web/
     ports:
-      - 80:80
+      - "80:80"
+    volumes:
+      # Nginx settings refer to http://nginx.org/en/docs/beginners_guide.html
+      - /usr/local/dublinbus/config/web/nginx.conf:/etc/nginx/nginx.conf:ro
+#      - /usr/local/dublinbus/config/web/web/index.html:/flutter/web/web/index.html
+    environment:
+      - NGINX_HOST=${NGINX_HOST}
+      - NGINX_PORT=80
     depends_on:
       - api
   api:
@@ -11,7 +18,7 @@ services:
     volumes:
       - /usr/local/dublinbus/config/api:/app/config:ro
     ports:
-      - 10000:8080
+      - "10000:8080"
         #    depends_on:
       #- mongodb
     environment:
@@ -27,7 +34,7 @@ services:
   mysql:
     image: "mysql:8.0.29"
     ports:
-      - 442:3306
+      - "442:3306"
     volumes:
       - /usr/local/dublinbus/mysql/:/var/lib/mysql
     environment:
