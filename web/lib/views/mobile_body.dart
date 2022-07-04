@@ -34,7 +34,7 @@ class _MobileBodyState extends State<MobileBody> {
       body: TabBarView(
           controller: widget.tabController,
           children: const <Widget>[
-            PlanMyJourneyTabView(),
+            // PlanMyJourneyTabView(futureAllBusStops: null,),
             Center(
               child: Text("It's rainy here"),
             ),

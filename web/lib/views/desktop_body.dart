@@ -17,13 +17,15 @@ class DesktopBody extends StatefulWidget {
 }
 
 class _DesktopBodyState extends State<DesktopBody> {
-  final _lines = <String>["175", "C1", "46A", "52"];
-  late Future<BusStop> futureBusStop;
+  late Future<List<BusStop>> futureAllBusStops;
 
   @override
   void initState() {
     super.initState();
-    futureBusStop = fetchBusStop();
+    futureAllBusStops = fetchAllBusStops();
+    // for(var stopJson in futureAllBusStops) {
+    //
+    // }
   }
 
   @override
@@ -67,8 +69,8 @@ class _DesktopBodyState extends State<DesktopBody> {
   TabBarView buildLeftTabViews() {
     return TabBarView(
         controller: widget.tabController,
-        children: const <Widget>[
-          PlanMyJourneyTabView(),
+        children: <Widget>[
+          PlanMyJourneyTabView(futureAllBusStops: futureAllBusStops),
           Center(
             child: Text("It's rainy here"),
           ),
@@ -101,24 +103,6 @@ class _DesktopBodyState extends State<DesktopBody> {
             child: buildLeftTabViews(),
           ),
 
-          Expanded(
-              child: FutureBuilder<BusStop>(
-              future: futureBusStop,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  print(snapshot.data!.stopName);
-                  return Text(snapshot.data!.stopName);
-                } else if (snapshot.hasError) {
-                  print('${snapshot.error}');
-                  return Text('${snapshot.error}');
-                }
-
-                // By default, show a loading spinner.
-                return const CircularProgressIndicator();
-              },
-            )
-          ),
-
         //weather info
           // TODO
 
@@ -127,21 +111,23 @@ class _DesktopBodyState extends State<DesktopBody> {
     );
   }
 
-  Future<BusStop> fetchBusStop() async {
+  Future<List<BusStop>> fetchAllBusStops() async {
     final response = await http.get(
-      Uri.parse('http://ipa-003.ucd.ie/api/busStop/2'),
+      Uri.parse('http://localhost:1080/api/allStops'),
       headers: {
         "Accept": "application/json",
       },
     );
 
     if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      return BusStop.fromJson(jsonDecode(response.body));
+      // If the server did return a 200 OK response, then parse the JSON.
+      final List allBusStops = jsonDecode(response.body);
+
+      print("Bus Stop list size: ${allBusStops.length}");
+      return List.generate(allBusStops.length,
+              (index) => BusStop.fromJson(allBusStops[index]));
     } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
+      // If the server did not return a 200 OK response, then throw an exception.
       throw Exception('Failed to load bus stop');
     }
   }
