@@ -46,18 +46,32 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
       child: Form(
         key: _formKey,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            buildFutureOriginDropdownList(widget),
-            buildFutureDestinationDropdownList(widget),
+            // Origin dropdown list
+            // The form fields should be wrapped by Padding otherwise they would overlap each other
+            // https://docs.flutter.dev/cookbook/forms/text-input
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: buildFutureOriginDropdownList(widget),
+            ),
+            // Destination dropdown list
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: buildFutureDestinationDropdownList(widget),
+            ),
+            // Submit button
+            Padding(
+              padding: const EdgeInsets.all(8),
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(60),
+                    textStyle: const TextStyle(fontSize: 18),
+                ),
                 onPressed: () {
                   // Validate will return true if the form is valid, or false if
                   // the form is invalid.
                   if (_formKey.currentState!.validate()) {
-                    // Process data.
-                    // _formKey.currentState.save();
                     print('Selected origin: $originDropdownValue');
                     print('Selected destination: $destinationDropdownValue');
                   }
@@ -85,7 +99,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
             items: snapshot.data!.map<DropdownMenuItem<String>>((BusStop value) {
               return DropdownMenuItem<String>(
                 value: value.stopNumber,
-                child: Text(value.stopName),
+                child: Text('${value.stopName} - ${value.stopNumber}'),
               );
             }).toList(),
             onChanged: (String? value) {
@@ -130,7 +144,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
             items: snapshot.data!.map<DropdownMenuItem<String>>((BusStop value) {
               return DropdownMenuItem<String>(
                 value: value.stopNumber,
-                child: Text(value.stopName),
+                child: Text('${value.stopName} - ${value.stopNumber}'),
               );
             }).toList(),
             onChanged: (String? value) {
