@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:web/models/bus_route.dart';
 
 import '../models/bus_stop.dart';
 
@@ -20,7 +24,6 @@ class _GetMeThereOnTimeTabViewState extends State<GetMeThereOnTimeTabView> {
 
 class PlanMyJourneyTabView extends StatefulWidget {
   final Future<List<BusStop>> futureAllBusStops;
-
   const PlanMyJourneyTabView({Key? key, required this.futureAllBusStops}) : super(key: key);
 
   @override
@@ -31,12 +34,10 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   String? originDropdownValue;
   String? destinationDropdownValue;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  late List<DropdownMenuItem<int>> _menuItems;
-
-  @override
-  void initState() {
-  }
+  late Future<List<BusRoute>> futureBusRoutes;
+  // Use a flag to control the visibility of the route options
+  // https://stackoverflow.com/a/46126667
+  bool visibilityRouteOptions = false;
 
   @override
   Widget build(BuildContext context) {
@@ -74,15 +75,20 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
                   if (_formKey.currentState!.validate()) {
                     print('Selected origin: $originDropdownValue');
                     print('Selected destination: $destinationDropdownValue');
+                    futureBusRoutes = fetchBusRoutes();
+                    setState(() {
+                      visibilityRouteOptions = true;
+                    });
                   }
                 },
                 child: const Text('Plan'),
               ),
             ),
-            // Padding(
-            //   padding: const EdgeInsets.all(8),
-            //   child: buildRouteOptionsListView(widget),
-            // ),
+            if(visibilityRouteOptions)
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: buildRouteOptionsListView(widget),
+              ),
             Expanded(
               child: Container(),
             ),
@@ -174,6 +180,51 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
           );
         } else if (snapshot.hasError) {
           print('${snapshot.error}');
+          return Text('${snapshot.error}');
+        }
+        // By default, show a loading spinner.
+        return const CircularProgressIndicator();
+      },
+    );
+  }
+
+  Future<List<BusRoute>> fetchBusRoutes() async {
+    final response = await http.get(
+      Uri.parse('http://localhost:1080/api/matchingRoute'),
+      headers: {
+        "Accept": "application/json",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response, then parse the JSON.
+      final List busRoutesJson = jsonDecode(response.body);
+
+      print("Bus route list size: ${busRoutesJson.length}");
+      return List.generate(busRoutesJson.length,
+              (index) => BusRoute.fromJson(busRoutesJson[index]));
+    } else {
+      // If the server did not return a 200 OK response, then throw an exception.
+      throw Exception('Failed to load bus routes');
+    }
+  }
+
+  buildRouteOptionsListView(PlanMyJourneyTabView widget) {
+    return FutureBuilder<List<BusRoute>>(
+      future: futureBusRoutes,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          print("Number of routes found: ${snapshot.data!.length}");
+          return ListView(
+            // shrinkWrap: resolve the error of "Vertical viewport was given unbounded height."
+            // https://stackoverflow.com/a/57335217/12328041
+            shrinkWrap: true,
+            children: snapshot.data!.map(
+                    (busRoute) => ListTile(
+                      title: Text(busRoute.routeNumber),
+                    )).toList(),
+          );
+        } else if (snapshot.hasError) {
           return Text('${snapshot.error}');
         }
         // By default, show a loading spinner.
