@@ -41,16 +41,6 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
 
   @override
   Widget build(BuildContext context) {
-    const searchFieldsDecoration = InputDecoration(
-      // icon: Icon(Icons.),
-      labelText: "Origin",
-      floatingLabelAlignment: FloatingLabelAlignment.start,
-      hintText: 'Origin',
-      // helperText: 'Select the origin',
-      // counterText: '0 characters',
-      border: OutlineInputBorder(),
-    );
-
     return Padding(
       // padding settings https://api.flutter.dev/flutter/material/InputDecoration/contentPadding.html
       padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
@@ -60,44 +50,6 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
           children: <Widget>[
             buildFutureOriginDropdownList(widget),
             buildFutureDestinationDropdownList(widget),
-            DropdownButtonFormField(
-              // how to build a drop down list https://api.flutter.dev/flutter/material/DropdownButton-class.htm
-              value: dropdownValue,
-              // Field decoration https://api.flutter.dev/flutter/material/InputDecoration-class.html
-              decoration: searchFieldsDecoration,
-              items: <String>["175", "C1", "46A", "52"]
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? value) {
-                setState(() {
-                  dropdownValue = value!;
-                });
-              },
-              // isExpanded: true,
-            ),
-            DropdownButtonFormField(
-              // how to build a drop down list https://api.flutter.dev/flutter/material/DropdownButton-class.html
-              value: dropdownValue,
-              // Field decoration https://api.flutter.dev/flutter/material/InputDecoration-class.html
-              decoration: searchFieldsDecoration,
-              items: <String>["175", "C1", "46A", "52"]
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? value) {
-                setState(() {
-                  dropdownValue = value!;
-                });
-              },
-              // isExpanded: true,
-            ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: ElevatedButton(
@@ -128,6 +80,15 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
           print('Building dropdown: data length = ${snapshot.data!.length}');
           return DropdownButtonFormField(
             value: originDropdownValue,
+            decoration: const InputDecoration(
+              // icon: Icon(Icons.),
+              labelText: "Origin",
+              floatingLabelAlignment: FloatingLabelAlignment.start,
+              hintText: 'Origin',
+              // helperText: 'Select the origin',
+              // counterText: '0 characters',
+              border: OutlineInputBorder(),
+            ),
             items: snapshot.data!.map<DropdownMenuItem<String>>((BusStop value) {
               return DropdownMenuItem<String>(
                 value: value.stopId,
@@ -158,6 +119,15 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
           print('Building destination dropdown: data length = ${snapshot.data!.length}');
           return DropdownButtonFormField(
             value: destinationDropdownValue,
+            decoration: const InputDecoration(
+              // icon: Icon(Icons.),
+              labelText: "Destination",
+              floatingLabelAlignment: FloatingLabelAlignment.start,
+              hintText: 'Destination',
+              // helperText: 'Select the origin',
+              // counterText: '0 characters',
+              border: OutlineInputBorder(),
+            ),
             items: snapshot.data!.map<DropdownMenuItem<String>>((BusStop value) {
               return DropdownMenuItem<String>(
                 value: value.stopId,
