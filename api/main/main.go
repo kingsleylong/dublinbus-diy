@@ -15,6 +15,7 @@ func main() {
 	router.GET("/busStop/:stopNum",
 		databaseQueries.GetBusStop)
 	router.GET("/allStops", databaseQueries.GetAllStops)
+	router.GET("/prototypeStops", databaseQueries.GetPrototypeStops)
 	router.GET("/busRoute/:routeNum", databaseQueries.GetBusRoute)
 	router.GET("/allRoutes", databaseQueries.GetAllRoutes)
 	router.GET("/stopsOnRoute/:routeNum", databaseQueries.GetStopsOnRoute)

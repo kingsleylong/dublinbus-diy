@@ -2,6 +2,7 @@ package databaseQueries
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -176,4 +177,59 @@ func GetAllStops(c *gin.Context) {
 
 	// Return result slice as JSON along with code 200
 	c.IndentedJSON(http.StatusOK, busStopResults)
+}
+
+func GetPrototypeStops(c *gin.Context) {
+
+	// Assign values to connection string variables
+	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
+	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
+	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
+
+	// Create connection to mongo server and log any resulting error
+	client, err := mongo.NewClient(options.Client().
+		ApplyURI(
+			fmt.Sprintf(
+				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
+				mongoUsername,
+				mongoPassword,
+				mongoHost,
+				mongoPort)))
+	if err != nil {
+		log.Print(err)
+	}
+
+	// Create context variable and assign time for timeout
+	// Log any resulting error here also
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Print(err)
+	}
+	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
+
+	var result []bson.M
+
+	dbPointer := client.Database("BusData")
+	collectionPointer := dbPointer.Collection("stopsOnRoute")
+
+	busRoutes, err := collectionPointer.Find(ctx, bson.D{{"route_stops.stop_num", "774"}})
+	if err != nil {
+		log.Print(err)
+	}
+
+	if err = busRoutes.All(ctx, &result); err != nil {
+		log.Print(err)
+	}
+
+	var busStopJSONArray []busStop
+
+	busStopsBytes, err := json.Marshal(result)
+
+	if err := json.Unmarshal(busStopsBytes, busStopJSONArray); err != nil {
+		log.Print(err)
+	}
+
+	c.IndentedJSON(http.StatusOK, busStopJSONArray)
 }
