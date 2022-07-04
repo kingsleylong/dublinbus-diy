@@ -13,4 +13,11 @@ class BusStop {
       stopName: json['stop_name'],
     );
   }
+
+  factory BusStop.fromJsonForRoute(Map<String, dynamic> json) {
+    return BusStop(
+      stopNumber: json['stop_num'],
+      stopName: json['stop_address'],
+    );
+  }
 }

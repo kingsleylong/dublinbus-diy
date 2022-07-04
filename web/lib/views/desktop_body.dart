@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:web/models/bus_route.dart';
 import 'package:web/models/bus_stop.dart';
 import 'package:web/views/googlemap.dart';
 
@@ -18,14 +19,13 @@ class DesktopBody extends StatefulWidget {
 
 class _DesktopBodyState extends State<DesktopBody> {
   late Future<List<BusStop>> futureAllBusStops;
+  late Future<List<BusRoute>> futureBusRoutes;
 
   @override
   void initState() {
     super.initState();
     futureAllBusStops = fetchAllBusStops();
-    // for(var stopJson in futureAllBusStops) {
-    //
-    // }
+    futureBusRoutes = fetchBusRoutes();
   }
 
   @override
@@ -129,6 +129,27 @@ class _DesktopBodyState extends State<DesktopBody> {
     } else {
       // If the server did not return a 200 OK response, then throw an exception.
       throw Exception('Failed to load bus stop');
+    }
+  }
+
+  Future<List<BusRoute>> fetchBusRoutes() async {
+    final response = await http.get(
+      Uri.parse('http://localhost:1080/api/matchingRoute'),
+      headers: {
+        "Accept": "application/json",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response, then parse the JSON.
+      final List busRoutesJson = jsonDecode(response.body);
+
+      print("Bus route list size: ${busRoutesJson.length}");
+      return List.generate(busRoutesJson.length,
+              (index) => BusRoute.fromJson(busRoutesJson[index]));
+    } else {
+      // If the server did not return a 200 OK response, then throw an exception.
+      throw Exception('Failed to load bus routes');
     }
   }
 }

@@ -79,8 +79,12 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
                 child: const Text('Plan'),
               ),
             ),
+            // Padding(
+            //   padding: const EdgeInsets.all(8),
+            //   child: buildRouteOptionsListView(widget),
+            // ),
             Expanded(
-                child: Container(),
+              child: Container(),
             ),
           ],
         )
