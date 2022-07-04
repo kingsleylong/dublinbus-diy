@@ -220,8 +220,18 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
             // https://stackoverflow.com/a/57335217/12328041
             shrinkWrap: true,
             children: snapshot.data!.map(
-                    (busRoute) => ListTile(
-                      title: Text(busRoute.routeNumber),
+                    (busRoute) => Card(
+                      child: ListTile(
+                        title: Text(
+                            busRoute.routeNumber,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 18,
+                            )
+                        ),
+                        subtitle: Text('${busRoute.stops.length} stops. From ${busRoute.stops[0]
+                            .stopName}.'),
+                      ),
                     )).toList(),
           );
         } else if (snapshot.hasError) {
