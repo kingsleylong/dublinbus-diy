@@ -29,6 +29,7 @@ class PlanMyJourneyTabView extends StatefulWidget {
 
 class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   String dropdownValue = '175';
+  String? origindropdownValue;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late List<DropdownMenuItem<int>> _menuItems;
 
@@ -56,40 +57,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
         child: Column(
           children: <Widget>[
             Expanded(
-                // child: buildFutureDowndownList(widget),
-              child: FutureBuilder<List<BusStop>>(
-                future: widget.futureAllBusStops,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    print('Building dropdown: data length = ${snapshot.data!.length}');
-                    return DropdownButtonFormField(
-                      items:
-                        snapshot.data!.map<DropdownMenuItem<String>>((BusStop value) {
-                          return DropdownMenuItem<String>(
-                            value: value.stopId,
-                            child: Text(value.stopName),
-                          );
-                        }).toList(),
-                      onChanged: (String? value) {  },
-                      // [
-                      //   ...snapshot.data!.map(
-                      //           (busStop) => DropdownMenuItem(child: Text(busStop.stopName))
-                      //   )
-                      // ],
-                      // onChanged: (busStop) =>
-                      //     setState(() {
-                      //       print("selected $busStop");
-                      //     }),
-                    );
-                  } else if (snapshot.hasError) {
-                    print('${snapshot.error}');
-                    return Text('${snapshot.error}');
-                  }
-
-                  // By default, show a loading spinner.
-                  return const CircularProgressIndicator();
-                },
-              ),
+                child: buildFutureDropdownList(widget),
             ),
             DropdownButtonFormField(
               // how to build a drop down list https://api.flutter.dev/flutter/material/DropdownButton-class.htm
@@ -148,28 +116,30 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
     );
   }
 
-  Widget buildFutureDowndownList(PlanMyJourneyTabView widget) {
+  Widget buildFutureDropdownList(PlanMyJourneyTabView widget) {
     return FutureBuilder<List<BusStop>>(
       future: widget.futureAllBusStops,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          print(snapshot.data!.length);
-          return DropdownButton<BusStop>(
-              items: [
-                ...snapshot.data!.map(
-                        (busStop) => DropdownMenuItem(child: Text(busStop.stopName))
-                )
-              ],
-              onChanged: (busStop) =>
-                setState(() {
-                  print("selected $busStop");
-                }),
+          print('Building dropdown: data length = ${snapshot.data!.length}');
+          return DropdownButtonFormField(
+            value: origindropdownValue,
+            items: snapshot.data!.map<DropdownMenuItem<String>>((BusStop value) {
+              return DropdownMenuItem<String>(
+                value: value.stopId,
+                child: Text(value.stopName),
+              );
+            }).toList(),
+            onChanged: (String? value) {
+              setState(() {
+                origindropdownValue = value!;
+              });
+            },
           );
         } else if (snapshot.hasError) {
           print('${snapshot.error}');
           return Text('${snapshot.error}');
         }
-
         // By default, show a loading spinner.
         return const CircularProgressIndicator();
       },
