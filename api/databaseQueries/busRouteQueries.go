@@ -196,3 +196,7 @@ func GetStopsOnRoute(c *gin.Context) {
 	// Return result as JSON along with code 200
 	c.IndentedJSON(http.StatusOK, busStopTimesResults)
 }
+
+func FindMatchingRoute(c *gin.Context) {
+
+}
