@@ -170,7 +170,7 @@ func GetStopsOnRoute(c *gin.Context) {
 	err = collectionPointer.FindOne(ctx, bson.D{{"route_short_name", string(routeNum)}}).
 		Decode(&result)
 
-	var busStopTimesResults []bson.M
+	var busStopTimesArray []bson.M
 
 	dbPointer = client.Database("BusData")
 	collectionPointer = dbPointer.Collection("storeGtfrs")
@@ -182,8 +182,15 @@ func GetStopsOnRoute(c *gin.Context) {
 		log.Print(err)
 	}
 
-	if err = busStopTimes.All(ctx, &busStopTimesResults); err != nil {
+	if err = busStopTimes.All(ctx, &busStopTimesArray); err != nil {
 		log.Print(err)
+	}
+
+	busStopTimesResults := busStopTimesArray[0]
+	for _, doc := range busStopTimesArray {
+		if len(busStopTimesResults) < len(doc) {
+			busStopTimesResults = doc
+		}
 	}
 
 	// Return result as JSON along with code 200
