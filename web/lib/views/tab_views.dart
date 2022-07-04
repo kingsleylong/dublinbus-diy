@@ -28,7 +28,6 @@ class PlanMyJourneyTabView extends StatefulWidget {
 }
 
 class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
-  String dropdownValue = '175';
   String? originDropdownValue;
   String? destinationDropdownValue;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -58,6 +57,9 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
                   // the form is invalid.
                   if (_formKey.currentState!.validate()) {
                     // Process data.
+                    // _formKey.currentState.save();
+                    print('Selected origin: $originDropdownValue');
+                    print('Selected destination: $destinationDropdownValue');
                   }
                 },
                 child: const Text('Plan'),
@@ -80,6 +82,23 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
           print('Building dropdown: data length = ${snapshot.data!.length}');
           return DropdownButtonFormField(
             value: originDropdownValue,
+            items: snapshot.data!.map<DropdownMenuItem<String>>((BusStop value) {
+              return DropdownMenuItem<String>(
+                value: value.stopNumber,
+                child: Text(value.stopName),
+              );
+            }).toList(),
+            onChanged: (String? value) {
+              setState(() {
+                originDropdownValue = value!;
+              });
+            },
+            validator: (String? value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter the origin';
+              }
+              return null;
+            },
             decoration: const InputDecoration(
               // icon: Icon(Icons.),
               labelText: "Origin",
@@ -89,17 +108,6 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
               // counterText: '0 characters',
               border: OutlineInputBorder(),
             ),
-            items: snapshot.data!.map<DropdownMenuItem<String>>((BusStop value) {
-              return DropdownMenuItem<String>(
-                value: value.stopId,
-                child: Text(value.stopName),
-              );
-            }).toList(),
-            onChanged: (String? value) {
-              setState(() {
-                originDropdownValue = value!;
-              });
-            },
           );
         } else if (snapshot.hasError) {
           print('${snapshot.error}');
@@ -119,6 +127,23 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
           print('Building destination dropdown: data length = ${snapshot.data!.length}');
           return DropdownButtonFormField(
             value: destinationDropdownValue,
+            items: snapshot.data!.map<DropdownMenuItem<String>>((BusStop value) {
+              return DropdownMenuItem<String>(
+                value: value.stopNumber,
+                child: Text(value.stopName),
+              );
+            }).toList(),
+            onChanged: (String? value) {
+              setState(() {
+                destinationDropdownValue = value!;
+              });
+            },
+            validator: (String? value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter the destination';
+              }
+              return null;
+            },
             decoration: const InputDecoration(
               // icon: Icon(Icons.),
               labelText: "Destination",
@@ -128,17 +153,6 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
               // counterText: '0 characters',
               border: OutlineInputBorder(),
             ),
-            items: snapshot.data!.map<DropdownMenuItem<String>>((BusStop value) {
-              return DropdownMenuItem<String>(
-                value: value.stopId,
-                child: Text(value.stopName),
-              );
-            }).toList(),
-            onChanged: (String? value) {
-              setState(() {
-                destinationDropdownValue = value!;
-              });
-            },
           );
         } else if (snapshot.hasError) {
           print('${snapshot.error}');
