@@ -14,12 +14,17 @@ import (
 	"time"
 )
 
+type busRoute struct {
+	routeNum   string    `json:"route_num"`
+	routeStops []busStop `json:"route_stops"`
+}
+
 type busStop struct {
-	stopId     string `json:"stop_id"`
-	stopName   string `json:"stop_name"`
-	stopNumber string `json:"stop_number"`
-	stopLat    string `json:"stop_lat"`
-	stopLon    string `json:"stop_lon"`
+	stopNum      string `json:"stop_num"`
+	stopAddress  string `json:"stop_address"`
+	stopLocation string `json:"stop_location"`
+	stopLat      string `json:"stop_lat"`
+	stopLon      string `json:"stop_lon"`
 }
 
 // Variables to hold connection string values
@@ -223,11 +228,11 @@ func GetPrototypeStops(c *gin.Context) {
 		log.Print(err)
 	}
 
-	var busStopJSONArray []busStop
+	var busStopJSONArray []busRoute
 
 	busStopsBytes, err := json.Marshal(result)
 
-	if err := json.Unmarshal(busStopsBytes, busStopJSONArray); err != nil {
+	if err := json.Unmarshal(busStopsBytes, &busStopJSONArray); err != nil {
 		log.Print(err)
 	}
 
