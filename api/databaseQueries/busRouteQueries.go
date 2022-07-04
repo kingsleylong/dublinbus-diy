@@ -164,37 +164,14 @@ func GetStopsOnRoute(c *gin.Context) {
 	var result bson.M
 
 	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("routes")
+	collectionPointer := dbPointer.Collection("stopsOnRoute")
 
 	// Find one document that matches criteria and decode results into result address
-	err = collectionPointer.FindOne(ctx, bson.D{{"route_short_name", string(routeNum)}}).
+	err = collectionPointer.FindOne(ctx, bson.D{{"route_num", string(routeNum)}}).
 		Decode(&result)
 
-	var busStopTimesArray []bson.M
-
-	dbPointer = client.Database("BusData")
-	collectionPointer = dbPointer.Collection("storeGtfrs")
-
-	// Find one document that matches criteria and decode results into result address
-	busStopTimes, err := collectionPointer.Find(ctx, bson.D{
-		{"Entity.TripUpdate.Trip.RouteId", result["route_id"]}})
-	if err != nil {
-		log.Print(err)
-	}
-
-	if err = busStopTimes.All(ctx, &busStopTimesArray); err != nil {
-		log.Print(err)
-	}
-
-	busStopTimesResults := busStopTimesArray[0]
-	for _, doc := range busStopTimesArray {
-		if len(busStopTimesResults) < len(doc) {
-			busStopTimesResults = doc
-		}
-	}
-
 	// Return result as JSON along with code 200
-	c.IndentedJSON(http.StatusOK, busStopTimesResults)
+	c.IndentedJSON(http.StatusOK, result)
 }
 
 func FindMatchingRoute(c *gin.Context) {
