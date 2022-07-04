@@ -2,10 +2,11 @@ package databaseQueries
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	//"encoding/json"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -15,8 +16,15 @@ import (
 )
 
 type busRoute struct {
-	routeNum   string    `json:"route_num"`
-	routeStops []busStop `json:"route_stops"`
+	id         primitive.ObjectID `bson:"_id,omitempty"`
+	routeNum   string             `bson:"route_num"`
+	routeStops []struct {
+		stopNum      string `bson:"stop_num,omitempty"`
+		stopAddress  string `bson:"stop_address,omitempty"`
+		stopLocation string `bson:"stop_location,omitempty"`
+		stopLat      string `bson:"stop_lat,omitempty"`
+		stopLon      string `bson:"stop_lon,omitempty"`
+	} `bson:"route_stops"`
 }
 
 type busStop struct {
@@ -230,9 +238,9 @@ func GetPrototypeStops(c *gin.Context) {
 
 	var busStopJSONArray []busRoute
 
-	busStopsBytes, err := json.Marshal(result)
+	busStopsBytes, err := bson.Marshal(result)
 
-	if err := json.Unmarshal(busStopsBytes, &busStopJSONArray); err != nil {
+	if err := bson.Unmarshal(busStopsBytes, &busStopJSONArray); err != nil {
 		log.Print(err)
 	}
 
