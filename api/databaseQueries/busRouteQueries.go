@@ -14,12 +14,19 @@ import (
 	"time"
 )
 
+// busRoute is a type that is designed to read from the stopsOnRoute collection
+// from MongoDB. It contains an id field, a string that specifies the route number
+// as a Dublin Bus user would recognise it and finally an array of busStop structs.
 type busRoute struct {
 	Id         primitive.ObjectID `bson:"_id,omitempty" json:"-"`
 	RouteNum   string             `bson:"route_num" json:"route_num"`
 	RouteStops []busStop          `bson:"route_stops" json:"route_stops"`
 }
 
+// busStop is a struct containing information about each of the bus stop objects
+// nested within the stopsOnRoute collection in MongoDB. These objects include the number
+// of the stop (the number of the stop and not its technical id value), the address
+// and location of the stop and finally the stop's coordinates.
 type busStop struct {
 	StopNum      string `bson:"stop_num" json:"stop_num"`
 	StopAddress  string `bson:"stop_address" json:"stop_address"`
@@ -125,7 +132,7 @@ func GetAllRoutes(c *gin.Context) {
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("routes")
 
-	// Find one document that matches criteria and decode results into result address
+	// Leave filter values empty to retrieve all documents in this collection
 	busRoutes, err := collectionPointer.Find(ctx, bson.D{{}})
 	if err != nil {
 		log.Print(err)
@@ -176,6 +183,7 @@ func GetStopsOnRoute(c *gin.Context) {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
+	// Map resulting information to busRoute struct
 	var result busRoute
 
 	dbPointer := client.Database("BusData")
@@ -189,6 +197,9 @@ func GetStopsOnRoute(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, result)
 }
 
+// FindMatchingRoute takes in two parameters (the origin and destination bus stop number)
+// and then this function attempts to find the bus route objects(s) that contain both the
+// origin and destination stop and then returns these specific routes as JSON.
 func FindMatchingRoute(c *gin.Context) {
 
 	// Assign values to connection string variables
@@ -223,12 +234,15 @@ func FindMatchingRoute(c *gin.Context) {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
+	// Arrays to hold routes for the origin and destination stops
 	var originResult []busRoute
 	var destinationResult []busRoute
 
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("stopsOnRoute")
 
+	// Find documents that have the required origin stop as a stop on the route
+	// and store these routes in array
 	originBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"route_stops.stop_num", originStopNum}})
 	if err != nil {
 		log.Print(err)
@@ -238,6 +252,7 @@ func FindMatchingRoute(c *gin.Context) {
 		log.Print(err)
 	}
 
+	// Repeat above procedure but for the destination stop
 	destBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"route_stops.stop_num", destStopNum}})
 	if err != nil {
 		log.Print(err)
@@ -247,6 +262,9 @@ func FindMatchingRoute(c *gin.Context) {
 		log.Print(err)
 	}
 
+	// Loop through the origin route objects and then within that loop examine the destination
+	// route objects and check for matching route numbers. If there is a match, store the matched
+	// objects in a final array which is returned as JSON.
 	var matchedRoutes []busRoute
 
 	for _, originRoute := range originResult {

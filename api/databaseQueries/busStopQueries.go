@@ -21,7 +21,7 @@ var mongoHost string
 var mongoPort string
 
 // GetDatabases returns the databases present in the MongoDB connection.
-// Useful debugging query
+// Useful as a debugging query.
 func GetDatabases(c *gin.Context) {
 
 	// Assign values to connection string variables
@@ -59,7 +59,9 @@ func GetDatabases(c *gin.Context) {
 }
 
 // GetBusStop returns a single JSON object representing a bus stop from the
-// MongoDB instance. Includes name, number and coordinates of the stop.
+// MongoDB instance. This JSON object includes name, number
+// and coordinates of the stop. Note that this object is slightly different to
+// the bus stop objects present in functions to describe stops on a given route.
 func GetBusStop(c *gin.Context) {
 
 	// Assign values to connection string variables
@@ -117,7 +119,7 @@ func GetBusStop(c *gin.Context) {
 }
 
 // GetAllStops returns an array of JSON objects. Each object is a bus stop object as
-// per the above query. Each stop object includes the stop name, number and coordinates.
+// per the GetBusStop function. Each stop object includes the stop name, number and coordinates.
 func GetAllStops(c *gin.Context) {
 
 	// Assign values to connection string variables
@@ -171,6 +173,10 @@ func GetAllStops(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, busStopResults)
 }
 
+// GetPrototypeStops is a function to return a curated list of bus stops for
+// the purposes of the presentation and live demo on 6th July 22. As such, this
+// function is incomplete at this time and is not supported. Due for deletion before
+// final build.
 func GetPrototypeStops(c *gin.Context) {
 
 	// Assign values to connection string variables
