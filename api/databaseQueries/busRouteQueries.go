@@ -199,6 +199,7 @@ func FindMatchingRoute(c *gin.Context) {
 
 	// Read in route number parameter provided in URL
 	originStopNum := c.Param("originStopNum")
+	destStopNum := c.Param("destStopNum")
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -222,19 +223,38 @@ func FindMatchingRoute(c *gin.Context) {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
-	var result []bson.M
+	var originResult []busRoute
+	var destinationResult []busRoute
 
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("stopsOnRoute")
 
-	busRoutes, err := collectionPointer.Find(ctx, bson.D{{"route_stops.stop_num", originStopNum}})
+	originBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"route_stops.stop_num", originStopNum}})
 	if err != nil {
 		log.Print(err)
 	}
 
-	if err = busRoutes.All(ctx, &result); err != nil {
+	if err = originBusRoutes.All(ctx, &originResult); err != nil {
 		log.Print(err)
 	}
 
-	c.IndentedJSON(http.StatusOK, result)
+	destBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"route_stops.stop_num", destStopNum}})
+	if err != nil {
+		log.Print(err)
+	}
+
+	if err = destBusRoutes.All(ctx, &destinationResult); err != nil {
+		log.Print(err)
+	}
+
+	var matchedRoutes []busRoute
+
+	for _, originRoute := range originResult {
+		for _, destRoute := range destinationResult {
+			if destRoute.RouteNum == originRoute.RouteNum {
+				matchedRoutes = append(matchedRoutes, destRoute)
+			}
+		}
+	}
+	c.IndentedJSON(http.StatusOK, matchedRoutes)
 }

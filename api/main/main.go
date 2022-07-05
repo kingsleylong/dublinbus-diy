@@ -19,7 +19,7 @@ func main() {
 	router.GET("/busRoute/:routeNum", databaseQueries.GetBusRoute)
 	router.GET("/allRoutes", databaseQueries.GetAllRoutes)
 	router.GET("/stopsOnRoute/:routeNum", databaseQueries.GetStopsOnRoute)
-	router.GET("/matchingRoute/:originStopNum", databaseQueries.FindMatchingRoute)
+	router.GET("/matchingRoute/:originStopNum/:destStopNum", databaseQueries.FindMatchingRoute)
 
 	router.Run("0.0.0.0:8080")
 }
