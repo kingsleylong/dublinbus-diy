@@ -3,6 +3,8 @@ package databaseQueries
 import (
 	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	//"encoding/json"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -11,7 +13,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"regexp"
 	"time"
 )
 
@@ -253,8 +254,10 @@ func GetStopByName(c *gin.Context) {
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
 
 	stopName := c.Param("stopName")
-	stopNameMatch, err := regexp.Compile(`\w*` + stopName + `\w*`)
-
+	filter := bson.D{{"stop_name", primitive.Regex{stopName + "*", ""}}}
+	//filter = append(filter, bson.E{"", bson.D{
+	//	{"$regex", primitive.Regex{stopName + ".*", ""}},
+	//}})
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
 		ApplyURI(
@@ -282,7 +285,7 @@ func GetStopByName(c *gin.Context) {
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("stops")
 
-	busStops, err := collectionPointer.Find(ctx, bson.D{{"stop_name", stopNameMatch}})
+	busStops, err := collectionPointer.Find(ctx, bson.D{{"stop_name", filter}})
 	if err != nil {
 		log.Print(err)
 	}
