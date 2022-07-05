@@ -15,17 +15,17 @@ import (
 )
 
 type busRoute struct {
-	id         primitive.ObjectID `bson:"_id,omitempty"`
-	routeNum   string             `bson:"route_num"`
-	routeStops []busStop          `bson:"route_stops"`
+	Id         primitive.ObjectID `bson:"_id,omitempty" json:"-"`
+	RouteNum   string             `bson:"route_num" json:"route_num"`
+	RouteStops []busStop          `bson:"route_stops" json:"route_stops"`
 }
 
 type busStop struct {
-	stopNum      string `bson:"stop_num"`
-	stopAddress  string `bson:"stop_address"`
-	stopLocation string `bson:"stop_location"`
-	stopLat      string `bson:"stop_lat"`
-	stopLon      string `bson:"stop_lon"`
+	StopNum      string `bson:"stop_num" json:"stop_num"`
+	StopAddress  string `bson:"stop_address" json:"stop_address"`
+	StopLocation string `bson:"stop_location" json:"stop_location"`
+	StopLat      string `bson:"stop_lat" json:"stop_lat"`
+	StopLon      string `bson:"stop_lon" json:"stop_lon"`
 }
 
 // GetBusRoute queries the database for a single bus route and returns
@@ -176,7 +176,7 @@ func GetStopsOnRoute(c *gin.Context) {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
-	var result bson.M
+	var result busRoute
 
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("stopsOnRoute")
