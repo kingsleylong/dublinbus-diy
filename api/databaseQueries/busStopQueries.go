@@ -20,6 +20,14 @@ var mongoPassword string
 var mongoHost string
 var mongoPort string
 
+type busStop struct {
+	StopId     string `bson:"stop_id" json:"stop_id"`
+	StopName   string `bson:"stop_name" json:"stop_name"`
+	StopNumber string `bson:"stop_number" json:"stop_number"`
+	StopLat    string `bson:"stop_lat" json:"stop_lat"`
+	StopLon    string `bson:"stop_lon" json:"stop_lon"`
+}
+
 // GetDatabases returns the databases present in the MongoDB connection.
 // Useful as a debugging query.
 func GetDatabases(c *gin.Context) {
@@ -237,5 +245,38 @@ func GetPrototypeStops(c *gin.Context) {
 // the stops with a matching name or similar name, these stops are
 // returned as JSON objects from the stops collection in MongoDB.
 func GetStopByName(c *gin.Context) {
-	
+
+	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
+	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
+	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
+
+	stopName := c.Param("stopName")
+
+	// Create connection to mongo server and log any resulting error
+	client, err := mongo.NewClient(options.Client().
+		ApplyURI(
+			fmt.Sprintf(
+				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
+				mongoUsername,
+				mongoPassword,
+				mongoHost,
+				mongoPort)))
+	if err != nil {
+		log.Print(err)
+	}
+
+	// Create context variable and assign time for timeout
+	// Log any resulting error here also
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Print(err)
+	}
+	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
+
+	var matchingStops []busStop
+
+	dbPointer := client.Database("BusData")
+	collectionPointer := dbPointer.Collection("stops")
 }
