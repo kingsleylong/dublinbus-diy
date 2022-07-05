@@ -115,6 +115,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
             onChanged: (String? value) {
               setState(() {
                 originDropdownValue = value!;
+                visibilityRouteOptions = false;
               });
             },
             validator: (String? value) {
@@ -160,6 +161,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
             onChanged: (String? value) {
               setState(() {
                 destinationDropdownValue = value!;
+                visibilityRouteOptions = false;
               });
             },
             validator: (String? value) {
@@ -190,7 +192,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
 
   Future<List<BusRoute>> fetchBusRoutes() async {
     final response = await http.get(
-      Uri.parse('http://localhost:1080/api/matchingRoute'),
+      Uri.parse('http://ipa-003.ucd.ie/api/matchingRoute/${originDropdownValue}/${destinationDropdownValue}'),
       headers: {
         "Accept": "application/json",
       },
