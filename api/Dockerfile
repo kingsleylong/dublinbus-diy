@@ -15,6 +15,11 @@ RUN ls -l
 # COPY go.mod go.sum ./
 RUN go mod download && go mod verify && go mod tidy
 
+WORKDIR /app/api/geocoding
+COPY geocoding/* ./
+RUN ls -l
+RUN go mod download && go mod verify && go mod tidy
+
 WORKDIR /app/api/main
 COPY main/* ./
 RUN ls -l
