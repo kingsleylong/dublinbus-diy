@@ -231,3 +231,11 @@ func GetPrototypeStops(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, busStopJSONArray)
 }
+
+// GetStopByName takes a string passed into the request URL and then
+// searches the database for a bus stop with a name that matches. For all
+// the stops with a matching name or similar name, these stops are
+// returned as JSON objects from the stops collection in MongoDB.
+func GetStopByName(c *gin.Context) {
+	
+}
