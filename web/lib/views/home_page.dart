@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
       print("Bus Stop list size: ${allBusStops.length}");
       return List.generate(allBusStops.length,
-              (index) => BusStop.fromJson(allBusStops[index]));
+              (index) => BusStop.fromJsonForRoute(allBusStops[index]));
     } else {
       // If the server did not return a 200 OK response, then throw an exception.
       throw Exception('Failed to load bus stop');
