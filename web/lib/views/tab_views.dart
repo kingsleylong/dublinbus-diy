@@ -220,6 +220,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
             // https://stackoverflow.com/a/57335217/12328041
             shrinkWrap: true,
             children: snapshot.data!.map(
+                    // Card layout: https://docs.flutter.dev/development/ui/layout#card
                     (busRoute) => Card(
                       child: ListTile(
                         title: Text(

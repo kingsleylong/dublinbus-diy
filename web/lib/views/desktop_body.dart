@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:web/models/bus_route.dart';
 import 'package:web/models/bus_stop.dart';
 import 'package:web/views/googlemap.dart';
@@ -10,22 +10,17 @@ import 'tab_views.dart';
 import 'tabs.dart';
 
 class DesktopBody extends StatefulWidget {
-  const DesktopBody({Key? key, required this.tabController}) : super(key: key);
+  const DesktopBody(
+      {Key? key, required this.tabController, required this.futureAllBusStops}
+      ) : super(key: key);
   final TabController tabController;
+  final Future<List<BusStop>> futureAllBusStops;
 
   @override
   State<DesktopBody> createState() => _DesktopBodyState();
 }
 
 class _DesktopBodyState extends State<DesktopBody> {
-  late Future<List<BusStop>> futureAllBusStops;
-
-  @override
-  void initState() {
-    super.initState();
-    futureAllBusStops = fetchAllBusStops();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,11 +63,11 @@ class _DesktopBodyState extends State<DesktopBody> {
     return TabBarView(
         controller: widget.tabController,
         children: <Widget>[
-          PlanMyJourneyTabView(futureAllBusStops: futureAllBusStops),
-          Center(
+          PlanMyJourneyTabView(futureAllBusStops: widget.futureAllBusStops),
+          const Center(
             child: Text("It's rainy here"),
           ),
-          Center(
+          const Center(
             child: Text("It's sunny here"),
           ),
         ]
@@ -108,27 +103,4 @@ class _DesktopBodyState extends State<DesktopBody> {
       ),
     );
   }
-
-  Future<List<BusStop>> fetchAllBusStops() async {
-    final response = await http.get(
-      Uri.parse('http://localhost:1080/api/allStops'),
-      headers: {
-        "Accept": "application/json",
-      },
-    );
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response, then parse the JSON.
-      final List allBusStops = jsonDecode(response.body);
-
-      print("Bus Stop list size: ${allBusStops.length}");
-      return List.generate(allBusStops.length,
-              (index) => BusStop.fromJson(allBusStops[index]));
-    } else {
-      // If the server did not return a 200 OK response, then throw an exception.
-      throw Exception('Failed to load bus stop');
-    }
-  }
-
-
 }
