@@ -3,6 +3,7 @@ package main
 import (
 	"example.com/api/databaseQueries"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 // Main function contains the routed URIs mapped to functions and starts
@@ -21,5 +22,8 @@ func main() {
 	router.GET("/stopsOnRoute/:routeNum", databaseQueries.GetStopsOnRoute)
 	router.GET("/matchingRoute/:originStopNum/:destStopNum", databaseQueries.FindMatchingRoute)
 
-	router.Run("0.0.0.0:8080")
+	err := router.Run("0.0.0.0:8080")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
