@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -12,6 +13,20 @@ import (
 	"os"
 	"time"
 )
+
+type busRoute struct {
+	id         primitive.ObjectID `bson:"_id,omitempty"`
+	routeNum   string             `bson:"route_num"`
+	routeStops []busStop          `bson:"route_stops"`
+}
+
+type busStop struct {
+	stopNum      string `bson:"stop_num"`
+	stopAddress  string `bson:"stop_address"`
+	stopLocation string `bson:"stop_location"`
+	stopLat      string `bson:"stop_lat"`
+	stopLon      string `bson:"stop_lon"`
+}
 
 // GetBusRoute queries the database for a single bus route and returns
 // a JSON object representing that route. Includes the route number used
@@ -220,6 +235,6 @@ func FindMatchingRoute(c *gin.Context) {
 	if err = busRoutes.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
-	
+
 	c.IndentedJSON(http.StatusOK, result)
 }

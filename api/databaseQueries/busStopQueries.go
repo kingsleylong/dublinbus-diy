@@ -6,7 +6,6 @@ import (
 	//"encoding/json"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -14,26 +13,6 @@ import (
 	"os"
 	"time"
 )
-
-type busRoute struct {
-	id         primitive.ObjectID `bson:"_id,omitempty"`
-	routeNum   string             `bson:"route_num"`
-	routeStops []struct {
-		stopNum      string `bson:"stop_num,omitempty"`
-		stopAddress  string `bson:"stop_address,omitempty"`
-		stopLocation string `bson:"stop_location,omitempty"`
-		stopLat      string `bson:"stop_lat,omitempty"`
-		stopLon      string `bson:"stop_lon,omitempty"`
-	} `bson:"route_stops"`
-}
-
-type busStop struct {
-	stopNum      string `json:"stop_num"`
-	stopAddress  string `json:"stop_address"`
-	stopLocation string `json:"stop_location"`
-	stopLat      string `json:"stop_lat"`
-	stopLon      string `json:"stop_lon"`
-}
 
 // Variables to hold connection string values
 var mongoUsername string
