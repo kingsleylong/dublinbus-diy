@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:web/models/bus_route.dart';
-
-import '../models/bus_stop.dart';
+import 'package:web/models/bus_stop.dart';
 
 class GetMeThereOnTimeTabView extends StatefulWidget {
   const GetMeThereOnTimeTabView({Key? key}) : super(key: key);
@@ -31,13 +30,15 @@ class PlanMyJourneyTabView extends StatefulWidget {
 }
 
 class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
-  String? originDropdownValue;
-  String? destinationDropdownValue;
+  String? originDropdownValue = "3161";
+  String? destinationDropdownValue = "3163";
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late Future<List<BusRoute>> futureBusRoutes;
   // Use a flag to control the visibility of the route options
   // https://stackoverflow.com/a/46126667
   bool visibilityRouteOptions = false;
+
+  late List<Item> items;
 
   @override
   Widget build(BuildContext context) {
@@ -85,12 +86,16 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
               ),
             ),
             if(visibilityRouteOptions)
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: buildRouteOptionsListView(widget),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: buildRouteOptionsListView2(widget),
+                ),
               ),
-            Expanded(
-              child: Container(),
+            ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: 2.0,
+              ),
             ),
           ],
         )
@@ -203,12 +208,74 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
       final List busRoutesJson = jsonDecode(response.body);
 
       print("Bus route list size: ${busRoutesJson.length}");
-      return List.generate(busRoutesJson.length,
-              (index) => BusRoute.fromJson(busRoutesJson[index]));
+      List<BusRoute> busRouteList = List.generate(busRoutesJson.length, (index) => BusRoute.fromJson
+        (busRoutesJson[index]));
+      items = generateItems(busRouteList);
+      return busRouteList;
     } else {
       // If the server did not return a 200 OK response, then throw an exception.
       throw Exception('Failed to load bus routes');
     }
+  }
+
+  buildRouteOptionsListView2(PlanMyJourneyTabView widget) {
+    return FutureBuilder<List<BusRoute>>(
+      future: futureBusRoutes,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return SingleChildScrollView(
+            child: _buildRouteOptionPanels(items),
+          );
+        } else if (snapshot.hasError) {
+          return Text('${snapshot.error}');
+        }
+        // By default, show a loading spinner.
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+  }
+
+  _buildRouteOptionPanels(List<Item> data) {
+    // Use ExpansionPanel to display the route options for easy use.
+    // https://api.flutter.dev/flutter/material/ExpansionPanel-class.html
+    return ExpansionPanelList(
+        expansionCallback: (int index, bool isExpanded) {
+          print("isExpanded: $isExpanded");
+          setState(() {
+            data[index].isExpanded = !isExpanded;
+            print("new isExpanded: ${data[index].isExpanded}");
+          });
+        },
+        children: data.map<ExpansionPanel>((Item item) {
+          return ExpansionPanel(
+              headerBuilder: (BuildContext context, bool isExpanded) {
+                return ListTile(
+                  title: Text(item.headerValue),
+                  onTap: () {
+                    setState(() {
+                      item.isExpanded = !isExpanded;
+                    });
+                  },
+                );
+              },
+              body: ListTile(
+                title: Text(item.expandedValue),
+              ),
+              isExpanded: item.isExpanded,
+          );
+        }).toList(),
+    );
+  }
+
+  List<Item> generateItems(List<BusRoute> data) {
+    return List<Item>.generate(data.length, (int index) {
+      return Item(
+        headerValue: data[index].routeNumber,
+        expandedValue: '${data[index].stops.length} stops. Starts from ${data[index].stops[0].stopName}',
+      );
+    });
   }
 
   buildRouteOptionsListView(PlanMyJourneyTabView widget) {
@@ -223,18 +290,21 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
             shrinkWrap: true,
             children: snapshot.data!.map(
                     // Card layout: https://docs.flutter.dev/development/ui/layout#card
-                    (busRoute) => Card(
+                    (busRoute) => OutlinedButton(
+                      onPressed: () {
+                        print('pressed');
+                      },
                       child: ListTile(
-                        title: Text(
-                            busRoute.routeNumber,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 18,
-                            )
+                          title: Text(
+                              busRoute.routeNumber,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 18,
+                              )
+                          ),
+                          subtitle: Text('${busRoute.stops.length} stops. From ${busRoute.stops[0]
+                              .stopName}.'),
                         ),
-                        subtitle: Text('${busRoute.stops.length} stops. From ${busRoute.stops[0]
-                            .stopName}.'),
-                      ),
                     )).toList(),
           );
         } else if (snapshot.hasError) {
@@ -244,6 +314,18 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
         return const CircularProgressIndicator();
       },
     );
-  }
+    }
 }
 
+// stores ExpansionPanel state information
+class Item {
+  Item({
+    required this.expandedValue,
+    required this.headerValue,
+    this.isExpanded = false,
+  });
+
+  String expandedValue;
+  String headerValue;
+  bool isExpanded;
+}
