@@ -1,0 +1,377 @@
+[ {
+  "httpRequest" : {
+    "method" : "GET",
+    "path" : "/api/allStops"
+  },
+  "httpResponse" : {
+    "body" : [ {
+      "stop_num" : "2051",
+      "stop_address" : "Monkstown Ave",
+      "stop_location" : "Stradbrook Rd",
+      "stop_lat" : "53.2864489905228",
+      "stop_lon" : "-6.15989900807043"
+    }, {
+      "stop_num" : "6086",
+      "stop_address" : "Link Road",
+      "stop_location" : "Deansgrange Road",
+      "stop_lat" : "53.286244480501",
+      "stop_lon" : "-6.16529247984307"
+    }, {
+      "stop_num" : "3161",
+      "stop_address" : "Deansgrange Rd",
+      "stop_location" : "Abbey Road",
+      "stop_lat" : "53.2870045612498",
+      "stop_lon" : "-6.16795979645646"
+    }, {
+      "stop_num" : "3162",
+      "stop_address" : "Rowan Pk",
+      "stop_location" : "Rowan Park Ave",
+      "stop_lat" : "53.2897488037638",
+      "stop_lon" : "-6.1675573564683"
+    }, {
+      "stop_num" : "3163",
+      "stop_address" : "Stradbrook Rd",
+      "stop_location" : "Stradbrook Cottages",
+      "stop_lat" : "53.2925068598858",
+      "stop_lon" : "-6.16688424573156"
+    }, {
+      "stop_num" : "3164",
+      "stop_address" : "Stradbrook Rd",
+      "stop_location" : "Temple Hill",
+      "stop_lat" : "53.2956000271775",
+      "stop_lon" : "-6.16988727264522"
+    }, {
+      "stop_num" : "3084",
+      "stop_address" : "Frascati Road",
+      "stop_location" : "Frascati Centre",
+      "stop_lat" : "53.3013812515137",
+      "stop_lon" : "-6.18116341196197"
+    }, {
+      "stop_num" : "469",
+      "stop_address" : "Rock Road",
+      "stop_location" : "Mount Merrion Avenue",
+      "stop_lat" : "53.3028457292126",
+      "stop_lon" : "-6.18407213264847"
+    }, {
+      "stop_num" : "470",
+      "stop_address" : "Rock Road",
+      "stop_location" : "Blackrock Clinic",
+      "stop_lat" : "53.3056258500263",
+      "stop_lon" : "-6.18898110376377"
+    }, {
+      "stop_num" : "471",
+      "stop_address" : "Rock Road",
+      "stop_location" : "Blackrock College",
+      "stop_lat" : "53.3068708073446",
+      "stop_lon" : "-6.19105929913705"
+    }, {
+      "stop_num" : "472",
+      "stop_address" : "Rock Road",
+      "stop_location" : "Booterstown Ave",
+      "stop_lat" : "53.3078820347442",
+      "stop_lon" : "-6.19491826731321"
+    }, {
+      "stop_num" : "473",
+      "stop_address" : "Rock Road",
+      "stop_location" : "Grotto Avenue",
+      "stop_lat" : "53.3092405753985",
+      "stop_lon" : "-6.19738213927117"
+    }, {
+      "stop_num" : "4705",
+      "stop_address" : "Rock Road",
+      "stop_location" : "St Helen s Road",
+      "stop_lat" : "53.3108182690603",
+      "stop_lon" : "-6.20007706605352"
+    }, {
+      "stop_num" : "475",
+      "stop_address" : "Rock Road",
+      "stop_location" : "Bellevue Avenue",
+      "stop_lat" : "53.312706162538",
+      "stop_lon" : "-6.20188867460386"
+    }, {
+      "stop_num" : "476",
+      "stop_address" : "Rock Road",
+      "stop_location" : "Merrion Gates",
+      "stop_lat" : "53.3157515263735",
+      "stop_lon" : "-6.20476252273258"
+    }, {
+      "stop_num" : "477",
+      "stop_address" : "Merrion Road",
+      "stop_location" : "Estate Avenue",
+      "stop_lat" : "53.3168630546851",
+      "stop_lon" : "-6.20695232009327"
+    }, {
+      "stop_num" : "478",
+      "stop_address" : "Merrion Road",
+      "stop_location" : "St. Vincent s Hospital",
+      "stop_lat" : "53.3181142989183",
+      "stop_lon" : "-6.21126782530883"
+    }, {
+      "stop_num" : "479",
+      "stop_address" : "Merrion Road",
+      "stop_location" : "Merrion Centre",
+      "stop_lat" : "53.3191439676238",
+      "stop_lon" : "-6.21340128669965"
+    }, {
+      "stop_num" : "480",
+      "stop_address" : "Merrion Road",
+      "stop_location" : "Ailesbury Road",
+      "stop_lat" : "53.32084997999",
+      "stop_lon" : "-6.21628720536765"
+    }, {
+      "stop_num" : "481",
+      "stop_address" : "Merrion Road",
+      "stop_location" : "Merlyn Road",
+      "stop_lat" : "53.3223446397574",
+      "stop_lon" : "-6.21826644297952"
+    }, {
+      "stop_num" : "482",
+      "stop_address" : "Merrion Road",
+      "stop_location" : "Shrewsbury Road",
+      "stop_lat" : "53.3247277780876",
+      "stop_lon" : "-6.22196529496766"
+    }, {
+      "stop_num" : "483",
+      "stop_address" : "Merrion Road",
+      "stop_location" : "Simmonscourt Road",
+      "stop_lat" : "53.3259441074967",
+      "stop_lon" : "-6.22397148052323"
+    }, {
+      "stop_num" : "485",
+      "stop_address" : "Ballsbridge RDS",
+      "stop_location" : "Ballsbridge RDS",
+      "stop_lat" : "53.3282515101299",
+      "stop_lon" : "-6.22863497077614"
+    }, {
+      "stop_num" : "487",
+      "stop_address" : "American Embassy",
+      "stop_location" : "Pembroke Road",
+      "stop_lat" : "53.3308552893834",
+      "stop_lon" : "-6.23390230837204"
+    }, {
+      "stop_num" : "488",
+      "stop_address" : "Northumberland Rd",
+      "stop_location" : "Lansdowne Park",
+      "stop_lat" : "53.333098554632",
+      "stop_lon" : "-6.23607694701102"
+    }, {
+      "stop_num" : "489",
+      "stop_address" : "Northumberland Rd",
+      "stop_location" : "St. Mary s Road South",
+      "stop_lat" : "53.3349420031478",
+      "stop_lon" : "-6.23735231265615"
+    }, {
+      "stop_num" : "490",
+      "stop_address" : "Northumberland Rd",
+      "stop_location" : "Haddington Road",
+      "stop_lat" : "53.3365738419154",
+      "stop_lon" : "-6.23890680600162"
+    }, {
+      "stop_num" : "491",
+      "stop_address" : "Mount St",
+      "stop_location" : "Grand Canal",
+      "stop_lat" : "53.3378140535117",
+      "stop_lon" : "-6.24133351088669"
+    }, {
+      "stop_num" : "492",
+      "stop_address" : "Grattan St",
+      "stop_location" : "Merrion Square",
+      "stop_lat" : "53.3385846851446",
+      "stop_lon" : "-6.24361446215904"
+    }, {
+      "stop_num" : "493",
+      "stop_address" : "Merrion Sq",
+      "stop_location" : "Holles Street",
+      "stop_lat" : "53.3398534163799",
+      "stop_lon" : "-6.24737682273893"
+    }, {
+      "stop_num" : "494",
+      "stop_address" : "Clare Street",
+      "stop_location" : "Lincoln Place",
+      "stop_lat" : "53.341435583359",
+      "stop_lon" : "-6.25168225233912"
+    }, {
+      "stop_num" : "495",
+      "stop_address" : "Westland Row",
+      "stop_location" : "Pearse Station",
+      "stop_lat" : "53.3435913198155",
+      "stop_lon" : "-6.24974670516899"
+    }, {
+      "stop_num" : "400",
+      "stop_address" : "Shaw Street",
+      "stop_location" : "Pearse Street",
+      "stop_lat" : "53.3448491210166",
+      "stop_lon" : "-6.25338997292405"
+    }, {
+      "stop_num" : "281",
+      "stop_address" : "O Connell St",
+      "stop_location" : "Dublin Bus",
+      "stop_lat" : "53.3513435349612",
+      "stop_lon" : "-6.26111600843156"
+    }, {
+      "stop_num" : "6",
+      "stop_address" : "Parnell Square",
+      "stop_location" : "St. Martin s Chapel",
+      "stop_lat" : "53.352749335707",
+      "stop_lon" : "-6.26445380396429"
+    }, {
+      "stop_num" : "194",
+      "stop_address" : "Western Way",
+      "stop_location" : "Youth Club",
+      "stop_lat" : "53.3550406495542",
+      "stop_lon" : "-6.2699793110377"
+    }, {
+      "stop_num" : "195",
+      "stop_address" : "Phibsboro Road",
+      "stop_location" : "Constitution Hill",
+      "stop_lat" : "53.355011777879",
+      "stop_lon" : "-6.27357097973092"
+    }, {
+      "stop_num" : "196",
+      "stop_address" : "Phibsboro Road",
+      "stop_location" : "Broadstone Depot",
+      "stop_lat" : "53.356883899293",
+      "stop_lon" : "-6.27375070406949"
+    }, {
+      "stop_num" : "197",
+      "stop_address" : "Phibsboro Road",
+      "stop_location" : "Monck Place",
+      "stop_lat" : "53.3589526316143",
+      "stop_lon" : "-6.27323137351168"
+    }, {
+      "stop_num" : "198",
+      "stop_address" : "Phibsboro Road",
+      "stop_location" : "Phibsboro Shopping Centre",
+      "stop_lat" : "53.361625382881",
+      "stop_lon" : "-6.27283781041656"
+    }, {
+      "stop_num" : "199",
+      "stop_address" : "Phibsboro Road",
+      "stop_location" : "Munster Street",
+      "stop_lat" : "53.3636218115005",
+      "stop_lon" : "-6.27229124622515"
+    }, {
+      "stop_num" : "200",
+      "stop_address" : "Prospect Way",
+      "stop_location" : "Prospect Avenue",
+      "stop_lat" : "53.3674226926335",
+      "stop_lon" : "-6.27159644393797"
+    }, {
+      "stop_num" : "201",
+      "stop_address" : "Botanic Rd",
+      "stop_location" : "St. Teresa s Place",
+      "stop_lat" : "53.3682910986623",
+      "stop_lon" : "-6.27011862691076"
+    }, {
+      "stop_num" : "148",
+      "stop_address" : "Mobhi Road",
+      "stop_location" : "Botanic Road",
+      "stop_lat" : "53.3706701663492",
+      "stop_lon" : "-6.2680685070582"
+    }, {
+      "stop_num" : "149",
+      "stop_address" : "Mobhi Road",
+      "stop_location" : "St. Mobhi Drive",
+      "stop_lat" : "53.3731385872581",
+      "stop_lon" : "-6.26598446613774"
+    }, {
+      "stop_num" : "150",
+      "stop_address" : "Mobhi Road",
+      "stop_location" : "Home Farm Road",
+      "stop_lat" : "53.3756588461887",
+      "stop_lon" : "-6.26499528302818"
+    }, {
+      "stop_num" : "27",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "Griffith Avenue",
+      "stop_lat" : "53.3794389600131",
+      "stop_lon" : "-6.26658526125999"
+    }, {
+      "stop_num" : "28",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "Glasnevin Tennis Club",
+      "stop_lat" : "53.3815786376305",
+      "stop_lon" : "-6.26600227077734"
+    }, {
+      "stop_num" : "29",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "St. Canice s Road",
+      "stop_lat" : "53.3834882529482",
+      "stop_lon" : "-6.26566910125412"
+    }, {
+      "stop_num" : "4680",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "DCU",
+      "stop_lat" : "53.3849664763564",
+      "stop_lon" : "-6.26533840628634"
+    }, {
+      "stop_num" : "90",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "St. Pappin s Road",
+      "stop_lat" : "53.3863855316762",
+      "stop_lon" : "-6.26526567275517"
+    }, {
+      "stop_num" : "91",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "Glasnevin Avenue",
+      "stop_lat" : "53.3884278896508",
+      "stop_lon" : "-6.26540814207678"
+    }, {
+      "stop_num" : "92",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "Ballymun Library",
+      "stop_lat" : "53.3898373340536",
+      "stop_lon" : "-6.264674240361"
+    }, {
+      "stop_num" : "93",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "Shanliss Road",
+      "stop_lat" : "53.3923014677522",
+      "stop_lon" : "-6.26415297561009"
+    }, {
+      "stop_num" : "94",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "Silloge Road",
+      "stop_lat" : "53.396034762414",
+      "stop_lon" : "-6.26437695995443"
+    }, {
+      "stop_num" : "126",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "Nursing Home",
+      "stop_lat" : "53.3990954666878",
+      "stop_lon" : "-6.2640869605604"
+    }, {
+      "stop_num" : "6182",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "Santry Cross",
+      "stop_lat" : "53.4022507542177",
+      "stop_lon" : "-6.26535718879144"
+    }, {
+      "stop_num" : "322",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "Gulliver s Retail Park",
+      "stop_lat" : "53.4042549924669",
+      "stop_lon" : "-6.26535084532181"
+    }, {
+      "stop_num" : "323",
+      "stop_address" : "Ballymun Road",
+      "stop_location" : "Silloge Golf Club",
+      "stop_lat" : "53.4129298606578",
+      "stop_lon" : "-6.26544910096627"
+    }, {
+      "stop_num" : "332",
+      "stop_address" : "Harristown",
+      "stop_location" : "Bus Garage",
+      "stop_lat" : "53.4173526533912",
+      "stop_lon" : "-6.27853875647111"
+    } ]
+  },
+  "id" : "43103d87-f92e-4a6c-85c7-99e71057422d",
+  "priority" : 0,
+  "timeToLive" : {
+    "unlimited" : true
+  },
+  "times" : {
+    "unlimited" : true
+  }
+} ]
