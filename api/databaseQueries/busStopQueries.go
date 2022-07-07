@@ -254,9 +254,6 @@ func GetStopByName(c *gin.Context) {
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
 
 	stopName := c.Param("stopName")
-	filter := bson.D{{"stop_name", bson.M{
-		"$regex": primitive.Regex{Pattern: "^" + stopName + "*", Options: "i"},
-	}}}
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -285,7 +282,8 @@ func GetStopByName(c *gin.Context) {
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("stops")
 
-	busStops, err := collectionPointer.Find(ctx, bson.D{{"stop_name", filter}})
+	busStops, err := collectionPointer.Find(ctx, bson.D{{"stop_name", bson.M{
+		"$regex": primitive.Regex{Pattern: "^" + stopName + "*", Options: "i"}}}})
 	if err != nil {
 		log.Print(err)
 	}
