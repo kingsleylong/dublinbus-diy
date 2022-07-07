@@ -1,49 +1,26 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:web/models/bus_stop.dart';
 
+import 'package:web/models/bus_route.dart';
+import 'package:web/models/bus_stop.dart';
+import 'package:web/views/googlemap.dart';
+
+import 'tab_views.dart';
 import 'tabs.dart';
 
 class DesktopBody extends StatefulWidget {
-  const DesktopBody({Key? key, required this.tabController}) : super(key: key);
-
+  const DesktopBody(
+      {Key? key, required this.tabController, required this.futureAllBusStops}
+      ) : super(key: key);
   final TabController tabController;
+  final Future<List<BusStop>> futureAllBusStops;
 
   @override
   State<DesktopBody> createState() => _DesktopBodyState();
 }
 
 class _DesktopBodyState extends State<DesktopBody> {
-  final _lines = <String>["175", "C1", "46A", "52"];
-  late Future<BusStop> futureBusStop;
-
-  @override
-  void initState() {
-    super.initState();
-    futureBusStop = fetchBusStop();
-  }
-
-  Future<BusStop> fetchBusStop() async {
-    final response = await http.get(
-      Uri.parse('http://ipa-003.ucd.ie/api/busStop/2'),
-      headers: {
-        "Accept": "application/json",
-      },
-    );
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      return BusStop.fromJson(jsonDecode(response.body));
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load bus stop');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,9 +31,14 @@ class _DesktopBodyState extends State<DesktopBody> {
           // left bar
           buildLeftBar(),
           // right information box, use Expanded class to take the rest of space
+          // const Expanded(
+          //   child: GoogleMapComponent(),
+          // )
+          // buildLeftTabViews(),
+
           Expanded(
             child: buildRightInformationBox(),
-          )
+          ),
         ],
       )
     );
@@ -65,8 +47,8 @@ class _DesktopBodyState extends State<DesktopBody> {
   TabBarView buildRightInformationBox() {
     return TabBarView(
       controller: widget.tabController,
-      children: <Widget>[
-        PlanMyJourneyTab(),
+      children: const <Widget>[
+        GoogleMapComponent(),
         Center(
           child: Text("It's rainy here"),
         ),
@@ -74,6 +56,21 @@ class _DesktopBodyState extends State<DesktopBody> {
           child: Text("It's sunny here"),
         ),
       ]
+    );
+  }
+
+  TabBarView buildLeftTabViews() {
+    return TabBarView(
+        controller: widget.tabController,
+        children: <Widget>[
+          PlanMyJourneyTabView(futureAllBusStops: widget.futureAllBusStops),
+          const Center(
+            child: Text("It's rainy here"),
+          ),
+          const Center(
+            child: Text("It's sunny here"),
+          ),
+        ]
     );
   }
 
@@ -90,49 +87,13 @@ class _DesktopBodyState extends State<DesktopBody> {
               isScrollable: true,
               // Access a field of the widget in its state https://stackoverflow.com/a/58767810
               controller: widget.tabController,
-              tabs: const [
-                Tab(text: "Plan My Journey"),
-                Tab(text: "Find My Route"),
-                Tab(text: "Get Me There On-Time"),
-              ],
+              tabs: tabList,
             ),
           ),
-
-          //search fields
+          //
+          // // tab views
           Expanded(
-            // build a list view from data
-            // https://codelabs.developers.google.com/codelabs/first-flutter-app-pt1/#5
-            child: ListView.builder(
-              // specify the length of data, without this an index out of range error will be
-              // thrown. https://stackoverflow.com/a/58850610
-              itemCount: _lines.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(
-                    _lines[index],
-                    // strutStyle: ,
-                  ),
-                );
-              }
-            ),
-          ),
-
-          Expanded(
-              child: FutureBuilder<BusStop>(
-              future: futureBusStop,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  print(snapshot.data!.stopName);
-                  return Text(snapshot.data!.stopName);
-                } else if (snapshot.hasError) {
-                  print('${snapshot.error}');
-                  return Text('${snapshot.error}');
-                }
-
-                // By default, show a loading spinner.
-                return const CircularProgressIndicator();
-              },
-            )
+            child: buildLeftTabViews(),
           ),
 
         //weather info

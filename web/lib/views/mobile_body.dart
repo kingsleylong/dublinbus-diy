@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:web/models/bus_stop.dart';
 
-import 'tabs.dart';
+import 'tab_views.dart';
 
 class MobileBody extends StatefulWidget {
-  const MobileBody({Key? key, required this.tabController}) : super(key: key);
+  const MobileBody(
+      {Key? key, required this.tabController, required this.futureAllBusStops}
+      ) : super(key: key);
 
   final TabController tabController;
+  final Future<List<BusStop>> futureAllBusStops;
 
   @override
   State<MobileBody> createState() => _MobileBodyState();
@@ -34,11 +38,11 @@ class _MobileBodyState extends State<MobileBody> {
       body: TabBarView(
           controller: widget.tabController,
           children: <Widget>[
-            PlanMyJourneyTab(),
-            Center(
+            PlanMyJourneyTabView(futureAllBusStops: widget.futureAllBusStops,),
+            const Center(
               child: Text("It's rainy here"),
             ),
-            Center(
+            const Center(
               child: Text("It's sunny here"),
             ),
           ]

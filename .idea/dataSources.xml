@@ -4,6 +4,7 @@
     <data-source source="LOCAL" name="diyTestDb@localhost" uuid="fb850a5d-85b1-4c64-97a9-6e3e901b00e7">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
+      <remarks>DIY Test MySQL</remarks>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:442/diyTestDb</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
