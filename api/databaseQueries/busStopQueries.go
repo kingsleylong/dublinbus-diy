@@ -282,12 +282,16 @@ func GetStopByName(c *gin.Context) {
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("stops")
 
+	// Use regex to search for a pattern in the bus stop names to locate stops
+	// with similar names to help users find stops by their name
 	busStops, err := collectionPointer.Find(ctx, bson.D{{"stop_name", bson.M{
 		"$regex": primitive.Regex{Pattern: stopName + "*", Options: "i"}}}})
 	if err != nil {
 		log.Print(err)
 	}
 
+	// Iteratively go through returned options and add them to slice to return
+	// until slice length hits the limit and then stop the loop
 	var stop busStop
 	for busStops.Next(ctx) {
 		if err := busStops.Decode(&stop); err != nil {
