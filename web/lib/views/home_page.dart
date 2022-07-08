@@ -21,13 +21,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   // The tab controller will be shared by all responsive views to keep the tab selection
   // consistent when the screen size changes
   late TabController _tabController;
-  late Future<List<BusStop>> futureAllBusStops;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    futureAllBusStops = fetchAllBusStops();
   }
 
   @override
@@ -40,11 +38,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         child: ResponsiveLayout(
           mobileBody: MobileBody(
               tabController: _tabController,
-              futureAllBusStops: futureAllBusStops
           ),
           desktopBody: DesktopBody(
             tabController: _tabController,
-            futureAllBusStops: futureAllBusStops,
           ),
         ),
       ),

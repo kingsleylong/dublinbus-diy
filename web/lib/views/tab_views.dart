@@ -26,9 +26,7 @@ class _GetMeThereOnTimeTabViewState extends State<GetMeThereOnTimeTabView> {
 }
 
 class PlanMyJourneyTabView extends StatefulWidget {
-  final Future<List<BusStop>> futureAllBusStops;
-  const PlanMyJourneyTabView({Key? key, required this.futureAllBusStops,
-    required this.googleMapComponent}) : super(key: key);
+  const PlanMyJourneyTabView({Key? key, required this.googleMapComponent}) : super(key: key);
   final GoogleMapComponent googleMapComponent;
 
   @override
