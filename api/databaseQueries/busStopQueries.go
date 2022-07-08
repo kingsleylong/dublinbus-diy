@@ -287,9 +287,16 @@ func GetStopByName(c *gin.Context) {
 	if err != nil {
 		log.Print(err)
 	}
-	
-	if err = busStops.All(ctx, &matchingStops); err != nil {
-		log.Print(err)
+
+	var stop busStop
+	for busStops.Next(ctx) {
+		if err := busStops.Decode(&stop); err != nil {
+			log.Print(err)
+		}
+		matchingStops = append(matchingStops, stop)
+		if len(matchingStops) > 9 {
+			break
+		}
 	}
 
 	c.IndentedJSON(http.StatusOK, matchingStops)
