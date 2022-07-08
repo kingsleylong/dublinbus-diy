@@ -21,6 +21,8 @@ class DesktopBody extends StatefulWidget {
 }
 
 class _DesktopBodyState extends State<DesktopBody> {
+  final GoogleMapComponent googleMapComponent = const GoogleMapComponent();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,14 +47,15 @@ class _DesktopBodyState extends State<DesktopBody> {
   }
 
   TabBarView buildRightInformationBox() {
+    print('Build right information box');
     return TabBarView(
       controller: widget.tabController,
-      children: const <Widget>[
-        GoogleMapComponent(),
-        Center(
+      children: <Widget>[
+        googleMapComponent,
+        const Center(
           child: Text("It's rainy here"),
         ),
-        Center(
+        const Center(
           child: Text("It's sunny here"),
         ),
       ]
@@ -63,7 +66,9 @@ class _DesktopBodyState extends State<DesktopBody> {
     return TabBarView(
         controller: widget.tabController,
         children: <Widget>[
-          PlanMyJourneyTabView(futureAllBusStops: widget.futureAllBusStops),
+          PlanMyJourneyTabView(
+              futureAllBusStops: widget.futureAllBusStops,
+              googleMapComponent: googleMapComponent),
           const Center(
             child: Text("It's rainy here"),
           ),
