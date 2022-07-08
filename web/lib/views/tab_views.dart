@@ -2,8 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:web/models/bus_route.dart';
 import 'package:web/models/bus_stop.dart';
+import 'package:web/models/map_polylines.dart';
+import 'package:web/views/googlemap.dart';
 
 class GetMeThereOnTimeTabView extends StatefulWidget {
   const GetMeThereOnTimeTabView({Key? key}) : super(key: key);
@@ -23,7 +26,9 @@ class _GetMeThereOnTimeTabViewState extends State<GetMeThereOnTimeTabView> {
 
 class PlanMyJourneyTabView extends StatefulWidget {
   final Future<List<BusStop>> futureAllBusStops;
-  const PlanMyJourneyTabView({Key? key, required this.futureAllBusStops}) : super(key: key);
+  const PlanMyJourneyTabView({Key? key, required this.futureAllBusStops,
+    required this.googleMapComponent}) : super(key: key);
+  final GoogleMapComponent googleMapComponent;
 
   @override
   State<PlanMyJourneyTabView> createState() => _PlanMyJourneyTabViewState();
@@ -76,6 +81,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
                   if (_formKey.currentState!.validate()) {
                     print('Selected origin: $originDropdownValue');
                     print('Selected destination: $destinationDropdownValue');
+                    Provider.of<PolylinesModel>(context, listen: false).removeAll();
                     futureBusRoutes = fetchBusRoutes();
                     setState(() {
                       visibilityRouteOptions = true;
@@ -211,6 +217,21 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
       List<BusRoute> busRouteList = List.generate(busRoutesJson.length, (index) => BusRoute.fromJson
         (busRoutesJson[index]));
       items = generateItems(busRouteList);
+      // TODO There is one bug here. The only one polyline was shown on the map, but if you
+      //  switch to other tabs and come back, all polylines will be there.
+
+      // Provider.of<PolylinesModel>(context, listen: false).addBusRouteListAsPolylines(busRouteList);
+      // busRouteList.map((busRoute) => (){
+      //     Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(busRoute);
+      //     // print(Provider.of<PolylinesModel>(context, listen: false));
+      //   }
+      // );
+      for(BusRoute busRoute in busRouteList) {
+        Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(busRoute);
+      }
+      print('PolylinesModel size: ${Provider.of<PolylinesModel>(context, listen: false).items
+          .length}');
+
       return busRouteList;
     } else {
       // If the server did not return a 200 OK response, then throw an exception.

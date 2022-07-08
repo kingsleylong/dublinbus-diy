@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:web/models/bus_stop.dart';
+import 'package:web/models/map_polylines.dart';
 import 'package:web/views/responsive_layout.dart';
 
 import 'desktop_body.dart';
@@ -31,16 +33,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ResponsiveLayout(
-        mobileBody: MobileBody(
-            tabController: _tabController,
-            futureAllBusStops: futureAllBusStops
-        ),
-        desktopBody: DesktopBody(
+      // Create a model by the provider so the child can listen to the model changes
+      // https://docs.flutter.dev/development/data-and-backend/state-mgmt/simple#changenotifierprovider
+      body: ChangeNotifierProvider(
+        create: (BuildContext context) => PolylinesModel(),
+        child: ResponsiveLayout(
+          mobileBody: MobileBody(
+              tabController: _tabController,
+              futureAllBusStops: futureAllBusStops
+          ),
+          desktopBody: DesktopBody(
             tabController: _tabController,
             futureAllBusStops: futureAllBusStops,
+          ),
         ),
-      )
+      ),
     );
   }
 
