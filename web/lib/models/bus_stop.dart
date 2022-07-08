@@ -32,4 +32,14 @@ class BusStop {
       longitude: double.parse(json['stop_lon']),
     );
   }
+
+  bool isEqual(BusStop s) {
+    return stopNumber == s.stopNumber;
+  }
+
+  // This method is required by DropdownSearch widget to display the BusStop object.
+  @override
+  String toString() {
+    return '$stopName - $stopNumber';
+  }
 }

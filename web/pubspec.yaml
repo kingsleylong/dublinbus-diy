@@ -37,6 +37,7 @@ dependencies:
   google_maps_flutter_web: ^0.4.0
   http: ^0.13.4
   provider: ^6.0.0
+  dropdown_search: ^5.0.2
 
 dev_dependencies:
   flutter_test:

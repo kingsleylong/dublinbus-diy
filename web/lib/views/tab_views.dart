@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -45,6 +46,11 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
 
   late List<Item> items;
 
+  // The instance field that holds the state of origin dropdown list
+  final _originSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
+  // The instance field that holds the state of destination dropdown list
+  final _destinationSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -60,12 +66,12 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
             // https://docs.flutter.dev/cookbook/forms/text-input
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: buildFutureOriginDropdownList(widget),
+              child: buildSearchableOriginDropdownList(),
             ),
             // Destination dropdown list
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: buildFutureDestinationDropdownList(widget),
+              child: buildSearchableDestinationDropdownList(),
             ),
             // Submit button
             Padding(
@@ -79,8 +85,6 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
                   // Validate will return true if the form is valid, or false if
                   // the form is invalid.
                   if (_formKey.currentState!.validate()) {
-                    print('Selected origin: $originDropdownValue');
-                    print('Selected destination: $destinationDropdownValue');
                     Provider.of<PolylinesModel>(context, listen: false).removeAll();
                     futureBusRoutes = fetchBusRoutes();
                     setState(() {
@@ -109,101 +113,124 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
     );
   }
 
-  Widget buildFutureOriginDropdownList(PlanMyJourneyTabView widget) {
-    return FutureBuilder<List<BusStop>>(
-      future: widget.futureAllBusStops,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          print('Building dropdown: data length = ${snapshot.data!.length}');
-          return DropdownButtonFormField(
-            value: originDropdownValue,
-            items: snapshot.data!.map<DropdownMenuItem<String>>((BusStop value) {
-              return DropdownMenuItem<String>(
-                value: value.stopNumber,
-                child: Text('${value.stopName} - ${value.stopNumber}'),
-              );
-            }).toList(),
-            onChanged: (String? value) {
-              setState(() {
-                originDropdownValue = value!;
-                visibilityRouteOptions = false;
-              });
-            },
-            validator: (String? value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter the origin';
-              }
-              return null;
-            },
-            decoration: const InputDecoration(
-              // icon: Icon(Icons.),
-              labelText: "Origin",
-              floatingLabelAlignment: FloatingLabelAlignment.start,
-              hintText: 'Origin',
-              // helperText: 'Select the origin',
-              // counterText: '0 characters',
-              border: OutlineInputBorder(),
-            ),
-          );
-        } else if (snapshot.hasError) {
-          print('${snapshot.error}');
-          return Text('${snapshot.error}');
-        }
-        // By default, show a loading spinner.
-        return const CircularProgressIndicator();
-      },
+  Widget buildSearchableOriginDropdownList() {
+    // DropdownSearch widget plugin: https://pub.dev/packages/dropdown_search
+    // Check the examples code for usage: https://github.com/salim-lachdhaf/searchable_dropdown
+    return DropdownSearch<BusStop>(
+      key: _originSelectionKey,
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter),
+      compareFn: (i, s) => i.isEqual(s),
+      popupProps: PopupProps.menu(
+        showSearchBox: true,
+        title: const Text('Search origin bus stop'),
+        isFilterOnline: true,
+        showSelectedItems: true,
+        itemBuilder: _originPopupItemBuilder,
+        favoriteItemProps: FavoriteItemProps(
+          showFavoriteItems: true,
+          // TODO This is a fake favorite feature. We need to implement in future to let the user
+          //  mark the favorite stops
+          favoriteItems: (us) {
+            return us
+              .where((e) => e.stopName.contains("UCD"))
+              .toList();
+          },
+        ),
+      ),
     );
   }
 
-  Widget buildFutureDestinationDropdownList(PlanMyJourneyTabView widget) {
-    return FutureBuilder<List<BusStop>>(
-      future: widget.futureAllBusStops,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          print('Building destination dropdown: data length = ${snapshot.data!.length}');
-          return DropdownButtonFormField(
-            value: destinationDropdownValue,
-            items: snapshot.data!.map<DropdownMenuItem<String>>((BusStop value) {
-              return DropdownMenuItem<String>(
-                value: value.stopNumber,
-                child: Text('${value.stopName} - ${value.stopNumber}'),
-              );
-            }).toList(),
-            onChanged: (String? value) {
-              setState(() {
-                destinationDropdownValue = value!;
-                visibilityRouteOptions = false;
-              });
-            },
-            validator: (String? value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter the destination';
-              }
-              return null;
-            },
-            decoration: const InputDecoration(
-              // icon: Icon(Icons.),
-              labelText: "Destination",
-              floatingLabelAlignment: FloatingLabelAlignment.start,
-              hintText: 'Destination',
-              // helperText: 'Select the origin',
-              // counterText: '0 characters',
-              border: OutlineInputBorder(),
-            ),
-          );
-        } else if (snapshot.hasError) {
-          print('${snapshot.error}');
-          return Text('${snapshot.error}');
-        }
-        // By default, show a loading spinner.
-        return const CircularProgressIndicator();
+  Widget buildSearchableDestinationDropdownList() {
+    return DropdownSearch<BusStop>(
+      key: _destinationSelectionKey,
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'spire' : filter),
+      compareFn: (i, s) => i.isEqual(s),
+      popupProps: PopupProps.menu(
+        showSearchBox: true,
+        title: const Text('Search destination bus stop'),
+        isFilterOnline: true,
+        showSelectedItems: true,
+        itemBuilder: _originPopupItemBuilder,
+        favoriteItemProps: FavoriteItemProps(
+          showFavoriteItems: true,
+          favoriteItems: (us) {
+            return us
+                .where((e) => e.stopName.contains("Spire"))
+                .toList();
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<List<BusStop>> fetchFutureBusStopsByName(String filter) async {
+    final filterStr = (filter == '') ? 'ucd' : filter;
+    final response = await http.get(
+      Uri.parse('http://ipa-003.ucd.ie/api/findStopByName/$filterStr'),
+      headers: {
+        "Accept": "application/json",
       },
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response, then parse the JSON.
+      final List busStopsJson = jsonDecode(response.body);
+
+      print("Bus stops size: ${busStopsJson.length}");
+      List<BusStop> busStopList = List.generate(busStopsJson.length, (index) => BusStop.fromJson
+        (busStopsJson[index]));
+      // TODO There is one bug here. The only one polyline was shown on the map, but if you
+      //  switch to other tabs and come back, all polylines will be there.
+
+      // Provider.of<PolylinesModel>(context, listen: false).addBusRouteListAsPolylines(busRouteList);
+      // busRouteList.map((busRoute) => (){
+      //     Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(busRoute);
+      //     // print(Provider.of<PolylinesModel>(context, listen: false));
+      //   }
+      // );
+      // for(BusRoute busRoute in busStopList) {
+      //   Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(busRoute);
+      // }
+      // print('PolylinesModel size: ${Provider.of<PolylinesModel>(context, listen: false).items
+      //     .length}');
+
+      return busStopList;
+    } else {
+      // If the server did not return a 200 OK response, then throw an exception.
+      throw Exception('Failed to load bus routes');
+    }
+  }
+
+  Widget _originPopupItemBuilder(BuildContext context, BusStop item, bool isSelected) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: !isSelected
+          ? null
+          : BoxDecoration(
+        border: Border.all(color: Theme.of(context).primaryColor),
+        borderRadius: BorderRadius.circular(5),
+        color: Colors.white,
+      ),
+      child: ListTile(
+        selected: isSelected,
+        title: Text(item.stopName),
+        subtitle: Text(item.stopNumber.toString()),
+        leading: CircleAvatar(
+          // this does not work - throws 404 error
+          // backgroundImage: NetworkImage(item.avatar ?? ''),
+        ),
+      ),
     );
   }
 
   Future<List<BusRoute>> fetchBusRoutes() async {
+    print('Selected origin: ${_originSelectionKey.currentState?.getSelectedItem?.stopNumber}');
+    print('Selected destination: ${_destinationSelectionKey.currentState?.getSelectedItem?.stopNumber}');
     final response = await http.get(
-      Uri.parse('http://ipa-003.ucd.ie/api/matchingRoute/${originDropdownValue}/${destinationDropdownValue}'),
+      Uri.parse('http://ipa-003.ucd.ie/api/matchingRoute/'
+          '${_originSelectionKey.currentState?.getSelectedItem?.stopNumber}'
+          '/'
+          '${_destinationSelectionKey.currentState?.getSelectedItem?.stopNumber}'),
       headers: {
         "Accept": "application/json",
       },
@@ -298,44 +325,6 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
       );
     });
   }
-
-  buildRouteOptionsListView(PlanMyJourneyTabView widget) {
-    return FutureBuilder<List<BusRoute>>(
-      future: futureBusRoutes,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          print("Number of routes found: ${snapshot.data!.length}");
-          return ListView(
-            // shrinkWrap: resolve the error of "Vertical viewport was given unbounded height."
-            // https://stackoverflow.com/a/57335217/12328041
-            shrinkWrap: true,
-            children: snapshot.data!.map(
-                    // Card layout: https://docs.flutter.dev/development/ui/layout#card
-                    (busRoute) => OutlinedButton(
-                      onPressed: () {
-                        print('pressed');
-                      },
-                      child: ListTile(
-                          title: Text(
-                              busRoute.routeNumber,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 18,
-                              )
-                          ),
-                          subtitle: Text('${busRoute.stops.length} stops. From ${busRoute.stops[0]
-                              .stopName}.'),
-                        ),
-                    )).toList(),
-          );
-        } else if (snapshot.hasError) {
-          return Text('${snapshot.error}');
-        }
-        // By default, show a loading spinner.
-        return const CircularProgressIndicator();
-      },
-    );
-    }
 }
 
 // stores ExpansionPanel state information
