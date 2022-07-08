@@ -20,14 +20,14 @@ import (
 type busRoute struct {
 	Id         primitive.ObjectID `bson:"_id,omitempty" json:"-"`
 	RouteNum   string             `bson:"route_num" json:"route_num"`
-	RouteStops []busStop          `bson:"route_stops" json:"route_stops"`
+	RouteStops []routeBusStop     `bson:"route_stops" json:"route_stops"`
 }
 
-// busStop is a struct containing information about each of the bus stop objects
+// routeBusStop is a struct containing information about each of the bus stop objects
 // nested within the stopsOnRoute collection in MongoDB. These objects include the number
 // of the stop (the number of the stop and not its technical id value), the address
 // and location of the stop and finally the stop's coordinates.
-type busStop struct {
+type routeBusStop struct {
 	StopNum      string `bson:"stop_num" json:"stop_num"`
 	StopAddress  string `bson:"stop_address" json:"stop_address"`
 	StopLocation string `bson:"stop_location" json:"stop_location"`

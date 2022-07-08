@@ -1,16 +1,23 @@
 class BusStop {
-  final int busStopId;
-  final String name;
+  final String stopNumber;
+  final String stopName;
 
   const BusStop({
-    required this.busStopId,
-    required this.name,
+    required this.stopNumber,
+    required this.stopName,
   });
 
   factory BusStop.fromJson(Map<String, dynamic> json) {
     return BusStop(
-      busStopId: json['busStopId'],
-      name: json['name'],
+      stopNumber: json['stop_number'],
+      stopName: json['stop_name'],
+    );
+  }
+
+  factory BusStop.fromJsonForRoute(Map<String, dynamic> json) {
+    return BusStop(
+      stopNumber: json['stop_num'],
+      stopName: json['stop_address'],
     );
   }
 }
