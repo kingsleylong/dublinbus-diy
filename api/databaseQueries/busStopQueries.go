@@ -285,7 +285,7 @@ func GetStopByName(c *gin.Context) {
 	// Use regex to search for a pattern in the bus stop names to locate stops
 	// with similar names to help users find stops by their name
 	busStops, err := collectionPointer.Find(ctx, bson.D{{"stop_name", bson.M{
-		"$regex": primitive.Regex{Pattern: stopName + "*", Options: "i"}}}})
+		"$regex": primitive.Regex{Pattern: stopName, Options: "i"}}}})
 	if err != nil {
 		log.Print(err)
 	}
