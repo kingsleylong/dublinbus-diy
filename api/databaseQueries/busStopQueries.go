@@ -283,11 +283,11 @@ func GetStopByName(c *gin.Context) {
 	collectionPointer := dbPointer.Collection("stops")
 
 	busStops, err := collectionPointer.Find(ctx, bson.D{{"stop_name", bson.M{
-		"$regex": primitive.Regex{Pattern: "^" + stopName + "*", Options: "i"}}}})
+		"$regex": primitive.Regex{Pattern: stopName + "*", Options: "i"}}}})
 	if err != nil {
 		log.Print(err)
 	}
-
+	
 	if err = busStops.All(ctx, &matchingStops); err != nil {
 		log.Print(err)
 	}
