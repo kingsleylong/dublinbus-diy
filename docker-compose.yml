@@ -45,4 +45,12 @@ services:
       - MYSQL_USER=diytest
       - MYSQL_PASSWORD=${MYSQL_USER_PASSWORD}
       - MYSQL_DATABASE=diyTestDb
-
+  mongodb:
+    image: "mongo"
+    volumes:
+      - /usr/local/dublinbus/database:/data/db
+    ports:
+      - 999:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
