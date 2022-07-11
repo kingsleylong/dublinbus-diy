@@ -5,6 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"googlemaps.github.io/maps"
 	"log"
+	"net/http"
+	"os"
 	"time"
 )
 
@@ -27,12 +29,14 @@ func GetCoordinates(c *gin.Context) {
 
 	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
 
-	client, err := maps.NewClient(maps.WithAPIKey("Insert-API-Key-Here"))
+	client, err := maps.NewClient(maps.WithAPIKey(os.Getenv("MAPS-API-KEY")))
 	if err != nil {
 		log.Print(err)
 	}
 
 	geo := &maps.GeocodingRequest{Address: address, Bounds: &DublinMapBounds, Region: "ie"}
 
-	client.Geocode(ctx, geo)
+	result, _ := client.Geocode(ctx, geo)
+
+	c.IndentedJSON(http.StatusOK, result)
 }
