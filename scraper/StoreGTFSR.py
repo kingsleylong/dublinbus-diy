@@ -32,7 +32,7 @@ def gtfs_r():
     # # connecting to MongoDB
     cluster = MongoClient(uri)
     db = cluster["BusData"]  # use a database called "BusData"
-    collection = db["GtfsrData"]  # and inside that DB, a collection called "bus"
+    collection = db["storeGtfrs"]  # and inside that DB, a collection called "bus"
 
     try:
         print("making the request & getting data")
@@ -68,8 +68,8 @@ def gtfs_r():
     finally:
         cluster.close()
 
-    # real-time data will be scraped every 3hrs
-    time.sleep(10800 * 60)
+    # real-time data will be scraped every 10 mins
+    time.sleep(10 * 60)
 
 
 while True:

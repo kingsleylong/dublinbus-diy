@@ -1,29 +1,20 @@
+
 import 'package:flutter/material.dart';
 import 'package:web/views/googlemap.dart';
-import 'package:http/http.dart' as http;
+
+import 'tab_views.dart';
+import 'tabs.dart';
 
 class DesktopBody extends StatefulWidget {
-  const DesktopBody({Key? key}) : super(key: key);
+  const DesktopBody({Key? key, required this.tabController}) : super(key: key);
+  final TabController tabController;
 
   @override
   State<DesktopBody> createState() => _DesktopBodyState();
 }
 
-class _DesktopBodyState extends State<DesktopBody>
-    with TickerProviderStateMixin{
-
-  late TabController _tabController;
-  final _lines = <String>["175", "C1", "46A", "52"];
-
-  Future<http.Response> fetchLines() {
-    return http.get(Uri.parse(''));
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
+class _DesktopBodyState extends State<DesktopBody> {
+  final GoogleMapComponent googleMapComponent = const GoogleMapComponent();
 
   @override
   Widget build(BuildContext context) {
@@ -35,29 +26,48 @@ class _DesktopBodyState extends State<DesktopBody>
           // left bar
           buildLeftBar(),
           // right information box, use Expanded class to take the rest of space
+          // const Expanded(
+          //   child: GoogleMapComponent(),
+          // )
+          // buildLeftTabViews(),
+
           Expanded(
             child: buildRightInformationBox(),
-          )
+          ),
         ],
       )
     );
   }
 
   TabBarView buildRightInformationBox() {
+    print('Build right information box');
     return TabBarView(
-      controller: _tabController,
-      children: const <Widget>[
-        Center(
-          child: Text("It's cloudy here"),
-          // child: ,
-        ),
-        Center(
+      controller: widget.tabController,
+      children: <Widget>[
+        googleMapComponent,
+        const Center(
           child: Text("It's rainy here"),
         ),
-        Center(
+        const Center(
           child: Text("It's sunny here"),
         ),
       ]
+    );
+  }
+
+  TabBarView buildLeftTabViews() {
+    return TabBarView(
+        controller: widget.tabController,
+        children: <Widget>[
+          PlanMyJourneyTabView(
+              googleMapComponent: googleMapComponent),
+          const Center(
+            child: Text("It's rainy here"),
+          ),
+          const Center(
+            child: Text("It's sunny here"),
+          ),
+        ]
     );
   }
 
@@ -72,35 +82,18 @@ class _DesktopBodyState extends State<DesktopBody>
               // expand the tab bar out of range and slide the bar when clicking
               // tabs at the edges https://stackoverflow.com/a/60636918
               isScrollable: true,
-              controller: _tabController,
-              tabs: const [
-                Tab(text: "Plan My Journey"),
-                Tab(text: "Find My Route"),
-                Tab(text: "Get Me There On-Time"),
-              ],
+              // Access a field of the widget in its state https://stackoverflow.com/a/58767810
+              controller: widget.tabController,
+              tabs: tabList,
             ),
           ),
-
-          //search fields
+          //
+          // // tab views
           Expanded(
-            // build a list view from data
-            // https://codelabs.developers.google.com/codelabs/first-flutter-app-pt1/#5
-            child: ListView.builder(
-              // specify the length of data, without this an index out of range error will be
-              // thrown. https://stackoverflow.com/a/58850610
-              itemCount: _lines.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(
-                    _lines[index],
-                    // strutStyle: ,
-                  ),
-                );
-              }
-            ),
-          )
+            child: buildLeftTabViews(),
+          ),
 
-          //weather info
+        //weather info
           // TODO
 
         ],
