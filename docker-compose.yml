@@ -50,7 +50,7 @@ services:
     volumes:
       - /usr/local/dublinbus/database:/data/db
     ports:
-      - 999:27017
+      - 10100:27017
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
