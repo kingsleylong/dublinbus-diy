@@ -2,6 +2,7 @@ package main
 
 import (
 	"example.com/api/databaseQueries"
+	"example.com/api/geocoding"
 	"github.com/gin-gonic/gin"
 	"log"
 )
@@ -25,6 +26,8 @@ func main() {
 	router.GET("/allRoutes", databaseQueries.GetAllRoutes)
 	router.GET("/stopsOnRoute/:routeNum", databaseQueries.GetStopsOnRoute)
 	router.GET("/matchingRoute/:originStopNum/:destStopNum", databaseQueries.FindMatchingRoute)
+
+	router.GET("/geocoding/:address", geocoding.GetCoordinates)
 
 	err := router.Run("0.0.0.0:8080")
 	if err != nil {
