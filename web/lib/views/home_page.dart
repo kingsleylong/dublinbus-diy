@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:web/models/bus_stop.dart';
+import 'package:web/models/map_polylines.dart';
 import 'package:web/views/responsive_layout.dart';
 
 import 'desktop_body.dart';
@@ -19,28 +21,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   // The tab controller will be shared by all responsive views to keep the tab selection
   // consistent when the screen size changes
   late TabController _tabController;
-  late Future<List<BusStop>> futureAllBusStops;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    futureAllBusStops = fetchAllBusStops();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ResponsiveLayout(
-        mobileBody: MobileBody(
+      // Create a model by the provider so the child can listen to the model changes
+      // https://docs.flutter.dev/development/data-and-backend/state-mgmt/simple#changenotifierprovider
+      body: ChangeNotifierProvider(
+        create: (BuildContext context) => PolylinesModel(),
+        child: ResponsiveLayout(
+          mobileBody: MobileBody(
+              tabController: _tabController,
+          ),
+          desktopBody: DesktopBody(
             tabController: _tabController,
-            futureAllBusStops: futureAllBusStops
+          ),
         ),
-        desktopBody: DesktopBody(
-            tabController: _tabController,
-            futureAllBusStops: futureAllBusStops,
-        ),
-      )
+      ),
     );
   }
 

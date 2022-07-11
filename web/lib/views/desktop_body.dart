@@ -1,26 +1,21 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-
-import 'package:web/models/bus_route.dart';
-import 'package:web/models/bus_stop.dart';
 import 'package:web/views/googlemap.dart';
 
 import 'tab_views.dart';
 import 'tabs.dart';
 
 class DesktopBody extends StatefulWidget {
-  const DesktopBody(
-      {Key? key, required this.tabController, required this.futureAllBusStops}
-      ) : super(key: key);
+  const DesktopBody({Key? key, required this.tabController}) : super(key: key);
   final TabController tabController;
-  final Future<List<BusStop>> futureAllBusStops;
 
   @override
   State<DesktopBody> createState() => _DesktopBodyState();
 }
 
 class _DesktopBodyState extends State<DesktopBody> {
+  final GoogleMapComponent googleMapComponent = const GoogleMapComponent();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,14 +40,15 @@ class _DesktopBodyState extends State<DesktopBody> {
   }
 
   TabBarView buildRightInformationBox() {
+    print('Build right information box');
     return TabBarView(
       controller: widget.tabController,
-      children: const <Widget>[
-        GoogleMapComponent(),
-        Center(
+      children: <Widget>[
+        googleMapComponent,
+        const Center(
           child: Text("It's rainy here"),
         ),
-        Center(
+        const Center(
           child: Text("It's sunny here"),
         ),
       ]
@@ -63,7 +59,8 @@ class _DesktopBodyState extends State<DesktopBody> {
     return TabBarView(
         controller: widget.tabController,
         children: <Widget>[
-          PlanMyJourneyTabView(futureAllBusStops: widget.futureAllBusStops),
+          PlanMyJourneyTabView(
+              googleMapComponent: googleMapComponent),
           const Center(
             child: Text("It's rainy here"),
           ),
