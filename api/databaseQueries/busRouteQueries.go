@@ -18,9 +18,14 @@ import (
 // from MongoDB. It contains an id field, a string that specifies the route number
 // as a Dublin Bus user would recognise it and finally an array of busStop structs.
 type busRoute struct {
-	Id         primitive.ObjectID `bson:"_id,omitempty" json:"-"`
-	RouteNum   string             `bson:"route_num" json:"route_num"`
-	RouteStops []routeBusStop     `bson:"route_stops" json:"route_stops"`
+	Id          primitive.ObjectID `bson:"_id,omitempty" json:"-"`
+	RouteId     string             `bson:"route_id" json:"route_id"`
+	TripId      string             `bson:"trip_id" json:"trip_id"`
+	ShapeId     string             `bson:"shape_id" json:"shape_id"`
+	DirectionId string             `bson:"direction_id" json:"direction_id"`
+	Route       []route            `bson:"route" json:"route"`
+	Shapes      []shapes           `bson:"shapes" json:"shapes"`
+	RouteStops  []routeBusStop     `bson:"stops" json:"stops"`
 }
 
 // routeBusStop is a struct containing information about each of the bus stop objects
@@ -28,11 +33,22 @@ type busRoute struct {
 // of the stop (the number of the stop and not its technical id value), the address
 // and location of the stop and finally the stop's coordinates.
 type routeBusStop struct {
-	StopNum      string `bson:"stop_num" json:"stop_num"`
-	StopAddress  string `bson:"stop_address" json:"stop_address"`
-	StopLocation string `bson:"stop_location" json:"stop_location"`
-	StopLat      string `bson:"stop_lat" json:"stop_lat"`
-	StopLon      string `bson:"stop_lon" json:"stop_lon"`
+	StopId       string `bson:"stop_id" json:"stop_id"`
+	StopSequence string `bson:"stop_sequence" json:"stop_sequence"`
+	StopHeadsign string `bson:"stop_headsign" json:"stop_headsign"`
+}
+
+type route struct {
+	RouteId        string `bson:"route_id" json:"route_id"`
+	RouteShortName string `bson:"route_short_name" json:"route_short_name"`
+}
+
+type shapes struct {
+	ShapeId         string `bson:"shape_id" json:"shape_id"`
+	ShapePtLat      string `bson:"shape_pt_lat" json:"shape_pt_lat"`
+	ShapePtLon      string `bson:"shape_pt_lon" json:"shape_pt_lon"`
+	ShapePtSequence string `bson:"shape_pt_sequence" json:"shape_pt_sequence"`
+	ShapeDistTravel string `bson:"shape_dist_traveled" json:"shape_dist_traveled"`
 }
 
 // GetBusRoute queries the database for a single bus route and returns
@@ -184,17 +200,36 @@ func GetStopsOnRoute(c *gin.Context) {
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
 	// Map resulting information to busRoute struct
-	var result busRoute
+	var route busRoute
+	var stops []busStop
+	var stop busStop
 
 	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("stopsOnRoute")
+	collectionPointer := dbPointer.Collection("trips_new")
 
 	// Find one document that matches criteria and decode results into result address
-	err = collectionPointer.FindOne(ctx, bson.D{{"route_num", string(routeNum)}}).
-		Decode(&result)
+	err = collectionPointer.FindOne(ctx, bson.D{{"route.route_short_name", routeNum}}).
+		Decode(&route)
+
+	collectionPointer = dbPointer.Collection("stops")
+	busStops, err := collectionPointer.Find(ctx, bson.D{{}})
+	if err != nil {
+		log.Print(err)
+	}
+
+	for busStops.Next(ctx) {
+		if err := busStops.Decode(&stop); err != nil {
+			log.Print(err)
+		}
+		for _, stopValue := range route.RouteStops {
+			if stop.StopId == stopValue.StopId {
+				stops = append(stops, stop)
+			}
+		}
+	}
 
 	// Return result as JSON along with code 200
-	c.IndentedJSON(http.StatusOK, result)
+	c.IndentedJSON(http.StatusOK, stops)
 }
 
 // FindMatchingRoute takes in two parameters (the origin and destination bus stop number)
