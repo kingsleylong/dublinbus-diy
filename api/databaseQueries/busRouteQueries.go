@@ -18,9 +18,14 @@ import (
 // from MongoDB. It contains an id field, a string that specifies the route number
 // as a Dublin Bus user would recognise it and finally an array of busStop structs.
 type busRoute struct {
-	Id         primitive.ObjectID `bson:"_id,omitempty" json:"-"`
-	RouteNum   string             `bson:"route_num" json:"route_num"`
-	RouteStops []routeBusStop     `bson:"route_stops" json:"route_stops"`
+	Id          primitive.ObjectID `bson:"_id,omitempty" json:"-"`
+	RouteId     string             `bson:"route_id" json:"route_id"`
+	TripId      string             `bson:"trip_id" json:"trip_id"`
+	ShapeId     string             `bson:"shape_id" json:"shape_id"`
+	DirectionId string             `bson:"direction_id" json:"direction_id"`
+	Route       []route            `bson:"route" json:"route"`
+	Shapes      []shapes           `bson:"shapes" json:"shapes"`
+	RouteStops  []routeBusStop     `bson:"stops" json:"stops"`
 }
 
 // routeBusStop is a struct containing information about each of the bus stop objects
@@ -28,173 +33,22 @@ type busRoute struct {
 // of the stop (the number of the stop and not its technical id value), the address
 // and location of the stop and finally the stop's coordinates.
 type routeBusStop struct {
-	StopNum      string `bson:"stop_num" json:"stop_num"`
-	StopAddress  string `bson:"stop_address" json:"stop_address"`
-	StopLocation string `bson:"stop_location" json:"stop_location"`
-	StopLat      string `bson:"stop_lat" json:"stop_lat"`
-	StopLon      string `bson:"stop_lon" json:"stop_lon"`
+	StopId       string `bson:"stop_id" json:"stop_id"`
+	StopSequence string `bson:"stop_sequence" json:"stop_sequence"`
+	StopHeadsign string `bson:"stop_headsign" json:"stop_headsign"`
 }
 
-// GetBusRoute queries the database for a single bus route and returns
-// a JSON object representing that route. Includes the route number used
-// by bus services as well as route id value for historical GTFS-R data
-func GetBusRoute(c *gin.Context) {
-
-	// Assign values to connection string variables
-	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
-	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
-	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	// Read in route number parameter provided in URL
-	routeNum := c.Param("routeNum")
-
-	// Create connection to mongo server and log any resulting error
-	client, err := mongo.NewClient(options.Client().
-		ApplyURI(
-			fmt.Sprintf(
-				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
-				mongoUsername,
-				mongoPassword,
-				mongoHost,
-				mongoPort)))
-	if err != nil {
-		log.Print(err)
-	}
-
-	// Create context variable and assign time for timeout
-	// Log any resulting error here also
-	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Print(err)
-	}
-	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
-
-	var result bson.M
-
-	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("routes")
-
-	// Find one document that matches criteria and decode results into result address
-	err = collectionPointer.FindOne(ctx, bson.D{{"route_short_name", string(routeNum)}}).
-		Decode(&result)
-
-	// Check for any errors associated with the query and if there are, log them
-	if err != nil {
-		// Specific condition for valid query without matching documents
-		if err == mongo.ErrNoDocuments {
-			log.Print("No matching document found")
-			return
-		}
-		log.Print(err)
-	}
-
-	// Return result as JSON along with code 200
-	c.IndentedJSON(http.StatusOK, result)
+type route struct {
+	RouteId        string `bson:"route_id" json:"route_id"`
+	RouteShortName string `bson:"route_short_name" json:"route_short_name"`
 }
 
-// GetAllRoutes returns an array of bus route objects as per those
-// returned above. These JSON objects include the bus route short name
-// used by service users as well as the route id to match with historical data
-func GetAllRoutes(c *gin.Context) {
-
-	// Assign values to connection string variables
-	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
-	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
-	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	// Create connection to mongo server and log any resulting error
-	client, err := mongo.NewClient(options.Client().
-		ApplyURI(
-			fmt.Sprintf(
-				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
-				mongoUsername,
-				mongoPassword,
-				mongoHost,
-				mongoPort)))
-	if err != nil {
-		log.Print(err)
-	}
-
-	// Create context variable and assign time for timeout
-	// Log any resulting error here also
-	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Print(err)
-	}
-	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
-
-	var busRoutesResult []bson.M
-
-	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("routes")
-
-	// Leave filter values empty to retrieve all documents in this collection
-	busRoutes, err := collectionPointer.Find(ctx, bson.D{{}})
-	if err != nil {
-		log.Print(err)
-	}
-
-	// Check for any errors associated with the query and if there are, log them
-	if err = busRoutes.All(ctx, &busRoutesResult); err != nil {
-		log.Print(err)
-	}
-
-	// Return result as JSON along with code 200
-	c.IndentedJSON(http.StatusOK, busRoutesResult)
-}
-
-// GetStopsOnRoute returns an array of JSON objects representing bus stops
-// that lie along a particular bus route. These objects include bus stop names,
-// numbers and coordinates.
-func GetStopsOnRoute(c *gin.Context) {
-
-	// Assign values to connection string variables
-	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
-	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
-	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	// Read in route number parameter provided in URL
-	routeNum := c.Param("routeNum")
-
-	// Create connection to mongo server and log any resulting error
-	client, err := mongo.NewClient(options.Client().
-		ApplyURI(
-			fmt.Sprintf(
-				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
-				mongoUsername,
-				mongoPassword,
-				mongoHost,
-				mongoPort)))
-	if err != nil {
-		log.Print(err)
-	}
-
-	// Create context variable and assign time for timeout
-	// Log any resulting error here also
-	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Print(err)
-	}
-	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
-
-	// Map resulting information to busRoute struct
-	var result busRoute
-
-	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("stopsOnRoute")
-
-	// Find one document that matches criteria and decode results into result address
-	err = collectionPointer.FindOne(ctx, bson.D{{"route_num", string(routeNum)}}).
-		Decode(&result)
-
-	// Return result as JSON along with code 200
-	c.IndentedJSON(http.StatusOK, result)
+type shapes struct {
+	ShapeId         string `bson:"shape_id" json:"shape_id"`
+	ShapePtLat      string `bson:"shape_pt_lat" json:"shape_pt_lat"`
+	ShapePtLon      string `bson:"shape_pt_lon" json:"shape_pt_lon"`
+	ShapePtSequence string `bson:"shape_pt_sequence" json:"shape_pt_sequence"`
+	ShapeDistTravel string `bson:"shape_dist_traveled" json:"shape_dist_traveled"`
 }
 
 // FindMatchingRoute takes in two parameters (the origin and destination bus stop number)
@@ -235,30 +89,47 @@ func FindMatchingRoute(c *gin.Context) {
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
 	// Arrays to hold routes for the origin and destination stops
-	var originResult []busRoute
-	var destinationResult []busRoute
+	var originRoutes []busRoute
+	var destinationRoutes []busRoute
+	var originStop busStop
+	var destinationStop busStop
 
 	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("stopsOnRoute")
+	collectionPointer := dbPointer.Collection("stops")
 
 	// Find documents that have the required origin stop as a stop on the route
 	// and store these routes in array
-	originBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"route_stops.stop_num", originStopNum}})
+	err = collectionPointer.FindOne(ctx, bson.D{{"stop_number", originStopNum}}).
+		Decode(&originStop)
 	if err != nil {
 		log.Print(err)
 	}
 
-	if err = originBusRoutes.All(ctx, &originResult); err != nil {
+	err = collectionPointer.FindOne(ctx, bson.D{{"stop_number", destStopNum}}).
+		Decode(&destinationStop)
+	if err != nil {
+		log.Print(err)
+	}
+
+	collectionPointer = dbPointer.Collection("trips_new")
+
+	originBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_id", originStop.StopId}})
+	if err != nil {
+		log.Print(err)
+	}
+
+	if err := originBusRoutes.All(ctx, &originRoutes); err != nil {
 		log.Print(err)
 	}
 
 	// Repeat above procedure but for the destination stop
-	destBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"route_stops.stop_num", destStopNum}})
+	destinationBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_id",
+		destinationStop.StopId}})
 	if err != nil {
 		log.Print(err)
 	}
 
-	if err = destBusRoutes.All(ctx, &destinationResult); err != nil {
+	if err := destinationBusRoutes.All(ctx, &destinationRoutes); err != nil {
 		log.Print(err)
 	}
 
