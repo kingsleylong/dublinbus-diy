@@ -270,30 +270,47 @@ func FindMatchingRoute(c *gin.Context) {
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
 	// Arrays to hold routes for the origin and destination stops
-	var originResult []busRoute
-	var destinationResult []busRoute
+	var originRoutes []busRoute
+	var destinationRoutes []busRoute
+	var originStop busStop
+	var destinationStop busStop
 
 	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("stopsOnRoute")
+	collectionPointer := dbPointer.Collection("stops")
 
 	// Find documents that have the required origin stop as a stop on the route
 	// and store these routes in array
-	originBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"route_stops.stop_num", originStopNum}})
+	err = collectionPointer.FindOne(ctx, bson.D{{"stop_number", originStopNum}}).
+		Decode(&originStop)
 	if err != nil {
 		log.Print(err)
 	}
 
-	if err = originBusRoutes.All(ctx, &originResult); err != nil {
+	err = collectionPointer.FindOne(ctx, bson.D{{"stop_number", destStopNum}}).
+		Decode(&destinationStop)
+	if err != nil {
+		log.Print(err)
+	}
+
+	collectionPointer = dbPointer.Collection("trips_new")
+
+	originBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_id", originStop.StopId}})
+	if err != nil {
+		log.Print(err)
+	}
+
+	if err := originBusRoutes.All(ctx, &originRoutes); err != nil {
 		log.Print(err)
 	}
 
 	// Repeat above procedure but for the destination stop
-	destBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"route_stops.stop_num", destStopNum}})
+	destinationBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_id",
+		destinationStop.StopId}})
 	if err != nil {
 		log.Print(err)
 	}
 
-	if err = destBusRoutes.All(ctx, &destinationResult); err != nil {
+	if err := destinationBusRoutes.All(ctx, &destinationRoutes); err != nil {
 		log.Print(err)
 	}
 
