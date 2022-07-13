@@ -54,3 +54,9 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+  swaggerui:
+    image: "swaggerapi/swagger-ui"
+    environment:
+      - SWAGGER_JSON=/foo/swagger.yml
+    volumes:
+      - ./api/:/foo
