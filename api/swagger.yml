@@ -39,14 +39,6 @@ paths:
           description: "Address key words that need to be considered for filter"
           required: true
           type: "string"
-          items:
-            type: "string"
-            enum:
-              - "available"
-              - "pending"
-              - "sold"
-            default: "available"
-          collectionFormat: "multi"
       responses:
         "200":
           description: "successful operation"
@@ -106,17 +98,17 @@ definitions:
   BusStop:
     type: "object"
     properties:
-      stop_num:
+      stop_number:
         type: "string"
         description: "The stop number."
-      stop_address:
-        type: "string"
-      stop_location:
+      stop_name:
         type: "string"
       stop_lat:
-        type: "string"
+        type: "number"
+        format: "double"
       stop_lon:
-        type: "string"
+        type: "number"
+        format: "double"
   Route:
     type: "object"
     properties:
@@ -134,9 +126,11 @@ definitions:
     type: "object"
     properties:
       shape_pt_lat:
-        type: "string"
+        type: "number"
+        format: "double"
       shape_pt_lon:
-        type: "string"
+        type: "number"
+        format: "double"
       shape_pt_sequence:
         type: "integer"
         format: "int32"
