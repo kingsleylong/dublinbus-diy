@@ -49,6 +49,8 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   // The instance field that holds the state of destination dropdown list
   final _destinationSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
 
+  static const String _baseUrl = 'http://ipa-003.ucd.ie/api';
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -130,7 +132,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
           //  mark the favorite stops
           favoriteItems: (us) {
             return us
-              .where((e) => e.stopName.contains("UCD"))
+              .where((e) => e.stopName!.contains("UCD"))
               .toList();
           },
         ),
@@ -141,7 +143,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   Widget buildSearchableDestinationDropdownList() {
     return DropdownSearch<BusStop>(
       key: _destinationSelectionKey,
-      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'spire' : filter),
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter),
       compareFn: (i, s) => i.isEqual(s),
       popupProps: PopupProps.menu(
         showSearchBox: true,
@@ -153,7 +155,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
           showFavoriteItems: true,
           favoriteItems: (us) {
             return us
-                .where((e) => e.stopName.contains("Spire"))
+                .where((e) => e.stopName!.contains("Spire"))
                 .toList();
           },
         ),
@@ -162,9 +164,10 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   }
 
   Future<List<BusStop>> fetchFutureBusStopsByName(String filter) async {
-    final filterStr = (filter == '') ? 'ucd' : filter;
+    String url = '$_baseUrl/stop/findByAddress';
+    final paramsStr = (filter == '') ? '' : '&filter=$filter';
     final response = await http.get(
-      Uri.parse('http://ipa-003.ucd.ie/api/findStopByName/$filterStr'),
+      Uri.parse('$url$paramsStr'),
       headers: {
         "Accept": "application/json",
       },
@@ -211,7 +214,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
       ),
       child: ListTile(
         selected: isSelected,
-        title: Text(item.stopName),
+        title: Text(item.stopName!),
         subtitle: Text(item.stopNumber.toString()),
         leading: CircleAvatar(
           // this does not work - throws 404 error
@@ -225,10 +228,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
     print('Selected origin: ${_originSelectionKey.currentState?.getSelectedItem?.stopNumber}');
     print('Selected destination: ${_destinationSelectionKey.currentState?.getSelectedItem?.stopNumber}');
     final response = await http.get(
-      Uri.parse('http://ipa-003.ucd.ie/api/matchingRoute/'
-          '${_originSelectionKey.currentState?.getSelectedItem?.stopNumber}'
-          '/'
-          '${_destinationSelectionKey.currentState?.getSelectedItem?.stopNumber}'),
+      Uri.parse('${_baseUrl}/route/matchingRoute'),
       headers: {
         "Accept": "application/json",
       },
