@@ -26,11 +26,26 @@ type busRoute struct {
 	TripId      string             `bson:"trip_id" json:"trip_id"`
 	ShapeId     string             `bson:"shape_id" json:"shape_id"`
 	DirectionId string             `bson:"direction_id" json:"direction_id"`
-	StopId      string             `bson:"stop_id" json:"stop_id"`
-	StopLat     string             `bson:"stop_lat" json:"stop_lat"`
-	StopLon     string             `bson:"stop_lon" json:"stop_lon"`
+	Stops       []routeStop        `bson:"stops" json:"stops"`
 	Route       []route            `bson:"route" json:"route"`
 	Shapes      []shape            `bson:"shapes" json:"shapes"`
+}
+
+// routeStop represents the stop information contained within the trips_n_stops
+// collection in MongoDB. The information contains the StopId that can be used
+// to identify each stop uniquely, the name of that stop, the stop number used
+// by consumers of the Dublin Bus service, the coordinates of
+// the stop that can be used to mark the stop on the map and finally a sequence
+// number that can be used to sort the stops to ensure that they are in the
+// correct order on a given route. All fields are returned as strings from the
+// database
+type routeStop struct {
+	StopId       string `bson:"stop_id" json:"stop_id"`
+	StopName     string `bson:"stop_name" json:"stop_name"`
+	StopNumber   string `bson:"stop_number" json:"stop_number"`
+	StopLat      string `bson:"stop_lat" json:"stop_lat"`
+	StopLon      string `bson:"stop_lon" json:"stop_lon"`
+	StopSequence string `bson:"stop_sequence" json:"stop_sequence"`
 }
 
 // route is a struct that contains a means of matching the route number (referred to
@@ -96,11 +111,12 @@ func FindMatchingRoute(c *gin.Context) {
 	var matchingRoute busRoute
 
 	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("trips_new")
+	collectionPointer := dbPointer.Collection("trips_n_stops")
 
 	// Find documents that have the required origin stop as a stop on the route
 	// and store these routes in array
-	originMatches, err := collectionPointer.Find(ctx, bson.D{{"stop_number", originStopNum}})
+	originMatches, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
+		originStopNum}})
 	if err != nil {
 		log.Print(err)
 	}
@@ -109,7 +125,8 @@ func FindMatchingRoute(c *gin.Context) {
 		log.Print(err)
 	}
 
-	destinationMatches, err := collectionPointer.Find(ctx, bson.D{{"stop_number", destStopNum}})
+	destinationMatches, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
+		destStopNum}})
 	if err != nil {
 		log.Print(err)
 	}
