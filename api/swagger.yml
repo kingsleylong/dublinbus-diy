@@ -98,12 +98,10 @@ definitions:
   BusStop:
     type: "object"
     properties:
-      stop_num:
+      stop_number:
         type: "string"
         description: "The stop number."
-      stop_address:
-        type: "string"
-      stop_location:
+      stop_name:
         type: "string"
       stop_lat:
         type: "number"
