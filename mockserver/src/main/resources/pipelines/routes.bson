@@ -25,6 +25,8 @@
    }
   },
   shapes: {
+   // use map to iterate the array and convert the type
+   // https://stackoverflow.com/a/53902700/12328041
    $map: {
     input: '$shapes',
     as: 'sp',
