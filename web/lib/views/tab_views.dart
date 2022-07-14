@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:web/models/bus_route.dart';
 import 'package:web/models/bus_stop.dart';
 import 'package:web/models/map_polylines.dart';
+import 'package:web/env.dart';
 import 'package:web/views/googlemap.dart';
 
 class GetMeThereOnTimeTabView extends StatefulWidget {
@@ -48,8 +49,6 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   final _originSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
   // The instance field that holds the state of destination dropdown list
   final _destinationSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
-
-  static const String _baseUrl = 'http://ipa-003.ucd.ie/api';
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +163,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   }
 
   Future<List<BusStop>> fetchFutureBusStopsByName(String filter) async {
-    String url = '$_baseUrl/stop/findByAddress';
+    String url = '$apiHost/api/stop/findByAddress';
     final paramsStr = (filter == '') ? '' : '&filter=$filter';
     final response = await http.get(
       Uri.parse('$url$paramsStr'),
@@ -228,7 +227,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
     print('Selected origin: ${_originSelectionKey.currentState?.getSelectedItem?.stopNumber}');
     print('Selected destination: ${_destinationSelectionKey.currentState?.getSelectedItem?.stopNumber}');
     final response = await http.get(
-      Uri.parse('${_baseUrl}/route/matchingRoute'),
+      Uri.parse('$apiHost/api/route/matchingRoute'),
       headers: {
         "Accept": "application/json",
       },
