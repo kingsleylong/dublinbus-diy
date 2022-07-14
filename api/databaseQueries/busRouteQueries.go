@@ -116,7 +116,7 @@ func FindMatchingRoute(c *gin.Context) {
 	// Find documents that have the required origin stop as a stop on the route
 	// and store these routes in array
 	originMatches, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
-		originStopNum}})
+		string(originStopNum)}})
 	if err != nil {
 		log.Print(err)
 	}
@@ -126,7 +126,7 @@ func FindMatchingRoute(c *gin.Context) {
 	}
 
 	destinationMatches, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
-		destStopNum}})
+		string(destStopNum)}})
 	if err != nil {
 		log.Print(err)
 	}
@@ -139,25 +139,27 @@ func FindMatchingRoute(c *gin.Context) {
 	// route objects and check for matching route numbers. If there is a match, store the matched
 	// objects in a final array which is returned as JSON.
 	var matchedRoutes []busRoute
-	var matchedRoutesJSONResult [][]busRoute
+	//var matchedRoutesJSONResult [][]busRoute
 
 	for _, originRoute := range originRoutes {
 		for _, destRoute := range destinationRoutes {
 			if destRoute.RouteId == originRoute.RouteId {
 				matchingRoute = destRoute
-				matchedRouteValues, err := collectionPointer.Find(ctx,
-					bson.D{{"route_id", matchingRoute.RouteId}})
-				if err != nil {
-					log.Print(err)
-				}
-				if err = matchedRouteValues.All(ctx, &matchedRoutes); err != nil {
-					log.Print(err)
-				}
+				//matchedRouteValues, err := collectionPointer.Find(ctx,
+				//	bson.D{{"route_id", matchingRoute.RouteId}})
+				//if err != nil {
+				//	log.Print(err)
+				//}
+				//if err = matchedRouteValues.All(ctx, &matchedRoutes); err != nil {
+				//	log.Print(err)
+				//}
 
-				matchedRoutesJSONResult = append(matchedRoutesJSONResult,
-					matchedRoutes)
+				//matchedRoutesJSONResult = append(matchedRoutesJSONResult,
+				//	matchedRoutes)
+
+				matchedRoutes = append(matchedRoutes, matchingRoute)
 			}
 		}
 	}
-	c.IndentedJSON(http.StatusOK, matchedRoutesJSONResult)
+	c.IndentedJSON(http.StatusOK, matchedRoutes)
 }
