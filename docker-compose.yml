@@ -22,8 +22,10 @@ services:
     build: api/
     volumes:
       - /usr/local/dublinbus/config/api:/app/config:ro
-    depends_on:
-      - mongodb
+    ports:
+      - 10000:8080
+#    depends_on:
+#      - mongodb
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
