@@ -173,7 +173,7 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
 
 	// Read in route number parameter provided in URL
-	originStopNum := c.Param("originStopNum")
+//	originStopNum := c.Param("originStopNum")
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -198,7 +198,7 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
 	// Arrays to hold routes for the origin and destination stops
-	var originRoutes []busRoute
+	var originRoutes []bson.M
 	//var matchingRoute busRoute
 
 	dbPointer := client.Database("BusData")
@@ -207,7 +207,7 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	// Find documents that have the required origin stop as a stop on the route
 	// and store these routes in array
 	originMatches, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
-		string(originStopNum)}})
+		"2955"}})
 	if err != nil {
 		log.Print(err)
 	}
