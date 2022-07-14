@@ -29,7 +29,7 @@ func GetCoordinates(c *gin.Context) {
 
 	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
 
-	client, err := maps.NewClient(maps.WithAPIKey(os.Getenv("MAPS-API-KEY")))
+	client, err := maps.NewClient(maps.WithAPIKey(os.Getenv("MAPS_API_KEY")))
 	if err != nil {
 		log.Print(err)
 	}
