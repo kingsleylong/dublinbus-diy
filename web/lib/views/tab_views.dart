@@ -297,7 +297,13 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
           return ExpansionPanel(
               headerBuilder: (BuildContext context, bool isExpanded) {
                 return ListTile(
-                  title: Text(item.headerValue),
+                  title: Text(
+                    item.headerValue,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   onTap: () {
                     setState(() {
                       item.isExpanded = !isExpanded;
@@ -307,6 +313,9 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
               },
               body: ListTile(
                 title: Text(item.expandedValue),
+                subtitle: Center(
+                  child: Text(item.expandedDetailsValue),
+                ),
               ),
               isExpanded: item.isExpanded,
           );
@@ -317,8 +326,12 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   List<Item> generateItems(List<BusRoute> data) {
     return List<Item>.generate(data.length, (int index) {
       return Item(
-        headerValue: data[index].routeNumber,
+        // TODO integrate the travel time
+        headerValue: '${data[index].routeNumber}      30 min',
         expandedValue: '${data[index].stops.length} stops. Starts from ${data[index].stops[0].stopName}',
+        expandedDetailsValue: data[index].stops
+            .map((stop) => '${stop.stopName} - ${stop.stopNumber}')
+            .reduce((value, element) => '${value}\n${element}'),
       );
     });
   }
@@ -327,12 +340,14 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
 // stores ExpansionPanel state information
 class Item {
   Item({
-    required this.expandedValue,
     required this.headerValue,
     this.isExpanded = false,
+    required this.expandedValue,
+    required this.expandedDetailsValue,
   });
 
-  String expandedValue;
   String headerValue;
   bool isExpanded;
+  String expandedValue;
+  String expandedDetailsValue;
 }

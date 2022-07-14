@@ -48,9 +48,8 @@ class PolylinesModel extends ChangeNotifier {
   }
 
   _buildPoints(BusRoute busRoute) {
-    // final List<LatLng> points = <LatLng>[];
-    return busRoute.stops.map<LatLng>((stop) =>
-        LatLng(stop.latitude!, stop.longitude!)
+    return busRoute.shapes.map<LatLng>((shape) =>
+        LatLng(shape.latitude, shape.longitude)
     ).toList();
   }
 
