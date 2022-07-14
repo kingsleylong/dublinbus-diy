@@ -26,7 +26,7 @@ type busRoute struct {
 	TripId      string             `bson:"trip_id" json:"trip_id"`
 	ShapeId     string             `bson:"shape_id" json:"shape_id"`
 	DirectionId string             `bson:"direction_id" json:"direction_id"`
-	Route       []route            `bson:"route" json:"route"`
+	Route       route              `bson:"route" json:"route"`
 	Shapes      []shape            `bson:"shapes" json:"shapes"`
 	Stops       []routeStop        `bson:"stops" json:"stops"`
 }
