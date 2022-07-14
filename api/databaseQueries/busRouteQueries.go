@@ -163,3 +163,58 @@ func FindMatchingRoute(c *gin.Context) {
 	}
 	c.IndentedJSON(http.StatusOK, matchedRoutes)
 }
+
+func FindMatchingRouteDemo(c *gin.Context) {
+
+	// Assign values to connection string variables
+	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
+	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
+	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
+
+	// Read in route number parameter provided in URL
+	originStopNum := c.Param("originStopNum")
+
+	// Create connection to mongo server and log any resulting error
+	client, err := mongo.NewClient(options.Client().
+		ApplyURI(
+			fmt.Sprintf(
+				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
+				mongoUsername,
+				mongoPassword,
+				mongoHost,
+				mongoPort)))
+	if err != nil {
+		log.Print(err)
+	}
+
+	// Create context variable and assign time for timeout
+	// Log any resulting error here also
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Print(err)
+	}
+	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
+
+	// Arrays to hold routes for the origin and destination stops
+	var originRoutes []busRoute
+	//var matchingRoute busRoute
+
+	dbPointer := client.Database("BusData")
+	collectionPointer := dbPointer.Collection("trips_n_stops")
+
+	// Find documents that have the required origin stop as a stop on the route
+	// and store these routes in array
+	originMatches, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
+		string(originStopNum)}})
+	if err != nil {
+		log.Print(err)
+	}
+
+	if err = originMatches.All(ctx, &originRoutes); err != nil {
+		log.Print(err)
+	}
+
+	c.IndentedJSON(http.StatusOK, originRoutes)
+}
