@@ -199,6 +199,10 @@ func FindMatchingRouteDemo(c *gin.Context) {
 
 	// Arrays to hold routes for the origin and destination stops
 	var originRoutes []busRoute
+	var destinationRoutes []busRoute
+	var matchingRoutes []busRoute
+	var originRoute busRoute
+	var destinationRoute busRoute
 	var matchingRoute busRoute
 
 	dbPointer := client.Database("BusData")
@@ -206,16 +210,36 @@ func FindMatchingRouteDemo(c *gin.Context) {
 
 	// Find documents that have the required origin stop as a stop on the route
 	// and store these routes in array
-	busRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
+	originBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
 		"2955"}})
 	if err != nil {
 		log.Print(err)
 	}
 
-	for busRoutes.Next(ctx) {
-		busRoutes.Decode(&matchingRoute)
-		originRoutes = append(originRoutes, matchingRoute)
+	for originBusRoutes.Next(ctx) {
+		originBusRoutes.Decode(&originRoute)
+		originRoutes = append(originRoutes, originRoute)
 	}
 
-	c.IndentedJSON(http.StatusOK, matchingRoute)
+	destinationBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
+		"7067"}})
+	if err != nil {
+		log.Print(err)
+	}
+
+	for destinationBusRoutes.Next(ctx) {
+		destinationBusRoutes.Decode(&destinationRoute)
+		destinationRoutes = append(destinationRoutes, destinationRoute)
+	}
+
+	for _, origin := range originRoutes {
+		for _, destination := range destinationRoutes {
+			if destination.RouteId == origin.RouteId {
+				matchingRoutes = append(matchingRoutes, destination)
+				break
+			}
+		}
+	}
+
+	c.IndentedJSON(http.StatusOK, matchingRoutes)
 }
