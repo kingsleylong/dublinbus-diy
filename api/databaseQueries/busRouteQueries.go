@@ -203,7 +203,6 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	var matchingRoutes []busRoute
 	var originRoute busRoute
 	var destinationRoute busRoute
-	var matchingRoute busRoute
 
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("trips_n_stops")
