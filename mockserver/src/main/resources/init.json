@@ -329,415 +329,415 @@
           "stops": [
             {
               "stop_name": "Heuston Station",
-              "stop_num": "4320",
+              "stop_number": "4320",
               "stop_lat": 53.3466406639927,
               "stop_lon": -6.29208351412561
             },
             {
               "stop_name": "Sarsfield Quay",
-              "stop_num": "1476",
+              "stop_number": "1476",
               "stop_lat": 53.3470736855785,
               "stop_lon": -6.28467627539544
             },
             {
               "stop_name": "Arran Quay",
-              "stop_num": "7453",
+              "stop_number": "7453",
               "stop_lat": 53.3463358924194,
               "stop_lon": -6.27838250402172
             },
             {
               "stop_name": "Four Courts",
-              "stop_num": "1478",
+              "stop_number": "1478",
               "stop_lat": 53.3456082018192,
               "stop_lon": -6.27280948087176
             },
             {
               "stop_name": "Ormond Quay",
-              "stop_num": "1479",
+              "stop_number": "1479",
               "stop_lat": 53.3459880936241,
               "stop_lon": -6.26863362845988
             },
             {
               "stop_name": "Bachelors Walk",
-              "stop_num": "7622",
+              "stop_number": "7622",
               "stop_lat": 53.3470699189303,
               "stop_lon": -6.26144015758289
             },
             {
               "stop_name": "D'Olier Street",
-              "stop_num": "334",
+              "stop_number": "334",
               "stop_lat": 53.3465811562075,
               "stop_lon": -6.25812559112211
             },
             {
               "stop_name": "Nassau Street",
-              "stop_num": "406",
+              "stop_number": "406",
               "stop_lat": 53.3426061451661,
               "stop_lon": -6.25612494578256
             },
             {
               "stop_name": "Kildare Street",
-              "stop_num": "747",
+              "stop_number": "747",
               "stop_lat": 53.339930803028,
               "stop_lon": -6.25572351873592
             },
             {
               "stop_name": "Stephen's Green East",
-              "stop_num": "842",
+              "stop_number": "842",
               "stop_lat": 53.3372519750086,
               "stop_lon": -6.25631338920494
             },
             {
               "stop_name": "Leeson St Lower",
-              "stop_num": "845",
+              "stop_number": "845",
               "stop_lat": 53.3354534454667,
               "stop_lon": -6.25625161826536
             },
             {
               "stop_name": "Fitzwilliam Place",
-              "stop_num": "846",
+              "stop_number": "846",
               "stop_lat": 53.3334537330024,
               "stop_lon": -6.25411090847852
             },
             {
               "stop_name": "Leeson St Upper",
-              "stop_num": "847",
+              "stop_number": "847",
               "stop_lat": 53.3316014451652,
               "stop_lon": -6.25221961965172
             },
             {
               "stop_name": "Sussex Road",
-              "stop_num": "848",
+              "stop_number": "848",
               "stop_lat": 53.3297279908182,
               "stop_lon": -6.24888799835484
             },
             {
               "stop_name": "Leeson Village",
-              "stop_num": "2795",
+              "stop_number": "2795",
               "stop_lat": 53.3285299793468,
               "stop_lon": -6.24626462104787
             },
             {
               "stop_name": "Royal Hospital",
-              "stop_num": "756",
+              "stop_number": "756",
               "stop_lat": 53.3263997617809,
               "stop_lon": -6.24259874670305
             },
             {
               "stop_name": "Donnybrook Village",
-              "stop_num": "757",
+              "stop_number": "757",
               "stop_lat": 53.324081337159,
               "stop_lon": -6.23958650985933
             },
             {
               "stop_name": "Victoria Avenue",
-              "stop_num": "758",
+              "stop_number": "758",
               "stop_lat": 53.3226869429553,
               "stop_lon": -6.2376773804315
             },
             {
               "stop_name": "Donnybrook Stadium",
-              "stop_num": "759",
+              "stop_number": "759",
               "stop_lat": 53.3203488508448,
               "stop_lon": -6.23334551683728
             },
             {
               "stop_name": "Donnybrook Church",
-              "stop_num": "760",
+              "stop_number": "760",
               "stop_lat": 53.318330187289,
               "stop_lon": -6.23056195593035
             },
             {
               "stop_name": "Teresian School",
-              "stop_num": "761",
+              "stop_number": "761",
               "stop_lat": 53.3161004007996,
               "stop_lon": -6.22748721370695
             },
             {
               "stop_name": "RTE",
-              "stop_num": "762",
+              "stop_number": "762",
               "stop_lat": 53.3145170648506,
               "stop_lon": -6.22437094406488
             },
             {
               "stop_name": "Belfield Court",
-              "stop_num": "763",
+              "stop_number": "763",
               "stop_lat": 53.3123201447844,
               "stop_lon": -6.2211003190802
             },
             {
               "stop_name": "Woodbine Road",
-              "stop_num": "2007",
+              "stop_number": "2007",
               "stop_lat": 53.3088750410416,
               "stop_lon": -6.21611120483348
             },
             {
               "stop_name": "Seafield Road",
-              "stop_num": "2008",
+              "stop_number": "2008",
               "stop_lat": 53.3056004028805,
               "stop_lon": -6.21111575700179
             },
             {
               "stop_name": "Radisson Hotel",
-              "stop_num": "2009",
+              "stop_number": "2009",
               "stop_lat": 53.303339573355,
               "stop_lon": -6.20780413886582
             },
             {
               "stop_name": "Booterstown Avenue",
-              "stop_num": "2010",
+              "stop_number": "2010",
               "stop_lat": 53.298897241336,
               "stop_lon": -6.20467441020997
             },
             {
               "stop_name": "Sycamore Crescent",
-              "stop_num": "435",
+              "stop_number": "435",
               "stop_lat": 53.2959890439313,
               "stop_lon": -6.20374622631809
             },
             {
               "stop_name": "Priory Grove",
-              "stop_num": "7353",
+              "stop_number": "7353",
               "stop_lat": 53.2934957288645,
               "stop_lon": -6.20172063261915
             },
             {
               "stop_name": "Stillorgan Park",
-              "stop_num": "4571",
+              "stop_number": "4571",
               "stop_lat": 53.2889790521839,
               "stop_lon": -6.19487535807993
             },
             {
               "stop_name": "St John of Gods",
-              "stop_num": "2013",
+              "stop_number": "2013",
               "stop_lat": 53.2853145290474,
               "stop_lon": -6.19445989805429
             },
             {
               "stop_name": "Brewery Road",
-              "stop_num": "2014",
+              "stop_number": "2014",
               "stop_lat": 53.282118255495,
               "stop_lon": -6.19291493251431
             },
             {
               "stop_name": "Galloping Green",
-              "stop_num": "4636",
+              "stop_number": "4636",
               "stop_lat": 53.2806915208119,
               "stop_lon": -6.19011068952026
             },
             {
               "stop_name": "Newtownpark Avenue",
-              "stop_num": "2016",
+              "stop_number": "2016",
               "stop_lat": 53.278208732131,
               "stop_lon": -6.18406714943221
             },
             {
               "stop_name": "Knocksinna",
-              "stop_num": "2015",
+              "stop_number": "2015",
               "stop_lat": 53.2755348428749,
               "stop_lon": -6.1790671072586
             },
             {
               "stop_name": "Foxrock Church",
-              "stop_num": "2017",
+              "stop_number": "2017",
               "stop_lat": 53.2741965449207,
               "stop_lon": -6.17501540656205
             },
             {
               "stop_name": "Westminister Grove",
-              "stop_num": "3259",
+              "stop_number": "3259",
               "stop_lat": 53.2728336740356,
               "stop_lon": -6.17171472457846
             },
             {
               "stop_name": "Old Bray Road",
-              "stop_num": "7361",
+              "stop_number": "7361",
               "stop_lat": 53.270583289158,
               "stop_lon": -6.16623313840366
             },
             {
               "stop_name": "Clonkeen Road",
-              "stop_num": "7362",
+              "stop_number": "7362",
               "stop_lat": 53.265939431743,
               "stop_lon": -6.15769154664816
             },
             {
               "stop_name": "Johnstown Road",
-              "stop_num": "3129",
+              "stop_number": "3129",
               "stop_lat": 53.2624552680705,
               "stop_lon": -6.15036092469467
             },
             {
               "stop_name": "Shrewsbury Lawn",
-              "stop_num": "3130",
+              "stop_number": "3130",
               "stop_lat": 53.2586036442191,
               "stop_lon": -6.14601531773298
             },
             {
               "stop_name": "Kilbogget Grove",
-              "stop_num": "3131",
+              "stop_number": "3131",
               "stop_lat": 53.2555169985851,
               "stop_lon": -6.14520455605277
             },
             {
               "stop_name": "Shanganagh Vale",
-              "stop_num": "3132",
+              "stop_number": "3132",
               "stop_lat": 53.2527138195134,
               "stop_lon": -6.14297281789694
             },
             {
               "stop_name": "St Laurence College",
-              "stop_num": "3133",
+              "stop_number": "3133",
               "stop_lat": 53.2503894672678,
               "stop_lon": -6.14090044042839
             },
             {
               "stop_name": "Wyattville Road",
-              "stop_num": "3134",
+              "stop_number": "3134",
               "stop_lat": 53.2469068045112,
               "stop_lon": -6.13603133529256
             },
             {
               "stop_name": "St Columcille's Hosp",
-              "stop_num": "3135",
+              "stop_number": "3135",
               "stop_lat": 53.2429290400335,
               "stop_lon": -6.13055525740989
             },
             {
               "stop_name": "Kentfield",
-              "stop_num": "3136",
+              "stop_number": "3136",
               "stop_lat": 53.2377373354843,
               "stop_lon": -6.12735061667056
             },
             {
               "stop_name": "Station Road",
-              "stop_num": "3138",
+              "stop_number": "3138",
               "stop_lat": 53.234352606282,
               "stop_lon": -6.12474186559631
             },
             {
               "stop_name": "Stonebridge Close",
-              "stop_num": "3139",
+              "stop_number": "3139",
               "stop_lat": 53.2300638456036,
               "stop_lon": -6.1240904706735
             },
             {
               "stop_name": "Claremount",
-              "stop_num": "4124",
+              "stop_number": "4124",
               "stop_lat": 53.2278303200561,
               "stop_lon": -6.12438284585774
             },
             {
               "stop_name": "Shanganagh Castle",
-              "stop_num": "4125",
+              "stop_number": "4125",
               "stop_lat": 53.2234316454002,
               "stop_lon": -6.1236015801599
             },
             {
               "stop_name": "Shanganagh Cemetery",
-              "stop_num": "4126",
+              "stop_number": "4126",
               "stop_lat": 53.2221831727114,
               "stop_lon": -6.12194881112964
             },
             {
               "stop_name": "St James's Church",
-              "stop_num": "4127",
+              "stop_number": "4127",
               "stop_lat": 53.2187787041551,
               "stop_lon": -6.11980650872771
             },
             {
               "stop_name": "Woodbrook College",
-              "stop_num": "4128",
+              "stop_number": "4128",
               "stop_lat": 53.2159235278162,
               "stop_lon": -6.11943740756946
             },
             {
               "stop_name": "Old Connaught Avenue",
-              "stop_num": "4129",
+              "stop_number": "4129",
               "stop_lat": 53.2108556391326,
               "stop_lon": -6.11726373758896
             },
             {
               "stop_name": "Castle Street",
-              "stop_num": "4130",
+              "stop_number": "4130",
               "stop_lat": 53.2072817956956,
               "stop_lon": -6.11351284781385
             },
             {
               "stop_name": "Dwyer Park",
-              "stop_num": "4131",
+              "stop_number": "4131",
               "stop_lat": 53.2065671431512,
               "stop_lon": -6.11152310823596
             },
             {
               "stop_name": "Cornerstone Church",
-              "stop_num": "7294",
+              "stop_number": "7294",
               "stop_lat": 53.2047244539015,
               "stop_lon": -6.10925373679255
             },
             {
               "stop_name": "Bray Main Street",
-              "stop_num": "4132",
+              "stop_number": "4132",
               "stop_lat": 53.2023004727949,
               "stop_lon": -6.11000415983853
             },
             {
               "stop_name": "Kilmantain Park",
-              "stop_num": "4171",
+              "stop_number": "4171",
               "stop_lat": 53.2005085955431,
               "stop_lon": -6.1115050923744
             },
             {
               "stop_name": "Rosslyn",
-              "stop_num": "4172",
+              "stop_number": "4172",
               "stop_lat": 53.1986800787553,
               "stop_lon": -6.1135314089954
             },
             {
               "stop_name": "The Nurseries",
-              "stop_num": "4173",
+              "stop_number": "4173",
               "stop_lat": 53.1953342426183,
               "stop_lon": -6.11794406638736
             },
             {
               "stop_name": "Killarney Lane",
-              "stop_num": "2962",
+              "stop_number": "2962",
               "stop_lat": 53.1962101854291,
               "stop_lon": -6.12161769133895
             },
             {
               "stop_name": "Herbert Road",
-              "stop_num": "2963",
+              "stop_number": "2963",
               "stop_lat": 53.1945356120379,
               "stop_lon": -6.12715392386727
             },
             {
               "stop_name": "Herbert Park",
-              "stop_num": "2964",
+              "stop_number": "2964",
               "stop_lat": 53.1915540222858,
               "stop_lon": -6.12903493083538
             },
             {
               "stop_name": "St Fergal's Church",
-              "stop_num": "4175",
+              "stop_number": "4175",
               "stop_lat": 53.189045835275,
               "stop_lon": -6.12615109959763
             },
             {
               "stop_name": "Ballywaltrim Heights",
-              "stop_num": "5091",
+              "stop_number": "5091",
               "stop_lat": 53.1879238915683,
               "stop_lon": -6.12739721376408
             },
             {
               "stop_name": "Springfield Cemetery",
-              "stop_num": "5092",
+              "stop_number": "5092",
               "stop_lat": 53.1858287286821,
               "stop_lon": -6.12905974567307
             },
             {
               "stop_name": "Southern Cross",
-              "stop_num": "7574",
+              "stop_number": "7574",
               "stop_lat": 53.1823486727912,
               "stop_lon": -6.13010901593525
             }
