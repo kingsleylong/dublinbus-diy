@@ -198,7 +198,7 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
 	// Arrays to hold routes for the origin and destination stops
-	//var originRoutes []bson.M
+	var originRoutes []busRoute
 	var matchingRoute busRoute
 
 	dbPointer := client.Database("BusData")
@@ -206,15 +206,16 @@ func FindMatchingRouteDemo(c *gin.Context) {
 
 	// Find documents that have the required origin stop as a stop on the route
 	// and store these routes in array
-	err = collectionPointer.FindOne(ctx, bson.D{{"stops.stop_number",
-		"2955"}}).Decode(&matchingRoute)
+	busRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
+		"2955"}})
 	if err != nil {
 		log.Print(err)
 	}
 
-	//if err = originMatches.All(ctx, &originRoutes); err != nil {
-	//	log.Print(err)
-	//}
+	for busRoutes.Next(ctx) {
+		busRoutes.Decode(&matchingRoute)
+		originRoutes = append(originRoutes, matchingRoute)
+	}
 
 	c.IndentedJSON(http.StatusOK, matchingRoute)
 }
