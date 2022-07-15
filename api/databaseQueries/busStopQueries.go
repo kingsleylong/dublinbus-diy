@@ -2,6 +2,7 @@ package databaseQueries
 
 import (
 	"context"
+	"example.com/api/geocoding"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -72,14 +73,12 @@ func GetDatabases(c *gin.Context) {
 // searches the database for a bus stop with a name that matches. For all
 // the stops with a matching name or similar name, these stops are
 // returned as JSON objects from the stops collection in MongoDB.
-func GetStopByName(c *gin.Context) {
+func GetStopByName(stopName string) []BusStop {
 
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	stopName := c.Param("stopName")
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -124,10 +123,23 @@ func GetStopByName(c *gin.Context) {
 			log.Print(err)
 		}
 		matchingStops = append(matchingStops, stop)
-		if len(matchingStops) > 9 {
+		if len(matchingStops) > 4 {
 			break
 		}
 	}
 
-	c.IndentedJSON(http.StatusOK, matchingStops)
+	return matchingStops
+}
+
+func GetStopsList(c *gin.Context) {
+
+	stopSearch := c.Param("stopSearch")
+	stopsFromDB := GetStopByName(stopSearch)
+	stopsFromGeocoding := geocoding.FindNearbyStops(stopSearch)
+
+	var busStops [][]BusStop
+
+	busStops = append(busStops, stopsFromDB, stopsFromGeocoding)
+
+	c.IndentedJSON(http.StatusOK, busStops)
 }

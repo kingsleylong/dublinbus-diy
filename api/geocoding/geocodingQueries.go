@@ -4,13 +4,11 @@ import (
 	"context"
 	"example.com/api/databaseQueries"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"googlemaps.github.io/maps"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -25,9 +23,7 @@ var DublinMapBoundsNE maps.LatLng
 var DublinMapBoundsSW maps.LatLng
 var DublinMapBounds maps.LatLngBounds
 
-func GetCoordinates(c *gin.Context) {
-
-	address := c.Param("address")
+func GetCoordinates(stopSearch string) (Lat float64, Lon float64) {
 
 	DublinMapBoundsNE.Lat = 53.49337
 	DublinMapBoundsNE.Lng = -6.05788
@@ -45,21 +41,26 @@ func GetCoordinates(c *gin.Context) {
 		log.Print(err)
 	}
 
-	geo := &maps.GeocodingRequest{Address: address, Bounds: &DublinMapBounds, Region: "ie"}
+	geo := &maps.GeocodingRequest{Address: stopSearch, Bounds: &DublinMapBounds, Region: "ie"}
 
 	result, _ := client.Geocode(ctx, geo)
 
-	c.IndentedJSON(http.StatusOK, result)
+	queryLat := result[0].Geometry.Location.Lat
+	queryLon := result[0].Geometry.Location.Lng
+
+	return queryLat, queryLon
 }
 
-func FindNearbyStops(stopLat float64, stopLon float64) []databaseQueries.BusStop {
+func FindNearbyStops(stopSearch string) []databaseQueries.BusStop {
+
+	queryLat, queryLon := GetCoordinates(stopSearch)
 
 	halfMileAdjustment := 0.008
 
-	minLat := stopLat - halfMileAdjustment
-	maxLat := stopLat + halfMileAdjustment
-	minLon := stopLon - halfMileAdjustment
-	maxLon := stopLon + halfMileAdjustment
+	minLat := queryLat - halfMileAdjustment
+	maxLat := queryLat + halfMileAdjustment
+	minLon := queryLon - halfMileAdjustment
+	maxLon := queryLon + halfMileAdjustment
 
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
@@ -101,10 +102,10 @@ func FindNearbyStops(stopLat float64, stopLon float64) []databaseQueries.BusStop
 
 	for stops.Next(ctx) {
 		stops.Decode(&currentStop)
-		queryLat, _ := strconv.ParseFloat(currentStop.StopLat, 64)
-		queryLon, _ := strconv.ParseFloat(currentStop.StopLon, 64)
-		if queryLon > minLon && queryLat > minLat {
-			if queryLat < maxLat && queryLon < maxLon {
+		currentLat, _ := strconv.ParseFloat(currentStop.StopLat, 64)
+		currentLon, _ := strconv.ParseFloat(currentStop.StopLon, 64)
+		if currentLon > minLon && currentLat > minLat {
+			if currentLat < maxLat && currentLon < maxLon {
 				matchingStops = append(matchingStops, currentStop)
 			}
 		}
