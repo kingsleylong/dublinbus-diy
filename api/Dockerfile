@@ -11,13 +11,6 @@ WORKDIR /app/api/databaseQueries
 COPY databaseQueries/* ./
 RUN ls -l
 
-WORKDIR /app/api/geocoding
-COPY geocoding/* ./
-RUN ls -l
-
-RUN go mod download && go mod verify && go mod tidy
-
-WORKDIR /app/api/databaseQueries
 RUN go mod download && go mod verify && go mod tidy
 
 WORKDIR /app/api/main
