@@ -1,21 +1,20 @@
-import 'dart:convert';
-
 import 'package:web/models/bus_stop.dart';
+import 'package:web/models/shape.dart';
 
 class BusRoute {
-  final String routeNumber;
-  final List<BusStop> stops;
+  String routeNumber;
+  List<BusStop> stops;
+  List<Shape> shapes;
 
-  const BusRoute({
-    required this.routeNumber,
-    required this.stops,
-  });
+  BusRoute(this.routeNumber, this.stops, this.shapes);
 
   factory BusRoute.fromJson(Map<String, dynamic> json) {
-    List<dynamic> stopsJson = json['route_stops'] as List;
+    List<dynamic> stopsJson = json['stops'] as List;
+    List<dynamic> shapesJson = json['shapes'] as List;
     return BusRoute(
-      routeNumber: json['route_num'],
-      stops: stopsJson.map((busStopJson) => BusStop.fromJsonForRoute(busStopJson)).toList(),
+      json['route_num'],
+      stopsJson.map((busStopJson) => BusStop.fromJson(busStopJson)).toList(),
+      shapesJson.map((shapeJson) => Shape.fromJson(shapeJson)).toList(),
     );
   }
 }

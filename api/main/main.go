@@ -15,17 +15,11 @@ func main() {
 
 	// Bus Stop specific queries
 	router.GET("/databases", databaseQueries.GetDatabases)
-	router.GET("/busStop/:stopNum",
-		databaseQueries.GetBusStop)
-	router.GET("/allStops", databaseQueries.GetAllStops)
-	router.GET("/prototypeStops", databaseQueries.GetPrototypeStops)
 	router.GET("/findStopByName/:stopName", databaseQueries.GetStopByName)
 
 	// Bus Route queries
-	router.GET("/busRoute/:routeNum", databaseQueries.GetBusRoute)
-	router.GET("/allRoutes", databaseQueries.GetAllRoutes)
-	router.GET("/stopsOnRoute/:routeNum", databaseQueries.GetStopsOnRoute)
 	router.GET("/matchingRoute/:originStopNum/:destStopNum", databaseQueries.FindMatchingRoute)
+	router.GET("/matchingRouteTest/:originStopNum", databaseQueries.FindMatchingRouteDemo)
 
 	router.GET("/geocoding/:address", geocoding.GetCoordinates)
 
