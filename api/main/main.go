@@ -17,6 +17,7 @@ func main() {
 
 	// Bus Route queries
 	router.GET("/matchingRoute/:originStopNum/:destStopNum", databaseQueries.FindMatchingRoute)
+	router.GET("/matchingRouteTest/:originStopNum", databaseQueries.FindMatchingRouteDemo)
 
 	router.Run("0.0.0.0:8080")
 }
