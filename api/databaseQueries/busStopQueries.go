@@ -2,7 +2,6 @@ package databaseQueries
 
 import (
 	"context"
-	"example.com/api/geocoding"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -135,7 +134,7 @@ func GetStopsList(c *gin.Context) {
 
 	stopSearch := c.Param("stopSearch")
 	stopsFromDB := GetStopByName(stopSearch)
-	stopsFromGeocoding := geocoding.FindNearbyStops(stopSearch)
+	stopsFromGeocoding := FindNearbyStops(stopSearch)
 
 	var busStops [][]BusStop
 

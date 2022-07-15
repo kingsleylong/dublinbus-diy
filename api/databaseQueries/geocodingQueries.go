@@ -1,8 +1,7 @@
-package geocoding
+package databaseQueries
 
 import (
 	"context"
-	"example.com/api/databaseQueries"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,11 +12,6 @@ import (
 	"strconv"
 	"time"
 )
-
-var mongoUsername string
-var mongoPassword string
-var mongoHost string
-var mongoPort string
 
 var DublinMapBoundsNE maps.LatLng
 var DublinMapBoundsSW maps.LatLng
@@ -51,7 +45,7 @@ func GetCoordinates(stopSearch string) (Lat float64, Lon float64) {
 	return queryLat, queryLon
 }
 
-func FindNearbyStops(stopSearch string) []databaseQueries.BusStop {
+func FindNearbyStops(stopSearch string) []BusStop {
 
 	queryLat, queryLon := GetCoordinates(stopSearch)
 
@@ -89,8 +83,8 @@ func FindNearbyStops(stopSearch string) []databaseQueries.BusStop {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
 
-	var matchingStops []databaseQueries.BusStop
-	var currentStop databaseQueries.BusStop
+	var matchingStops []BusStop
+	var currentStop BusStop
 
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("stops")
