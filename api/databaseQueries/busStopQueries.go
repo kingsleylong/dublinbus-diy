@@ -22,7 +22,7 @@ var mongoPassword string
 var mongoHost string
 var mongoPort string
 
-type busStop struct {
+type BusStop struct {
 	StopId     string `bson:"stop_id" json:"stop_id"`
 	StopName   string `bson:"stop_name" json:"stop_name"`
 	StopNumber string `bson:"stop_number" json:"stop_number"`
@@ -103,7 +103,7 @@ func GetStopByName(c *gin.Context) {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
-	var matchingStops []busStop
+	var matchingStops []BusStop
 
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("stops")
@@ -118,7 +118,7 @@ func GetStopByName(c *gin.Context) {
 
 	// Iteratively go through returned options and add them to slice to return
 	// until slice length hits the limit and then stop the loop
-	var stop busStop
+	var stop BusStop
 	for busStops.Next(ctx) {
 		if err := busStops.Decode(&stop); err != nil {
 			log.Print(err)
