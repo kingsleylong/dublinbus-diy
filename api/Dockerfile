@@ -10,14 +10,14 @@ VOLUME ["/app/api/config"]
 WORKDIR /app/api/databaseQueries
 COPY databaseQueries/* ./
 RUN ls -l
-# pre-copy/cache go.mod for pre-downloading dependencies and only
-# redownloading them in subsequent builds if they change
-# COPY go.mod go.sum ./
-RUN go mod download && go mod verify && go mod tidy
 
 WORKDIR /app/api/geocoding
 COPY geocoding/* ./
 RUN ls -l
+
+RUN go mod download && go mod verify && go mod tidy
+
+WORKDIR /app/api/databaseQueries
 RUN go mod download && go mod verify && go mod tidy
 
 WORKDIR /app/api/main
