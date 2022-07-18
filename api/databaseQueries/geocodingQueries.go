@@ -3,11 +3,13 @@ package databaseQueries
 import (
 	"context"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"googlemaps.github.io/maps"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -106,4 +108,39 @@ func FindNearbyStops(stopSearch string) []BusStop {
 	}
 
 	return matchingStops
+}
+
+func GetCoordinatesTest(c *gin.Context) {
+
+	searchString := c.Param("searchString")
+
+	DublinMapBoundsNE.Lat = 53.49337
+	DublinMapBoundsNE.Lng = -6.05788
+
+	DublinMapBoundsSW.Lng = -6.56495
+	DublinMapBoundsSW.Lat = 53.14860
+
+	DublinMapBounds.SouthWest = DublinMapBoundsSW
+	DublinMapBounds.NorthEast = DublinMapBoundsNE
+
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+
+	client, err := maps.NewClient(maps.WithAPIKey(os.Getenv("MAPS_API_KEY")))
+	if err != nil {
+		log.Print(err)
+	}
+
+	geo := &maps.GeocodingRequest{Address: searchString, Bounds: &DublinMapBounds, Region: "ie"}
+
+	result, _ := client.Geocode(ctx, geo)
+
+	queryLat := result[0].Geometry.Location.Lat
+	queryLon := result[0].Geometry.Location.Lng
+
+	var latLngTest maps.LatLng
+
+	latLngTest.Lat = queryLat
+	latLngTest.Lng = queryLon
+
+	c.IndentedJSON(http.StatusOK, latLngTest)
 }

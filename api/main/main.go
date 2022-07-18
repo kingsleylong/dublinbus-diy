@@ -20,6 +20,8 @@ func main() {
 	router.GET("/matchingRoute/:originStopNum/:destStopNum", databaseQueries.FindMatchingRoute)
 	router.GET("/matchingRouteTest/:originStopNum", databaseQueries.FindMatchingRouteDemo)
 
+	router.GET("/coordinatesTest/:searchString", databaseQueries.GetCoordinatesTest)
+
 	err := router.Run("0.0.0.0:8080")
 	if err != nil {
 		log.Fatal(err)
