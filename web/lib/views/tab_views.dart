@@ -250,10 +250,12 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
       //     // print(Provider.of<PolylinesModel>(context, listen: false));
       //   }
       // );
-      for(BusRoute busRoute in busRouteList) {
-        Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(busRoute);
-      }
-      print('PolylinesModel size: ${Provider.of<PolylinesModel>(context, listen: false).items
+      Provider.of<PolylinesModel>(context, listen: false).addBusRouteListAsPolylines(busRouteList);
+      // for(BusRoute busRoute in busRouteList) {
+      //   Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(busRoute);
+        // Provider.of<MarkersModel>(context, listen: false).addBusRouteAsMarker(busRoute);
+      // }
+      print('PolylinesModel size: ${Provider.of<PolylinesModel>(context, listen: false).itemsOfPolylines
           .length}');
 
       return busRouteList;
