@@ -134,13 +134,18 @@ func GetCoordinatesTest(c *gin.Context) {
 
 	result, _ := client.Geocode(ctx, geo)
 
-	queryLat := result[0].Geometry.Location.Lat
-	queryLon := result[0].Geometry.Location.Lng
+	if len(result) < 1 {
+		c.IndentedJSON(http.StatusNoContent, "No address found")
+	} else {
+		queryLat := result[0].Geometry.Location.Lat
+		queryLon := result[0].Geometry.Location.Lng
 
-	var latLngTest maps.LatLng
+		var latLngTest maps.LatLng
 
-	latLngTest.Lat = queryLat
-	latLngTest.Lng = queryLon
+		latLngTest.Lat = queryLat
+		latLngTest.Lng = queryLon
 
-	c.IndentedJSON(http.StatusOK, latLngTest)
+		c.IndentedJSON(http.StatusOK, latLngTest)
+	}
+
 }
