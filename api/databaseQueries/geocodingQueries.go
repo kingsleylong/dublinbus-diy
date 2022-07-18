@@ -41,6 +41,10 @@ func GetCoordinates(stopSearch string) (Lat float64, Lon float64) {
 
 	result, _ := client.Geocode(ctx, geo)
 
+	if len(result) < 1 {
+		return 0, 0
+	}
+
 	queryLat := result[0].Geometry.Location.Lat
 	queryLon := result[0].Geometry.Location.Lng
 
