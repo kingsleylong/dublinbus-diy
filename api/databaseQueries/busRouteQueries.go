@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -29,6 +30,12 @@ type busRoute struct {
 	Route       route              `bson:"route" json:"route"`
 	Shapes      []shape            `bson:"shapes" json:"shapes"`
 	Stops       []routeStop        `bson:"stops" json:"stops"`
+}
+
+type busRouteJSON struct {
+	RouteNum string                `bson:"route_num" json:"route_num"`
+	Stops    []StopWithCoordinates `bson:"stops" json:"stops"`
+	Shapes   []shape               `bson:"shapes" json:"shapes"`
 }
 
 // routeStop represents the stop information contained within the trips_n_stops
@@ -61,7 +68,7 @@ type route struct {
 // the bus route to be drawn on a map matching the road network of Dublin.
 // All fields map to type string from the database
 type shape struct {
-	ShapeId         string `bson:"shape_id" json:"shape_id"`
+	//ShapeId         string `bson:"shape_id" json:"shape_id"`
 	ShapePtLat      string `bson:"shape_pt_lat" json:"shape_pt_lat"`
 	ShapePtLon      string `bson:"shape_pt_lon" json:"shape_pt_lon"`
 	ShapePtSequence string `bson:"shape_pt_sequence" json:"shape_pt_sequence"`
@@ -108,9 +115,11 @@ func FindMatchingRoute(c *gin.Context) {
 	// Arrays to hold routes for the origin and destination stops
 	var originRoutes []busRoute
 	var destinationRoutes []busRoute
-	var matchingRoutes []busRoute
+	var matchingRoutes []busRouteJSON
 	var originRoute busRoute
 	var destinationRoute busRoute
+	var matchedRoute busRouteJSON
+	var matchedRouteStop StopWithCoordinates
 
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("trips_n_stops")
@@ -142,7 +151,18 @@ func FindMatchingRoute(c *gin.Context) {
 	for _, origin := range originRoutes {
 		for _, destination := range destinationRoutes {
 			if destination.RouteId == origin.RouteId {
-				matchingRoutes = append(matchingRoutes, destination)
+				//matchingRoutes = append(matchingRoutes, destination)
+				matchedRoute.RouteNum = destinationRoute.Route.RouteShortName
+				for _, stop := range destinationRoute.Stops {
+					matchedRouteStop.StopID = stop.StopId
+					matchedRouteStop.StopName = stop.StopName
+					matchedRouteStop.StopNumber = stop.StopNumber
+					matchedRouteStop.StopLat, _ = strconv.ParseFloat(stop.StopLat, 64)
+					matchedRouteStop.StopLon, _ = strconv.ParseFloat(stop.StopLon, 64)
+					matchedRoute.Stops = append(matchedRoute.Stops, matchedRouteStop)
+				}
+				matchedRoute.Shapes = destinationRoute.Shapes
+				matchingRoutes = append(matchingRoutes, matchedRoute)
 				break
 			}
 		}
