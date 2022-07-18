@@ -51,7 +51,7 @@ func GetCoordinates(stopSearch string) (Lat float64, Lon float64) {
 	return queryLat, queryLon
 }
 
-func FindNearbyStops(stopSearch string) []BusStop {
+func FindNearbyStops(stopSearch string) []StopWithCoordinates {
 
 	queryLat, queryLon := GetCoordinates(stopSearch)
 
@@ -89,8 +89,9 @@ func FindNearbyStops(stopSearch string) []BusStop {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
 
-	var matchingStops []BusStop
+	var matchingStops []StopWithCoordinates
 	var currentStop BusStop
+	var currentStopWithCoordinates StopWithCoordinates
 
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("stops")
@@ -106,7 +107,12 @@ func FindNearbyStops(stopSearch string) []BusStop {
 		currentLon, _ := strconv.ParseFloat(currentStop.StopLon, 64)
 		if currentLon > minLon && currentLat > minLat {
 			if currentLat < maxLat && currentLon < maxLon {
-				matchingStops = append(matchingStops, currentStop)
+				currentStopWithCoordinates.StopID = currentStop.StopId
+				currentStopWithCoordinates.StopNumber = currentStop.StopNumber
+				currentStopWithCoordinates.StopName = currentStop.StopName
+				currentStopWithCoordinates.StopLat = currentLat
+				currentStopWithCoordinates.StopLon = currentLon
+				matchingStops = append(matchingStops, currentStopWithCoordinates)
 			}
 		}
 		if len(matchingStops) >= 5 {
