@@ -98,6 +98,9 @@ definitions:
   BusStop:
     type: "object"
     properties:
+      stop_id:
+        type: "string"
+        description: "The unique ID value for a stop"
       stop_number:
         type: "string"
         description: "The stop number."
