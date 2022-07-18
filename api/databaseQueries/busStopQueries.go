@@ -23,11 +23,11 @@ var mongoHost string
 var mongoPort string
 
 type BusStop struct {
-	StopId     string `bson:"stop_id" json:"stop_id"`
-	StopName   string `bson:"stop_name" json:"stop_name"`
-	StopNumber string `bson:"stop_number" json:"stop_number"`
-	StopLat    string `bson:"stop_lat" json:"stop_lat"`
-	StopLon    string `bson:"stop_lon" json:"stop_lon"`
+	StopId     string  `bson:"stop_id" json:"stop_id"`
+	StopName   string  `bson:"stop_name" json:"stop_name"`
+	StopNumber string  `bson:"stop_number" json:"stop_number"`
+	StopLat    float64 `bson:"stop_lat" json:"stop_lat"`
+	StopLon    float64 `bson:"stop_lon" json:"stop_lon"`
 }
 
 // GetDatabases returns the databases present in the MongoDB connection.
