@@ -241,23 +241,6 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
       List<BusRoute> busRouteList = List.generate(busRoutesJson.length, (index) => BusRoute.fromJson
         (busRoutesJson[index]));
       items = generateItems(busRouteList);
-      // TODO There is one bug here. The only one polyline was shown on the map, but if you
-      //  switch to other tabs and come back, all polylines will be there.
-
-      // Provider.of<PolylinesModel>(context, listen: false).addBusRouteListAsPolylines(busRouteList);
-      // busRouteList.map((busRoute) => (){
-      //     Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(busRoute);
-      //     // print(Provider.of<PolylinesModel>(context, listen: false));
-      //   }
-      // );
-      Provider.of<PolylinesModel>(context, listen: false).addBusRouteListAsPolylines(busRouteList);
-      // for(BusRoute busRoute in busRouteList) {
-      //   Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(busRoute);
-        // Provider.of<MarkersModel>(context, listen: false).addBusRouteAsMarker(busRoute);
-      // }
-      print('PolylinesModel size: ${Provider.of<PolylinesModel>(context, listen: false).itemsOfPolylines
-          .length}');
-
       return busRouteList;
     } else {
       // If the server did not return a 200 OK response, then throw an exception.
@@ -304,6 +287,9 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
                     setState(() {
                       item.isExpanded = !isExpanded;
                     });
+                    // add the polyline and marker for the selected route by changing
+                    // the state from the Provider and notify the Consumers.
+                    Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(item.busRoute);
                   },
                 );
               },
@@ -321,6 +307,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
       return Item(
         headerValue: data[index].routeNumber,
         expandedValue: '${data[index].stops.length} stops. Starts from ${data[index].stops[0].stopName}',
+        busRoute: data[index],
       );
     });
   }
@@ -331,10 +318,12 @@ class Item {
   Item({
     required this.expandedValue,
     required this.headerValue,
+    required this.busRoute,
     this.isExpanded = false,
   });
 
   String expandedValue;
   String headerValue;
   bool isExpanded;
+  BusRoute busRoute;
 }

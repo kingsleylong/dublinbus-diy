@@ -51,7 +51,8 @@ class PolylinesModel extends ChangeNotifier {
           },
         )
     );
-    // notifyListeners();
+    addBusRouteAsMarker(busRoute);
+    notifyListeners();
   }
 
   void addBusRouteAsMarker(BusRoute busRoute) {
