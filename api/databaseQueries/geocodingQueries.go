@@ -109,6 +109,9 @@ func FindNearbyStops(stopSearch string) []BusStop {
 				matchingStops = append(matchingStops, currentStop)
 			}
 		}
+		if len(matchingStops) >= 5 {
+			break
+		}
 	}
 
 	return matchingStops
