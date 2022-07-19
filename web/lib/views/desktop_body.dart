@@ -1,5 +1,3 @@
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:web/views/googlemap.dart';
 
@@ -62,6 +60,7 @@ class _DesktopBodyState extends State<DesktopBody> {
   TabBarView buildLeftTabViews() {
     return TabBarView(
         controller: widget.tabController,
+        physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
           PlanMyJourneyTabView(
               googleMapComponent: googleMapComponent),
