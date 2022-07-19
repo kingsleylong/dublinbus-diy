@@ -115,11 +115,12 @@ func FindMatchingRoute(c *gin.Context) {
 	// Arrays to hold routes for the origin and destination stops
 	var originRoutes []busRoute
 	var destinationRoutes []busRoute
-	var matchingRoutes []busRouteJSON
+	var matchingRoutes []busRoute
+	var matchingRoutesJSON []busRouteJSON
 	var originRoute busRoute
 	var destinationRoute busRoute
 	var matchedRoute busRouteJSON
-//	var matchedRouteStop StopWithCoordinates
+	var matchedRouteStop StopWithCoordinates
 
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("trips_n_stops")
@@ -151,25 +152,26 @@ func FindMatchingRoute(c *gin.Context) {
 	for _, origin := range originRoutes {
 		for _, destination := range destinationRoutes {
 			if destination.RouteId == origin.RouteId {
-				//matchingRoutes = append(matchingRoutes, destination)
-				matchedRoute.RouteNum = destinationRoute.Route.RouteShortName
-				for _, stop := range destinationRoute.Stops {
-					var matchedRouteStop StopWithCoordinates
-					matchedRouteStop.StopID = stop.StopId
-					matchedRouteStop.StopName = stop.StopName
-					matchedRouteStop.StopNumber = stop.StopNumber
-					matchedRouteStop.StopLat, _ = strconv.ParseFloat(stop.StopLat, 64)
-					matchedRouteStop.StopLon, _ = strconv.ParseFloat(stop.StopLon, 64)
-					matchedRoute.Stops = append(matchedRoute.Stops, matchedRouteStop)
-				}
-				matchedRoute.Shapes = destinationRoute.Shapes
-				matchingRoutes = append(matchingRoutes, matchedRoute)
-				break
+				matchingRoutes = append(matchingRoutes, destination)
 			}
 		}
 	}
 
-	c.IndentedJSON(http.StatusOK, matchingRoutes)
+	for _, route := range matchingRoutes {
+		matchedRoute.RouteNum = route.Route.RouteShortName
+		for _, stop := range route.Stops {
+			matchedRouteStop.StopID = stop.StopId
+			matchedRouteStop.StopName = stop.StopName
+			matchedRouteStop.StopNumber = stop.StopNumber
+			matchedRouteStop.StopLat, _ = strconv.ParseFloat(stop.StopLat, 64)
+			matchedRouteStop.StopLon, _ = strconv.ParseFloat(stop.StopLon, 64)
+			matchedRoute.Stops = append(matchedRoute.Stops, matchedRouteStop)
+		}
+		matchedRoute.Shapes = route.Shapes
+		matchingRoutesJSON = append(matchingRoutesJSON, matchedRoute)
+	}
+
+	c.IndentedJSON(http.StatusOK, matchingRoutesJSON)
 }
 
 func FindMatchingRouteDemo(c *gin.Context) {
