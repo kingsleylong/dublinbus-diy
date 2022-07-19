@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   description: "The API for DublinBus web service"
-  version: "1.0.0"
+  version: "0.0.1"
   title: "Dublin Bus"
   termsOfService: "http://swagger.io/terms/"
   license:
@@ -117,6 +117,8 @@ definitions:
     properties:
       route_num:
         type: "string"
+      direction:
+        type: "string"
       stops:
         type: "array"
         items:
@@ -125,6 +127,10 @@ definitions:
         type: "array"
         items:
           $ref: "#/definitions/Shape"
+      travel_time:
+        type: "integer"
+        format: "int32"
+        description: "The predicted travel time in minutes."
   Shape:
     type: "object"
     properties:
