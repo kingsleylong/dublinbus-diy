@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -29,8 +29,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Scaffold(
       // Create a model by the provider so the child can listen to the model changes
       // https://docs.flutter.dev/development/data-and-backend/state-mgmt/simple#changenotifierprovider
-      body: ChangeNotifierProvider(
-        create: (BuildContext context) => PolylinesModel(),
+      body: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => PolylinesModel()),
+        ],
         child: ResponsiveLayout(
           mobileBody: MobileBody(
               tabController: _tabController,
