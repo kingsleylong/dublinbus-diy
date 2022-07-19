@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"strconv"
 
 	//"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -22,12 +23,20 @@ var mongoPassword string
 var mongoHost string
 var mongoPort string
 
-type busStop struct {
+type BusStop struct {
 	StopId     string `bson:"stop_id" json:"stop_id"`
 	StopName   string `bson:"stop_name" json:"stop_name"`
 	StopNumber string `bson:"stop_number" json:"stop_number"`
 	StopLat    string `bson:"stop_lat" json:"stop_lat"`
 	StopLon    string `bson:"stop_lon" json:"stop_lon"`
+}
+
+type StopWithCoordinates struct {
+	StopID     string  `bson:"stop_id" json:"stop_id"`
+	StopName   string  `bson:"stop_name" json:"stop_name"`
+	StopNumber string  `bson:"stop_number" json:"stop_number"`
+	StopLat    float64 `bson:"stop_lat" json:"stop_lat"`
+	StopLon    float64 `bson:"stop_lon" json:"stop_lon"`
 }
 
 // GetDatabases returns the databases present in the MongoDB connection.
@@ -72,14 +81,12 @@ func GetDatabases(c *gin.Context) {
 // searches the database for a bus stop with a name that matches. For all
 // the stops with a matching name or similar name, these stops are
 // returned as JSON objects from the stops collection in MongoDB.
-func GetStopByName(c *gin.Context) {
+func GetStopByName(stopName string) []StopWithCoordinates {
 
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	stopName := c.Param("stopName")
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -103,7 +110,7 @@ func GetStopByName(c *gin.Context) {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
-	var matchingStops []busStop
+	var matchingStops []StopWithCoordinates
 
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("stops")
@@ -118,16 +125,35 @@ func GetStopByName(c *gin.Context) {
 
 	// Iteratively go through returned options and add them to slice to return
 	// until slice length hits the limit and then stop the loop
-	var stop busStop
+	var stop BusStop
+	var stopWithCoordinates StopWithCoordinates
 	for busStops.Next(ctx) {
 		if err := busStops.Decode(&stop); err != nil {
 			log.Print(err)
 		}
-		matchingStops = append(matchingStops, stop)
-		if len(matchingStops) > 9 {
+		stopWithCoordinates.StopID = stop.StopId
+		stopWithCoordinates.StopNumber = stop.StopNumber
+		stopWithCoordinates.StopName = stop.StopName
+		stopWithCoordinates.StopLat, _ = strconv.ParseFloat(stop.StopLat, 64)
+		stopWithCoordinates.StopLon, _ = strconv.ParseFloat(stop.StopLon, 64)
+		matchingStops = append(matchingStops, stopWithCoordinates)
+		if len(matchingStops) > 4 {
 			break
 		}
 	}
 
-	c.IndentedJSON(http.StatusOK, matchingStops)
+	return matchingStops
+}
+
+func GetStopsList(c *gin.Context) {
+
+	stopSearch := c.Param("stopSearch")
+	stopsFromDB := GetStopByName(stopSearch)
+	stopsFromGeocoding := FindNearbyStops(stopSearch)
+
+	var busStops [][]StopWithCoordinates
+
+	busStops = append(busStops, stopsFromDB, stopsFromGeocoding)
+
+	c.IndentedJSON(http.StatusOK, busStops)
 }
