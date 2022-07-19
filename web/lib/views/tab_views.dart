@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:date_time_picker/date_time_picker.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -49,6 +50,13 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   final _originSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
   // The instance field that holds the state of destination dropdown list
   final _destinationSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
+  late TextEditingController _dateTimePickerController;
+
+  @override
+  void initState() {
+    super.initState();
+    _dateTimePickerController = TextEditingController(text: DateTime.now().toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +79,24 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: buildSearchableDestinationDropdownList(),
+            ),
+            // Departure/Arrival time
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: DateTimePicker(
+                // Data time picker: https://pub.dev/packages/date_time_picker
+                type: DateTimePickerType.dateTimeSeparate,
+                // Date format: https://api.flutter.dev/flutter/intl/DateFormat-class.html
+                dateMask: 'E d MMM, yyyy',
+                controller: _dateTimePickerController,
+                firstDate: DateTime.now(),
+                // We allow travel planning ahead of 4 days
+                lastDate: DateTime.now().add(const Duration(hours: 4*24)),
+                icon: const Icon(Icons.event),
+                dateLabelText: 'Date',
+                timeLabelText: "Hour",
+                onChanged: (val) => print(val),
+              ),
             ),
             // Submit button
             Padding(
@@ -119,6 +145,13 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
       key: _originSelectionKey,
       asyncItems: (filter) => fetchFutureBusStopsByName(filter),
       compareFn: (i, s) => i.isEqual(s),
+      dropdownDecoratorProps: const DropDownDecoratorProps(
+        dropdownSearchDecoration: InputDecoration(
+          labelText: 'Origin',
+          border: OutlineInputBorder(),
+          icon: Icon(Icons.map),
+        ),
+      ),
       popupProps: PopupProps.menu(
         showSearchBox: true,
         title: const Text('Search origin bus stop'),
@@ -144,6 +177,13 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
       key: _destinationSelectionKey,
       asyncItems: (filter) => fetchFutureBusStopsByName(filter),
       compareFn: (i, s) => i.isEqual(s),
+      dropdownDecoratorProps: const DropDownDecoratorProps(
+        dropdownSearchDecoration: InputDecoration(
+          labelText: 'Destination',
+          border: OutlineInputBorder(),
+          icon: Icon(Icons.map),
+        ),
+      ),
       popupProps: PopupProps.menu(
         showSearchBox: true,
         title: const Text('Search destination bus stop'),
@@ -179,21 +219,6 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
       print("Bus stops size: ${busStopsJson.length}");
       List<BusStop> busStopList = List.generate(busStopsJson.length, (index) => BusStop.fromJson
         (busStopsJson[index]));
-      // TODO There is one bug here. The only one polyline was shown on the map, but if you
-      //  switch to other tabs and come back, all polylines will be there.
-
-      // Provider.of<PolylinesModel>(context, listen: false).addBusRouteListAsPolylines(busRouteList);
-      // busRouteList.map((busRoute) => (){
-      //     Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(busRoute);
-      //     // print(Provider.of<PolylinesModel>(context, listen: false));
-      //   }
-      // );
-      // for(BusRoute busRoute in busStopList) {
-      //   Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(busRoute);
-      // }
-      // print('PolylinesModel size: ${Provider.of<PolylinesModel>(context, listen: false).items
-      //     .length}');
-
       return busStopList;
     } else {
       // If the server did not return a 200 OK response, then throw an exception.
@@ -226,6 +251,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   Future<List<BusRoute>> fetchBusRoutes() async {
     print('Selected origin: ${_originSelectionKey.currentState?.getSelectedItem?.stopNumber}');
     print('Selected destination: ${_destinationSelectionKey.currentState?.getSelectedItem?.stopNumber}');
+    print('Selected datetime: ${_dateTimePickerController.value.text}');
     final response = await http.get(
       Uri.parse('$apiHost/api/route/matchingRoute'),
       headers: {
