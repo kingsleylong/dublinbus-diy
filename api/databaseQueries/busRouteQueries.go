@@ -119,7 +119,7 @@ func FindMatchingRoute(c *gin.Context) {
 	var originRoute busRoute
 	var destinationRoute busRoute
 	var matchedRoute busRouteJSON
-	var matchedRouteStop StopWithCoordinates
+//	var matchedRouteStop StopWithCoordinates
 
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("trips_n_stops")
@@ -154,6 +154,7 @@ func FindMatchingRoute(c *gin.Context) {
 				//matchingRoutes = append(matchingRoutes, destination)
 				matchedRoute.RouteNum = destinationRoute.Route.RouteShortName
 				for _, stop := range destinationRoute.Stops {
+					var matchedRouteStop StopWithCoordinates
 					matchedRouteStop.StopID = stop.StopId
 					matchedRouteStop.StopName = stop.StopName
 					matchedRouteStop.StopNumber = stop.StopNumber
