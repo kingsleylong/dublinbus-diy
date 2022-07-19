@@ -4,6 +4,7 @@ import 'package:date_time_picker/date_time_picker.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:web/models/bus_route.dart';
 import 'package:web/models/bus_stop.dart';
@@ -252,6 +253,9 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
     print('Selected origin: ${_originSelectionKey.currentState?.getSelectedItem?.stopNumber}');
     print('Selected destination: ${_destinationSelectionKey.currentState?.getSelectedItem?.stopNumber}');
     print('Selected datetime: ${_dateTimePickerController.value.text}');
+    var parseTime = DateTime.parse(_dateTimePickerController.value.text);
+    // Date format: https://api.flutter.dev/flutter/intl/DateFormat-class.html
+    print('parseTime: $parseTime  ${DateFormat('MM-dd-yyyy HH:mm:ss').format(parseTime)}');
     final response = await http.get(
       Uri.parse('$apiHost/api/route/matchingRoute'),
       headers: {
