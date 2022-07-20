@@ -144,7 +144,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
     // Check the examples code for usage: https://github.com/salim-lachdhaf/searchable_dropdown
     return DropdownSearch<BusStop>(
       key: _originSelectionKey,
-      asyncItems: (filter) => fetchFutureBusStopsByName(filter),
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'ucd' : filter),
       compareFn: (i, s) => i.isEqual(s),
       dropdownDecoratorProps: const DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
@@ -159,16 +159,16 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
         isFilterOnline: true,
         showSelectedItems: true,
         itemBuilder: _originPopupItemBuilder,
-        favoriteItemProps: FavoriteItemProps(
-          showFavoriteItems: true,
-          // TODO This is a fake favorite feature. We need to implement in future to let the user
-          //  mark the favorite stops
-          favoriteItems: (us) {
-            return us
-              .where((e) => e.stopName!.contains("UCD"))
-              .toList();
-          },
-        ),
+        // favoriteItemProps: FavoriteItemProps(
+        //   showFavoriteItems: true,
+        //   // TODO This is a fake favorite feature. We need to implement in future to let the user
+        //   //  mark the favorite stops
+        //   favoriteItems: (us) {
+        //     return us
+        //       .where((e) => e.stopName!.contains("UCD"))
+        //       .toList();
+        //   },
+        // ),
       ),
     );
   }
@@ -176,7 +176,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   Widget buildSearchableDestinationDropdownList() {
     return DropdownSearch<BusStop>(
       key: _destinationSelectionKey,
-      asyncItems: (filter) => fetchFutureBusStopsByName(filter),
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'spire' : filter),
       compareFn: (i, s) => i.isEqual(s),
       dropdownDecoratorProps: const DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
@@ -191,21 +191,22 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
         isFilterOnline: true,
         showSelectedItems: true,
         itemBuilder: _originPopupItemBuilder,
-        favoriteItemProps: FavoriteItemProps(
-          showFavoriteItems: true,
-          favoriteItems: (us) {
-            return us
-                .where((e) => e.stopName!.contains("Spire"))
-                .toList();
-          },
-        ),
+        // favoriteItemProps: FavoriteItemProps(
+        //   showFavoriteItems: true,
+        //   favoriteItems: (us) {
+        //     return us
+        //         .where((e) => e.stopName!.contains("Spire"))
+        //         .toList();
+        //   },
+        // ),
       ),
     );
   }
 
   Future<List<BusStop>> fetchFutureBusStopsByName(String filter) async {
     String url = '$apiHost/api/stop/findByAddress';
-    final paramsStr = (filter == '') ? '' : '&filter=$filter';
+    // final paramsStr = (filter == '') ? '' : '&filter=$filter';
+    final paramsStr = (filter == '') ? '' : '/$filter';
     final response = await http.get(
       Uri.parse('$url$paramsStr'),
       headers: {
@@ -216,10 +217,12 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response, then parse the JSON.
       final List busStopsJson = jsonDecode(response.body);
+      final List matchedStopsJson = busStopsJson[0];
+      final List suggestedStopsJson = busStopsJson[1];
 
-      print("Bus stops size: ${busStopsJson.length}");
-      List<BusStop> busStopList = List.generate(busStopsJson.length, (index) => BusStop.fromJson
-        (busStopsJson[index]));
+      print("Bus stops size: matched ${matchedStopsJson.length}, suggested ${suggestedStopsJson.length}");
+      List<BusStop> busStopList = List.generate(matchedStopsJson.length, (index) => BusStop.fromJson
+        (matchedStopsJson[index]));
       return busStopList;
     } else {
       // If the server did not return a 200 OK response, then throw an exception.
