@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   description: "The API for DublinBus web service"
-  version: "0.0.1"
+  version: "0.0.2"
   title: "Dublin Bus"
   termsOfService: "http://swagger.io/terms/"
   license:
@@ -43,9 +43,18 @@ paths:
         "200":
           description: "successful operation"
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/BusStop"
+            type: object
+            properties:
+              matched:
+                type: "array"
+                items:
+                  $ref: "#/definitions/BusStop"
+                description: The bus stops matched by the filter.
+              nearby:
+                type: "array"
+                items:
+                  $ref: "#/definitions/BusStop"
+                description: The bus stops nearby the address searched by the filter.
   /route/matchingRoute:
     get:
       tags:

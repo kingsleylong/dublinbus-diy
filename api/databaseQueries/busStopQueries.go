@@ -39,6 +39,11 @@ type StopWithCoordinates struct {
 	StopLon    float64 `bson:"stop_lon" json:"stop_lon"`
 }
 
+type findByAddressResponse struct {
+	Matched []StopWithCoordinates `bson:"matched" json:"matched"`
+	Nearby  []StopWithCoordinates `bson:"nearby" json:"nearby"`
+}
+
 // GetDatabases returns the databases present in the MongoDB connection.
 // Useful as a debugging query.
 func GetDatabases(c *gin.Context) {
@@ -151,9 +156,10 @@ func GetStopsList(c *gin.Context) {
 	stopsFromDB := GetStopByName(stopSearch)
 	stopsFromGeocoding := FindNearbyStops(stopSearch)
 
-	var busStops [][]StopWithCoordinates
+	var busStops findByAddressResponse
 
-	busStops = append(busStops, stopsFromDB, stopsFromGeocoding)
+	busStops.Matched = stopsFromDB
+	busStops.Nearby = stopsFromGeocoding
 
 	c.IndentedJSON(http.StatusOK, busStops)
 }
