@@ -5,8 +5,9 @@ class BusRoute {
   String routeNumber;
   List<BusStop> stops;
   List<Shape> shapes;
+  int? travelTime;
 
-  BusRoute(this.routeNumber, this.stops, this.shapes);
+  BusRoute(this.routeNumber, this.stops, this.shapes, this.travelTime);
 
   factory BusRoute.fromJson(Map<String, dynamic> json) {
     List<dynamic> stopsJson = json['stops'] as List;
@@ -15,6 +16,7 @@ class BusRoute {
       json['route_num'],
       stopsJson.map((busStopJson) => BusStop.fromJson(busStopJson)).toList(),
       shapesJson.map((shapeJson) => Shape.fromJson(shapeJson)).toList(),
+      json['travel_time']
     );
   }
 }
