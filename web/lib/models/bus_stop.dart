@@ -1,17 +1,23 @@
+enum BusStopType {
+  matched, nearby
+}
+
 class BusStop {
   String? stopNumber;
   String? stopName;
   double? latitude;
   double? longitude;
+  Enum? type;
 
-  BusStop(this.stopNumber, this.stopName, this.latitude, this.longitude);
+  BusStop(this.stopNumber, this.stopName, this.latitude, this.longitude, this.type);
 
-  factory BusStop.fromJson(Map<String, dynamic> json) {
+  factory BusStop.fromJson(Map<String, dynamic> json, Enum? type) {
     return BusStop(
       json['stop_number'],
       json['stop_name'],
       json['stop_lat'],
       json['stop_lon'],
+      type,
     );
   }
 

@@ -216,13 +216,18 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response, then parse the JSON.
-      final List busStopsJson = jsonDecode(response.body);
-      final List matchedStopsJson = busStopsJson[0];
-      final List suggestedStopsJson = busStopsJson[1];
+      final Map<String, dynamic> busStopsJson = jsonDecode(response.body);
+      final List matchedStopsJson = busStopsJson['matched'];
+      final List nearbyStopsJson = busStopsJson['nearby'];
 
-      print("Bus stops size: matched ${matchedStopsJson.length}, suggested ${suggestedStopsJson.length}");
-      List<BusStop> busStopList = List.generate(matchedStopsJson.length, (index) => BusStop.fromJson
-        (matchedStopsJson[index]));
+      print("Bus stops size: matched ${matchedStopsJson.length}, suggested ${nearbyStopsJson.length}");
+      List<BusStop> matchedStopList = List.generate(matchedStopsJson.length, (index) =>
+          BusStop.fromJson(matchedStopsJson[index], BusStopType.matched));
+      List<BusStop> nearbyStopList = List.generate(nearbyStopsJson.length, (index) =>
+          BusStop.fromJson(matchedStopsJson[index], BusStopType.nearby));
+      List<BusStop> busStopList = [];
+      busStopList.addAll(matchedStopList);
+      busStopList.addAll(nearbyStopList);
       return busStopList;
     } else {
       // If the server did not return a 200 OK response, then throw an exception.
