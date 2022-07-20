@@ -1,23 +1,27 @@
 class BusStop {
-  final String stopNumber;
-  final String stopName;
+  String? stopNumber;
+  String? stopName;
+  double? latitude;
+  double? longitude;
 
-  const BusStop({
-    required this.stopNumber,
-    required this.stopName,
-  });
+  BusStop(this.stopNumber, this.stopName, this.latitude, this.longitude);
 
   factory BusStop.fromJson(Map<String, dynamic> json) {
     return BusStop(
-      stopNumber: json['stop_number'],
-      stopName: json['stop_name'],
+      json['stop_number'],
+      json['stop_name'],
+      json['stop_lat'],
+      json['stop_lon'],
     );
   }
 
-  factory BusStop.fromJsonForRoute(Map<String, dynamic> json) {
-    return BusStop(
-      stopNumber: json['stop_num'],
-      stopName: json['stop_address'],
-    );
+  bool isEqual(BusStop s) {
+    return stopNumber == s.stopNumber;
+  }
+
+  // This method is required by DropdownSearch widget to display the BusStop object.
+  @override
+  String toString() {
+    return '$stopName - $stopNumber';
   }
 }

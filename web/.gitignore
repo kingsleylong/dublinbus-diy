@@ -16,7 +16,8 @@ web/index.html
 migrate_working_dir/
 
 # IntelliJ related
-*.iml
+# keep web.iml for the Dart language settings
+#*.iml
 *.ipr
 *.iws
 .idea/

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:web/models/bus_stop.dart';
+import 'package:web/views/googlemap.dart';
 
 import 'tab_views.dart';
 
 class MobileBody extends StatefulWidget {
   const MobileBody(
-      {Key? key, required this.tabController, required this.futureAllBusStops}
+      {Key? key, required this.tabController}
       ) : super(key: key);
 
   final TabController tabController;
-  final Future<List<BusStop>> futureAllBusStops;
 
   @override
   State<MobileBody> createState() => _MobileBodyState();
@@ -37,12 +37,12 @@ class _MobileBodyState extends State<MobileBody> {
       ),
       body: TabBarView(
           controller: widget.tabController,
-          children: <Widget>[
-            PlanMyJourneyTabView(futureAllBusStops: widget.futureAllBusStops,),
-            const Center(
+          children: const <Widget>[
+            PlanMyJourneyTabView(googleMapComponent: GoogleMapComponent(),),
+            Center(
               child: Text("It's rainy here"),
             ),
-            const Center(
+            Center(
               child: Text("It's sunny here"),
             ),
           ]
