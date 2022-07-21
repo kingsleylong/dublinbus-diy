@@ -1,4 +1,4 @@
 const String apiHost = String.fromEnvironment(
   "API_HOST",
-  defaultValue: "http://localhost:1080"
+  defaultValue: "http://ipa-003.ucd.ie"
 );

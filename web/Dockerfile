@@ -38,7 +38,7 @@ COPY --from=configs /config/web/index.html /flutter/web/index.html
 RUN flutter pub get
 # build flutter web platform with verbos information
 # https://docs.docker.com/engine/reference/builder/#using-arg-variables
-RUN flutter build -v --dart-define=API_HOST=$API_HOST web
+RUN flutter build -v web
 
 # 3.=======================BUILD NGINX==========================
 # The runtime container will be used to build the final image that runs Nginx
