@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -87,8 +86,9 @@ func FindMatchingRoute(c *gin.Context) {
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
 
 	// Read in route number parameter provided in URL
-	originStopNum := c.Param("originStopNum")
-	destStopNum := c.Param("destStopNum")
+	originStop := c.Param("originStopNum")
+	destinationStop := c.Param("destStopNum")
+	departureTime := c.Param("departureTime")
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -112,66 +112,55 @@ func FindMatchingRoute(c *gin.Context) {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
-	// Arrays to hold routes for the origin and destination stops
-	var originRoutes []busRoute
-	var destinationRoutes []busRoute
-	var matchingRoutes []busRoute
-	var matchingRoutesJSON []busRouteJSON
-	var originRoute busRoute
-	var destinationRoute busRoute
-	var matchedRoute busRouteJSON
-	var matchedRouteStop StopWithCoordinates
-
-	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("trips_n_stops")
-
-	// Find documents that have the required origin stop as a stop on the route
-	// and store these routes in array
-	originBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
-		string(originStopNum)}})
+	coll := client.Database("BusData").Collection("trips_n_stops")
+	cursor, err := coll.Aggregate(ctx, bson.A{
+		bson.D{
+			{"$match",
+				bson.D{
+					{"stops.stop_number", originStop},
+					{"stops",
+						bson.D{
+							{"$elemMatch",
+								bson.D{
+									{"stop_number", destinationStop},
+									{"departure_time",
+										bson.D{{"$gt", departureTime}}},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		bson.D{
+			{"$sort",
+				bson.D{
+					{"route.route_short_name", 1},
+					{"stops.departure_time", 1},
+					{"stops.stop_sequence", 1},
+				},
+			},
+		},
+		bson.D{
+			{"$group",
+				bson.D{
+					{"_id", "$route.route_short_name"},
+					{"stops", bson.D{{"$first", "$stops"}}},
+					{"shapes", bson.D{{"$first", "$shapes"}}},
+				},
+			},
+		},
+	})
 	if err != nil {
 		log.Print(err)
 	}
 
-	for originBusRoutes.Next(ctx) {
-		originBusRoutes.Decode(&originRoute)
-		originRoutes = append(originRoutes, originRoute)
-	}
-
-	destinationBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
-		string(destStopNum)}})
-	if err != nil {
+	var result []bson.M
+	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
-	for destinationBusRoutes.Next(ctx) {
-		destinationBusRoutes.Decode(&destinationRoute)
-		destinationRoutes = append(destinationRoutes, destinationRoute)
-	}
-
-	for _, origin := range originRoutes {
-		for _, destination := range destinationRoutes {
-			if destination.RouteId == origin.RouteId {
-				matchingRoutes = append(matchingRoutes, destination)
-			}
-		}
-	}
-
-	for _, route := range matchingRoutes {
-		matchedRoute.RouteNum = route.Route.RouteShortName
-		for _, stop := range route.Stops {
-			matchedRouteStop.StopID = stop.StopId
-			matchedRouteStop.StopName = stop.StopName
-			matchedRouteStop.StopNumber = stop.StopNumber
-			matchedRouteStop.StopLat, _ = strconv.ParseFloat(stop.StopLat, 64)
-			matchedRouteStop.StopLon, _ = strconv.ParseFloat(stop.StopLon, 64)
-			matchedRoute.Stops = append(matchedRoute.Stops, matchedRouteStop)
-		}
-		matchedRoute.Shapes = route.Shapes
-		matchingRoutesJSON = append(matchingRoutesJSON, matchedRoute)
-	}
-
-	c.IndentedJSON(http.StatusOK, matchingRoutesJSON)
+	c.IndentedJSON(http.StatusOK, result)
 }
 
 func FindMatchingRouteDemo(c *gin.Context) {
@@ -207,48 +196,52 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
-	// Arrays to hold routes for the origin and destination stops
-	var originRoutes []busRoute
-	var destinationRoutes []busRoute
-	var matchingRoutes []busRoute
-	var originRoute busRoute
-	var destinationRoute busRoute
-
-	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("trips_n_stops")
-
-	// Find documents that have the required origin stop as a stop on the route
-	// and store these routes in array
-	originBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
-		"2955"}})
+	coll := client.Database("BusData").Collection("trips_n_stops")
+	cursor, err := coll.Aggregate(ctx, bson.A{
+		bson.D{
+			{"$match",
+				bson.D{
+					{"stops.stop_number", "4727"},
+					{"stops",
+						bson.D{
+							{"$elemMatch",
+								bson.D{
+									{"stop_number", "2070"},
+									{"departure_time", bson.D{{"$gt", "19:55:00"}}},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		bson.D{
+			{"$sort",
+				bson.D{
+					{"route.route_short_name", 1},
+					{"stops.departure_time", 1},
+					{"stops.stop_sequence", 1},
+				},
+			},
+		},
+		bson.D{
+			{"$group",
+				bson.D{
+					{"_id", "$route.route_short_name"},
+					{"stops", bson.D{{"$first", "$stops"}}},
+					{"shapes", bson.D{{"$first", "$shapes"}}},
+				},
+			},
+		},
+	})
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	var result []bson.M
+	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
-	for originBusRoutes.Next(ctx) {
-		originBusRoutes.Decode(&originRoute)
-		originRoutes = append(originRoutes, originRoute)
-	}
-
-	destinationBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
-		"7067"}})
-	if err != nil {
-		log.Print(err)
-	}
-
-	for destinationBusRoutes.Next(ctx) {
-		destinationBusRoutes.Decode(&destinationRoute)
-		destinationRoutes = append(destinationRoutes, destinationRoute)
-	}
-
-	for _, origin := range originRoutes {
-		for _, destination := range destinationRoutes {
-			if destination.RouteId == origin.RouteId {
-				matchingRoutes = append(matchingRoutes, destination)
-				break
-			}
-		}
-	}
-
-	c.IndentedJSON(http.StatusOK, matchingRoutes)
+	c.IndentedJSON(http.StatusOK, result)
 }

@@ -17,7 +17,8 @@ func main() {
 	router.GET("/stop/findByAddress/:stopSearch", databaseQueries.GetStopsList)
 
 	// Bus Route queries
-	router.GET("/matchingRoute/:originStopNum/:destStopNum", databaseQueries.FindMatchingRoute)
+	router.GET("/matchingRoute/:originStopNum/:destStopNum/:departureTime",
+		databaseQueries.FindMatchingRoute)
 	router.GET("/matchingRouteTest", databaseQueries.FindMatchingRouteDemo)
 
 	router.GET("/coordinatesTest/:searchString", databaseQueries.GetCoordinatesTest)
