@@ -126,8 +126,6 @@ definitions:
     properties:
       route_num:
         type: "string"
-      direction:
-        type: "string"
       stops:
         type: "array"
         items:
