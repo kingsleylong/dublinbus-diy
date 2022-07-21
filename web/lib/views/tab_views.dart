@@ -256,8 +256,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
         title: Text(item.stopName!),
         subtitle: Text(item.stopNumber.toString()),
         leading: CircleAvatar(
-          // this does not work - throws 404 error
-          // backgroundImage: NetworkImage(item.avatar ?? ''),
+          child: buildBusStopAvatarByType(item),
         ),
       ),
     );
@@ -367,6 +366,15 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
         busRoute: data[index],
       );
     });
+  }
+  
+  // use icon to distinguish the bus stop type
+  buildBusStopAvatarByType(BusStop item) {
+    if (item.type == BusStopType.matched) {
+      return const Icon(Icons.search);
+    } else {
+      return const Icon(Icons.location_searching);
+    }
   }
 }
 
