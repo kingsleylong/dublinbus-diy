@@ -16,18 +16,15 @@ import (
 // FindMatchingRouteForDeparture takes in two parameters (the origin and destination bus stop number)
 // and then this function attempts to find the bus route objects(s) that contain both the
 // origin and destination stop and then returns these specific routes as JSON.
-func FindMatchingRouteForDeparture(c *gin.Context) {
+func FindMatchingRouteForDeparture(destination string,
+	origin string,
+	departureTime string) []bson.M {
 
 	// Assign values to connection string variables
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	// Read in route number parameter provided in URL
-	originStop := c.Param("originStopNum")
-	destinationStop := c.Param("destStopNum")
-	departureTime := c.Param("departureTime")
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -56,12 +53,12 @@ func FindMatchingRouteForDeparture(c *gin.Context) {
 		bson.D{
 			{"$match",
 				bson.D{
-					{"stops.stop_number", destinationStop},
+					{"stops.stop_number", destination},
 					{"stops",
 						bson.D{
 							{"$elemMatch",
 								bson.D{
-									{"stop_number", originStop},
+									{"stop_number", origin},
 									{"departure_time",
 										bson.D{{"$gt", departureTime}}},
 								},
@@ -99,21 +96,18 @@ func FindMatchingRouteForDeparture(c *gin.Context) {
 		log.Print(err)
 	}
 
-	c.IndentedJSON(http.StatusOK, result)
+	return result
 }
 
-func FindMatchingRouteForArrival(c *gin.Context) {
+func FindMatchingRouteForArrival(origin string,
+	destination string,
+	arrivalTime string) []bson.M {
 
 	// Assign values to connection string variables
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	// Read in route number parameter provided in URL
-	originStop := c.Param("originStopNum")
-	destinationStop := c.Param("destStopNum")
-	arrivalTime := c.Param("arrivalTime")
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -142,12 +136,12 @@ func FindMatchingRouteForArrival(c *gin.Context) {
 		bson.D{
 			{"$match",
 				bson.D{
-					{"stops.stop_number", originStop},
+					{"stops.stop_number", origin},
 					{"stops",
 						bson.D{
 							{"$elemMatch",
 								bson.D{
-									{"stop_number", destinationStop},
+									{"stop_number", destination},
 									{"arrival_time",
 										bson.D{{"$lte", arrivalTime}}},
 								},
@@ -185,7 +179,7 @@ func FindMatchingRouteForArrival(c *gin.Context) {
 		log.Print(err)
 	}
 
-	c.IndentedJSON(http.StatusOK, result)
+	return result
 }
 
 func FindMatchingRouteDemo(c *gin.Context) {
