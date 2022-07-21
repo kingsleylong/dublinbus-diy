@@ -19,6 +19,8 @@ func main() {
 	// Bus Route queries
 	router.GET("/matchingRoute/:destStopNum/:originStopNum/:departureTime",
 		databaseQueries.FindMatchingRouteForDeparture)
+	router.GET("/matchingRouteArr/:originStopNum/:destStopNum/:arrivalTime",
+		databaseQueries.FindMatchingRouteForArrival)
 	router.GET("/matchingRouteTest", databaseQueries.FindMatchingRouteDemo)
 
 	router.GET("/coordinatesTest/:searchString", databaseQueries.GetCoordinatesTest)
