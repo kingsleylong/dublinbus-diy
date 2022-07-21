@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -257,10 +258,27 @@ func FindMatchingRouteDemo(c *gin.Context) {
 		log.Fatal(err)
 	}
 
-	var result []bson.M
+	var result []busRoute
+	var resultJSON []busRouteJSON
+	var route busRouteJSON
+	var stop StopWithCoordinates
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
-	c.IndentedJSON(http.StatusOK, result)
+	for _, currentRoute := range result {
+		route.ID = currentRoute.Id
+		for _, currentStop := range currentRoute.Stops {
+			stop.StopID = currentStop.StopId
+			stop.StopName = currentStop.StopName
+			stop.StopNumber = currentStop.StopNumber
+			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
+			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
+			route.Stops = append(route.Stops, stop)
+		}
+		route.Shapes = currentRoute.Shapes
+		resultJSON = append(resultJSON, route)
+	}
+
+	c.IndentedJSON(http.StatusOK, resultJSON)
 }

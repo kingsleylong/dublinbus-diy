@@ -1,7 +1,5 @@
 package databaseQueries
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
-
 // busRoute is a type that is designed to read from the trips_new collection
 // from MongoDB. It contains the id fields that combine to form a unique key
 // for each entry (i.e. the route id, the shape id, the direction id, the trip id
@@ -9,20 +7,15 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 // object as well as information on the route and the shape string used to
 // draw the shape on the map. All fields map to type string from the database
 type busRoute struct {
-	Id          primitive.ObjectID `bson:"_id,omitempty" json:"-"`
-	RouteId     string             `bson:"route_id" json:"route_id"`
-	TripId      string             `bson:"trip_id" json:"trip_id"`
-	ShapeId     string             `bson:"shape_id" json:"shape_id"`
-	DirectionId string             `bson:"direction_id" json:"direction_id"`
-	Route       route              `bson:"route" json:"route"`
-	Shapes      []shape            `bson:"shapes" json:"shapes"`
-	Stops       []routeStop        `bson:"stops" json:"stops"`
+	Id     string    `bson:"_id" json:"_id"`
+	Stops  []BusStop `bson:"stops" json:"stops"`
+	Shapes []Shape   `bson:"shapes" json:"shapes"`
 }
 
 type busRouteJSON struct {
-	RouteNum string                `bson:"route_num" json:"route_num"`
-	Stops    []StopWithCoordinates `bson:"stops" json:"stops"`
-	Shapes   []shape               `bson:"shapes" json:"shapes"`
+	ID     string                `bson:"_id" json:"_id"`
+	Stops  []StopWithCoordinates `bson:"stops" json:"stops"`
+	Shapes []Shape               `bson:"shapes" json:"shapes"`
 }
 
 // routeStop represents the stop information contained within the trips_n_stops
@@ -50,11 +43,11 @@ type route struct {
 	RouteShortName string `bson:"route_short_name" json:"route_short_name"`
 }
 
-// shape is struct that contains the coordinates for each turn in a bus
+// Shape is struct that contains the coordinates for each turn in a bus
 // line as it travels its designated route that combined together allow
 // the bus route to be drawn on a map matching the road network of Dublin.
 // All fields map to type string from the database
-type shape struct {
+type Shape struct {
 	//ShapeId         string `bson:"shape_id" json:"shape_id"`
 	ShapePtLat      string `bson:"shape_pt_lat" json:"shape_pt_lat"`
 	ShapePtLon      string `bson:"shape_pt_lon" json:"shape_pt_lon"`
@@ -63,7 +56,7 @@ type shape struct {
 }
 
 type BusStop struct {
-	StopId     string `bson:"stop_id" json:"stop_id"`
+	StopId     string `bson:"stop_id,omitempty" json:"stop_id,omitempty"`
 	StopName   string `bson:"stop_name" json:"stop_name"`
 	StopNumber string `bson:"stop_number" json:"stop_number"`
 	StopLat    string `bson:"stop_lat" json:"stop_lat"`
@@ -71,7 +64,7 @@ type BusStop struct {
 }
 
 type StopWithCoordinates struct {
-	StopID     string  `bson:"stop_id" json:"stop_id"`
+	StopID     string  `bson:"stop_id,omitempty" json:"stop_id,omitempty"`
 	StopName   string  `bson:"stop_name" json:"stop_name"`
 	StopNumber string  `bson:"stop_number" json:"stop_number"`
 	StopLat    float64 `bson:"stop_lat" json:"stop_lat"`
