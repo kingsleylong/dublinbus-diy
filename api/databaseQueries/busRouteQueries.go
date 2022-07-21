@@ -74,10 +74,10 @@ type shape struct {
 	ShapeDistTravel string `bson:"shape_dist_traveled" json:"shape_dist_traveled"`
 }
 
-// FindMatchingRoute takes in two parameters (the origin and destination bus stop number)
+// FindMatchingRouteForDeparture takes in two parameters (the origin and destination bus stop number)
 // and then this function attempts to find the bus route objects(s) that contain both the
 // origin and destination stop and then returns these specific routes as JSON.
-func FindMatchingRoute(c *gin.Context) {
+func FindMatchingRouteForDeparture(c *gin.Context) {
 
 	// Assign values to connection string variables
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
@@ -117,12 +117,12 @@ func FindMatchingRoute(c *gin.Context) {
 		bson.D{
 			{"$match",
 				bson.D{
-					{"stops.stop_number", originStop},
+					{"stops.stop_number", destinationStop},
 					{"stops",
 						bson.D{
 							{"$elemMatch",
 								bson.D{
-									{"stop_number", destinationStop},
+									{"stop_number", originStop},
 									{"departure_time",
 										bson.D{{"$gt", departureTime}}},
 								},
