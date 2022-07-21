@@ -19,7 +19,7 @@ import (
 // origin and destination stop and then returns these specific routes as JSON.
 func FindMatchingRouteForDeparture(destination string,
 	origin string,
-	departureTime string) []bson.M {
+	departureTime string) []busRouteJSON {
 
 	// Assign values to connection string variables
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
@@ -92,17 +92,34 @@ func FindMatchingRouteForDeparture(destination string,
 		log.Print(err)
 	}
 
-	var result []bson.M
+	var result []busRoute
+	var resultJSON []busRouteJSON
+	var route busRouteJSON
+	var stop StopWithCoordinates
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
-	return result
+	for _, currentRoute := range result {
+		route.ID = currentRoute.Id
+		for _, currentStop := range currentRoute.Stops {
+			stop.StopID = currentStop.StopId
+			stop.StopName = currentStop.StopName
+			stop.StopNumber = currentStop.StopNumber
+			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
+			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
+			route.Stops = append(route.Stops, stop)
+		}
+		route.Shapes = currentRoute.Shapes
+		resultJSON = append(resultJSON, route)
+	}
+
+	return resultJSON
 }
 
 func FindMatchingRouteForArrival(origin string,
 	destination string,
-	arrivalTime string) []bson.M {
+	arrivalTime string) []busRouteJSON {
 
 	// Assign values to connection string variables
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
@@ -175,12 +192,29 @@ func FindMatchingRouteForArrival(origin string,
 		log.Print(err)
 	}
 
-	var result []bson.M
+	var result []busRoute
+	var resultJSON []busRouteJSON
+	var route busRouteJSON
+	var stop StopWithCoordinates
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
-	return result
+	for _, currentRoute := range result {
+		route.ID = currentRoute.Id
+		for _, currentStop := range currentRoute.Stops {
+			stop.StopID = currentStop.StopId
+			stop.StopName = currentStop.StopName
+			stop.StopNumber = currentStop.StopNumber
+			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
+			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
+			route.Stops = append(route.Stops, stop)
+		}
+		route.Shapes = currentRoute.Shapes
+		resultJSON = append(resultJSON, route)
+	}
+
+	return resultJSON
 }
 
 func FindMatchingRouteDemo(c *gin.Context) {
