@@ -14,7 +14,7 @@ class BusRoute {
     List<dynamic> shapesJson = json['shapes'] as List;
     return BusRoute(
       json['route_num'],
-      stopsJson.map((busStopJson) => BusStop.fromJson(busStopJson)).toList(),
+      stopsJson.map((busStopJson) => BusStop.fromJson(busStopJson, null)).toList(),
       shapesJson.map((shapeJson) => Shape.fromJson(shapeJson)).toList(),
       json['travel_time']
     );

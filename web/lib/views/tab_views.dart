@@ -204,6 +204,8 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   }
 
   Future<List<BusStop>> fetchFutureBusStopsByName(String filter) async {
+    List<BusStop> busStopList = [];
+
     String url = '$apiHost/api/stop/findByAddress';
     // final paramsStr = (filter == '') ? '' : '&filter=$filter';
     final paramsStr = (filter == '') ? '' : '/$filter';
@@ -216,13 +218,22 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response, then parse the JSON.
-      final List busStopsJson = jsonDecode(response.body);
-      final List matchedStopsJson = busStopsJson[0];
-      final List suggestedStopsJson = busStopsJson[1];
+      final Map<String, dynamic> busStopsJson = jsonDecode(response.body);
+      final List? matchedStopsJson = busStopsJson['matched'];
+      final List? nearbyStopsJson = busStopsJson['nearby'];
 
-      print("Bus stops size: matched ${matchedStopsJson.length}, suggested ${suggestedStopsJson.length}");
-      List<BusStop> busStopList = List.generate(matchedStopsJson.length, (index) => BusStop.fromJson
-        (matchedStopsJson[index]));
+      List<BusStop> matchedStopList;
+      List<BusStop> nearbyStopList;
+      if (matchedStopsJson != null) {
+        matchedStopList = List.generate(matchedStopsJson.length, (index) =>
+          BusStop.fromJson(matchedStopsJson[index], BusStopType.matched));
+        busStopList.addAll(matchedStopList);
+      }
+      if (nearbyStopsJson != null) {
+        nearbyStopList = List.generate(nearbyStopsJson.length, (index) =>
+          BusStop.fromJson(nearbyStopsJson[index], BusStopType.nearby));
+        busStopList.addAll(nearbyStopList);
+      }
       return busStopList;
     } else {
       // If the server did not return a 200 OK response, then throw an exception.
@@ -245,8 +256,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
         title: Text(item.stopName!),
         subtitle: Text(item.stopNumber.toString()),
         leading: CircleAvatar(
-          // this does not work - throws 404 error
-          // backgroundImage: NetworkImage(item.avatar ?? ''),
+          child: buildBusStopAvatarByType(item),
         ),
       ),
     );
@@ -356,6 +366,15 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
         busRoute: data[index],
       );
     });
+  }
+  
+  // use icon to distinguish the bus stop type
+  buildBusStopAvatarByType(BusStop item) {
+    if (item.type == BusStopType.matched) {
+      return const Icon(Icons.search);
+    } else {
+      return const Icon(Icons.location_searching);
+    }
   }
 }
 

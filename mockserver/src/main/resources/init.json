@@ -2,311 +2,69 @@
   {
     "httpRequest": {
       "method": "GET",
-      "path": "/api/stop/findByAddress"
+      "path": "/api/stop/findByAddress.*"
     },
     "httpResponse": {
-      "body": [
-        {
-          "stop_name": "Parnell Square West",
-          "stop_number": "2",
-          "stop_lat": 53.3522443611407,
-          "stop_lon": -6.26372321891882
-        },
-        {
-          "stop_name": "Parnell Square West",
-          "stop_number": "3",
-          "stop_lat": 53.3523085514349,
-          "stop_lon": -6.26381074216821
-        },
-        {
-          "stop_name": "Parnell Square West",
-          "stop_number": "4",
-          "stop_lat": 53.3525745131874,
-          "stop_lon": -6.26417548603793
-        },
-        {
-          "stop_name": "Parnell Square West",
-          "stop_number": "6",
-          "stop_lat": 53.352749335707,
-          "stop_lon": -6.26445380396429
-        },
-        {
-          "stop_name": "Parnell Square West",
-          "stop_number": "7",
-          "stop_lat": 53.3528409105808,
-          "stop_lon": -6.26457026121744
-        },
-        {
-          "stop_name": "Parnell Square West",
-          "stop_number": "8",
-          "stop_lat": 53.3532722714846,
-          "stop_lon": -6.26518367657395
-        },
-        {
-          "stop_name": "Parnell Square West",
-          "stop_number": "10",
-          "stop_lat": 53.3533921036497,
-          "stop_lon": -6.26538912389949
-        },
-        {
-          "stop_name": "St Joseph's Parade",
-          "stop_number": "11",
-          "stop_lat": 53.3568152335319,
-          "stop_lon": -6.26467919507521
-        },
-        {
-          "stop_name": "Upper Dorset Street",
-          "stop_number": "12",
-          "stop_lat": 53.3571075162046,
-          "stop_lon": -6.26438186733525
-        },
-        {
-          "stop_name": "Dorset Street Lower",
-          "stop_number": "14",
-          "stop_lat": 53.3585312378782,
-          "stop_lon": -6.26277650570866
-        },
-        {
-          "stop_name": "Innisfallen Parade",
-          "stop_number": "15",
-          "stop_lat": 53.3602667075989,
-          "stop_lon": -6.26097804267247
-        },
-        {
-          "stop_name": "Nephin Road Park",
-          "stop_number": "16",
-          "stop_lat": 53.3663915571432,
-          "stop_lon": -6.30561418352733
-        },
-        {
-          "stop_name": "Drumcondra Rail Stn",
-          "stop_number": "17",
-          "stop_lat": 53.3630783243804,
-          "stop_lon": -6.25839928847829
-        },
-        {
-          "stop_name": "Dargle Road",
-          "stop_number": "18",
-          "stop_lat": 53.3658559259191,
-          "stop_lon": -6.2559568206783
-        },
-        {
-          "stop_name": "Botanic Avenue",
-          "stop_number": "19",
-          "stop_lat": 53.3672348759349,
-          "stop_lon": -6.25559994097697
-        },
-        {
-          "stop_name": "DCU St Patrick's",
-          "stop_number": "21",
-          "stop_lat": 53.3701011992972,
-          "stop_lon": -6.25431059904437
-        },
-        {
-          "stop_name": "Home Farm Road",
-          "stop_number": "22",
-          "stop_lat": 53.3735036097431,
-          "stop_lon": -6.25280375269001
-        },
-        {
-          "stop_name": "Ferguson Road",
-          "stop_number": "23",
-          "stop_lat": 53.3742282800816,
-          "stop_lon": -6.25626100416695
-        },
-        {
-          "stop_name": "Walsh Road",
-          "stop_number": "24",
-          "stop_lat": 53.3751331588865,
-          "stop_lon": -6.26037234812314
-        },
-        {
-          "stop_name": "Rathlin Road",
-          "stop_number": "25",
-          "stop_lat": 53.3758994661498,
-          "stop_lon": -6.26361773641705
-        },
-        {
-          "stop_name": "Ballymun Road",
-          "stop_number": "27",
-          "stop_lat": 53.3794389600131,
-          "stop_lon": -6.26658526125999
-        },
-        {
-          "stop_name": "Hampstead Avenue",
-          "stop_number": "28",
-          "stop_lat": 53.3815786376305,
-          "stop_lon": -6.26600227077734
-        },
-        {
-          "stop_name": "Albert College Park",
-          "stop_number": "29",
-          "stop_lat": 53.3834882529482,
-          "stop_lon": -6.26566910125412
-        },
-        {
-          "stop_name": "Ventry Park",
-          "stop_number": "30",
-          "stop_lat": 53.3703319001951,
-          "stop_lon": -6.30460116922909
-        },
-        {
-          "stop_name": "St Pappin's Road",
-          "stop_number": "31",
-          "stop_lat": 53.3860332259168,
-          "stop_lon": -6.26885807727496
-        },
-        {
-          "stop_name": "Stormanstown Road",
-          "stop_number": "32",
-          "stop_lat": 53.3861955680761,
-          "stop_lon": -6.27137720104136
-        },
-        {
-          "stop_name": "Glasnevin Drive",
-          "stop_number": "33",
-          "stop_lat": 53.3887179243081,
-          "stop_lon": -6.27177114122446
-        },
-        {
-          "stop_name": "Dean Swift Road",
-          "stop_number": "35",
-          "stop_lat": 53.3862067871037,
-          "stop_lon": -6.27091069254095
-        },
-        {
-          "stop_name": "Maolbuille Road",
-          "stop_number": "36",
-          "stop_lat": 53.3861268504134,
-          "stop_lon": -6.26787706978334
-        },
-        {
-          "stop_name": "DCU Ballymun Road",
-          "stop_number": "37",
-          "stop_lat": 53.3853464011964,
-          "stop_lon": -6.2648869813179
-        },
-        {
-          "stop_name": "Hampstead Avenue",
-          "stop_number": "38",
-          "stop_lat": 53.3822365941661,
-          "stop_lon": -6.26550952120501
-        },
-        {
-          "stop_name": "The Rise",
-          "stop_number": "39",
-          "stop_lat": 53.3804141869347,
-          "stop_lon": -6.26565875906584
-        },
-        {
-          "stop_name": "Stella Avenue",
-          "stop_number": "40",
-          "stop_lat": 53.3766607654531,
-          "stop_lon": -6.2646689685279
-        },
-        {
-          "stop_name": "Home Farm Road",
-          "stop_number": "41",
-          "stop_lat": 53.3755592683283,
-          "stop_lon": -6.26185800624665
-        },
-        {
-          "stop_name": "Corpus Christi NS",
-          "stop_number": "42",
-          "stop_lat": 53.37465027346,
-          "stop_lon": -6.25746118972129
-        },
-        {
-          "stop_name": "Achill Road",
-          "stop_number": "43",
-          "stop_lat": 53.3738612202293,
-          "stop_lon": -6.25390131043387
-        },
-        {
-          "stop_name": "Skylon Hotel",
-          "stop_number": "44",
-          "stop_lat": 53.3730174091229,
-          "stop_lon": -6.25213230324291
-        },
-        {
-          "stop_name": "DCU St Patrick's",
-          "stop_number": "45",
-          "stop_lat": 53.3699364344031,
-          "stop_lon": -6.25410694084961
-        },
-        {
-          "stop_name": "Botanic Avenue",
-          "stop_number": "46",
-          "stop_lat": 53.3671310162176,
-          "stop_lon": -6.25525855655008
-        },
-        {
-          "stop_name": "Drumcondra Rail Stn",
-          "stop_number": "47",
-          "stop_lat": 53.3639161189952,
-          "stop_lon": -6.25729825652797
-        },
-        {
-          "stop_name": "Fitzroy Avenue",
-          "stop_number": "48",
-          "stop_lat": 53.3622573901253,
-          "stop_lon": -6.25880841233312
-        },
-        {
-          "stop_name": "Dorset Street Lower",
-          "stop_number": "49",
-          "stop_lat": 53.3600042378903,
-          "stop_lon": -6.26085350834049
-        },
-        {
-          "stop_name": "Temple Street",
-          "stop_number": "51",
-          "stop_lat": 53.3578104088118,
-          "stop_lon": -6.26327157246547
-        },
-        {
-          "stop_name": "Dorset Street Upper",
-          "stop_number": "52",
-          "stop_lat": 53.3566607792373,
-          "stop_lon": -6.26456528204094
-        },
-        {
-          "stop_name": "North Circular Road",
-          "stop_number": "53",
-          "stop_lat": 53.3600144884247,
-          "stop_lon": -6.26279128910748
-        },
-        {
-          "stop_name": "Mater Hospital",
-          "stop_number": "54",
-          "stop_lat": 53.3602216080572,
-          "stop_lon": -6.26590803396304
-        },
-        {
-          "stop_name": "Mountjoy",
-          "stop_number": "55",
-          "stop_lat": 53.3604116029257,
-          "stop_lon": -6.26846957982232
-        },
-        {
-          "stop_name": "Dalymount",
-          "stop_number": "56",
-          "stop_lat": 53.3607597246064,
-          "stop_lon": -6.27637365491405
-        },
-        {
-          "stop_name": "Dalymount",
-          "stop_number": "57",
-          "stop_lat": 53.3608162242942,
-          "stop_lon": -6.27655167484326
-        },
-        {
-          "stop_name": "Churchview Home",
-          "stop_number": "58",
-          "stop_lat": 53.3609462458936,
-          "stop_lon": -6.28120420246718
-        }
-      ]
+      "body": {
+        "matched": [
+          {
+            "stop_name": "Parnell Square West",
+            "stop_number": "10",
+            "stop_lat": 53.3533921036497,
+            "stop_lon": -6.26538912389949
+          },
+          {
+            "stop_name": "St Joseph's Parade",
+            "stop_number": "11",
+            "stop_lat": 53.3568152335319,
+            "stop_lon": -6.26467919507521
+          },
+          {
+            "stop_name": "Upper Dorset Street",
+            "stop_number": "12",
+            "stop_lat": 53.3571075162046,
+            "stop_lon": -6.26438186733525
+          },
+          {
+            "stop_name": "Dorset Street Lower",
+            "stop_number": "14",
+            "stop_lat": 53.3585312378782,
+            "stop_lon": -6.26277650570866
+          },
+          {
+            "stop_name": "Innisfallen Parade",
+            "stop_number": "15",
+            "stop_lat": 53.3602667075989,
+            "stop_lon": -6.26097804267247
+          }
+        ],
+        "nearby": [
+          {
+            "stop_name": "Ballymun Road",
+            "stop_number": "27",
+            "stop_lat": 53.3794389600131,
+            "stop_lon": -6.26658526125999
+          },
+          {
+            "stop_name": "Hampstead Avenue",
+            "stop_number": "28",
+            "stop_lat": 53.3815786376305,
+            "stop_lon": -6.26600227077734
+          },
+          {
+            "stop_name": "Albert College Park",
+            "stop_number": "29",
+            "stop_lat": 53.3834882529482,
+            "stop_lon": -6.26566910125412
+          },
+          {
+            "stop_name": "Ventry Park",
+            "stop_number": "30",
+            "stop_lat": 53.3703319001951,
+            "stop_lon": -6.30460116922909
+          }
+        ]
+      }
     },
     "id": "43103d87-f92e-4a6c-85c7-99e71057422d",
     "priority": 0,

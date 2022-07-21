@@ -43,6 +43,8 @@ paths:
         "200":
           description: "successful operation"
           schema:
+            # construct customized object
+            # https://swagger.io/docs/specification/describing-responses/
             type: object
             properties:
               matched:
