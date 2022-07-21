@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -13,66 +12,6 @@ import (
 	"os"
 	"time"
 )
-
-// busRoute is a type that is designed to read from the trips_new collection
-// from MongoDB. It contains the id fields that combine to form a unique key
-// for each entry (i.e. the route id, the shape id, the direction id, the trip id
-// and the stop id). It also includes coordinates for the stop associated with this
-// object as well as information on the route and the shape string used to
-// draw the shape on the map. All fields map to type string from the database
-type busRoute struct {
-	Id          primitive.ObjectID `bson:"_id,omitempty" json:"-"`
-	RouteId     string             `bson:"route_id" json:"route_id"`
-	TripId      string             `bson:"trip_id" json:"trip_id"`
-	ShapeId     string             `bson:"shape_id" json:"shape_id"`
-	DirectionId string             `bson:"direction_id" json:"direction_id"`
-	Route       route              `bson:"route" json:"route"`
-	Shapes      []shape            `bson:"shapes" json:"shapes"`
-	Stops       []routeStop        `bson:"stops" json:"stops"`
-}
-
-type busRouteJSON struct {
-	RouteNum string                `bson:"route_num" json:"route_num"`
-	Stops    []StopWithCoordinates `bson:"stops" json:"stops"`
-	Shapes   []shape               `bson:"shapes" json:"shapes"`
-}
-
-// routeStop represents the stop information contained within the trips_n_stops
-// collection in MongoDB. The information contains the StopId that can be used
-// to identify each stop uniquely, the name of that stop, the stop number used
-// by consumers of the Dublin Bus service, the coordinates of
-// the stop that can be used to mark the stop on the map and finally a sequence
-// number that can be used to sort the stops to ensure that they are in the
-// correct order on a given route. All fields are returned as strings from the
-// database
-type routeStop struct {
-	StopId       string `bson:"stop_id" json:"stop_id"`
-	StopName     string `bson:"stop_name" json:"stop_name"`
-	StopNumber   string `bson:"stop_number" json:"stop_number"`
-	StopLat      string `bson:"stop_lat" json:"stop_lat"`
-	StopLon      string `bson:"stop_lon" json:"stop_lon"`
-	StopSequence string `bson:"stop_sequence" json:"stop_sequence"`
-}
-
-// route is a struct that contains a means of matching the route number (referred to
-// as RouteShortName in this object) to the route id (i.e. the RouteId). All
-// fields map to type string from the database
-type route struct {
-	RouteId        string `bson:"route_id" json:"route_id"`
-	RouteShortName string `bson:"route_short_name" json:"route_short_name"`
-}
-
-// shape is struct that contains the coordinates for each turn in a bus
-// line as it travels its designated route that combined together allow
-// the bus route to be drawn on a map matching the road network of Dublin.
-// All fields map to type string from the database
-type shape struct {
-	//ShapeId         string `bson:"shape_id" json:"shape_id"`
-	ShapePtLat      string `bson:"shape_pt_lat" json:"shape_pt_lat"`
-	ShapePtLon      string `bson:"shape_pt_lon" json:"shape_pt_lon"`
-	ShapePtSequence string `bson:"shape_pt_sequence" json:"shape_pt_sequence"`
-	ShapeDistTravel string `bson:"shape_dist_traveled" json:"shape_dist_traveled"`
-}
 
 // FindMatchingRouteForDeparture takes in two parameters (the origin and destination bus stop number)
 // and then this function attempts to find the bus route objects(s) that contain both the

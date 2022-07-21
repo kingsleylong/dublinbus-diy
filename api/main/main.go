@@ -22,6 +22,8 @@ func main() {
 	router.GET("/matchingRouteArr/:originStopNum/:destStopNum/:arrivalTime",
 		databaseQueries.FindMatchingRouteForArrival)
 	router.GET("/matchingRouteTest", databaseQueries.FindMatchingRouteDemo)
+	router.GET("route/matchingRoute/:origin/:destination/:timeType/:time",
+		databaseQueries.FindMatchingRoute)
 
 	router.GET("/coordinatesTest/:searchString", databaseQueries.GetCoordinatesTest)
 
