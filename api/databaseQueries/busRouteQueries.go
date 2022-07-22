@@ -95,7 +95,7 @@ func FindMatchingRouteForDeparture(destination string,
 	var result []busRoute
 	var resultJSON []busRouteJSON
 	var route busRouteJSON
-	var stop StopWithCoordinates
+	var stop RouteStop
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
@@ -103,11 +103,14 @@ func FindMatchingRouteForDeparture(destination string,
 	for _, currentRoute := range result {
 		route.ID = currentRoute.Id
 		for _, currentStop := range currentRoute.Stops {
-			stop.StopID = currentStop.StopId
+			stop.StopId = currentStop.StopId
 			stop.StopName = currentStop.StopName
 			stop.StopNumber = currentStop.StopNumber
 			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
 			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
+			stop.StopSequence = currentStop.StopSequence
+			stop.ArrivalTime = currentStop.ArrivalTime
+			stop.DepartureTime = currentStop.DepartureTime
 			route.Stops = append(route.Stops, stop)
 		}
 		route.Shapes = currentRoute.Shapes
@@ -195,7 +198,7 @@ func FindMatchingRouteForArrival(origin string,
 	var result []busRoute
 	var resultJSON []busRouteJSON
 	var route busRouteJSON
-	var stop StopWithCoordinates
+	var stop RouteStop
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
@@ -203,11 +206,14 @@ func FindMatchingRouteForArrival(origin string,
 	for _, currentRoute := range result {
 		route.ID = currentRoute.Id
 		for _, currentStop := range currentRoute.Stops {
-			stop.StopID = currentStop.StopId
+			stop.StopId = currentStop.StopId
 			stop.StopName = currentStop.StopName
 			stop.StopNumber = currentStop.StopNumber
 			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
 			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
+			stop.StopSequence = currentStop.StopSequence
+			stop.ArrivalTime = currentStop.ArrivalTime
+			stop.DepartureTime = currentStop.DepartureTime
 			route.Stops = append(route.Stops, stop)
 		}
 		route.Shapes = currentRoute.Shapes
@@ -295,7 +301,7 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	var result []busRoute
 	var resultJSON []busRouteJSON
 	var route busRouteJSON
-	var stop StopWithCoordinates
+	var stop RouteStop
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
@@ -303,16 +309,19 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	for _, currentRoute := range result {
 		route.ID = currentRoute.Id
 		for _, currentStop := range currentRoute.Stops {
-			stop.StopID = currentStop.StopId
+			stop.StopId = currentStop.StopId
 			stop.StopName = currentStop.StopName
 			stop.StopNumber = currentStop.StopNumber
 			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
 			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
+			stop.StopSequence = currentStop.StopSequence
+			stop.ArrivalTime = currentStop.ArrivalTime
+			stop.DepartureTime = currentStop.DepartureTime
 			route.Stops = append(route.Stops, stop)
 		}
 		route.Shapes = currentRoute.Shapes
 		resultJSON = append(resultJSON, route)
 	}
-
+	
 	c.IndentedJSON(http.StatusOK, resultJSON)
 }

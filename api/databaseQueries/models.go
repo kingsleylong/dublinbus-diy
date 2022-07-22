@@ -13,12 +13,12 @@ type busRoute struct {
 }
 
 type busRouteJSON struct {
-	ID     string                `bson:"_id" json:"_id"`
-	Stops  []StopWithCoordinates `bson:"stops" json:"stops"`
-	Shapes []Shape               `bson:"shapes" json:"shapes"`
+	ID     string      `bson:"_id" json:"_id"`
+	Stops  []RouteStop `bson:"stops" json:"stops"`
+	Shapes []Shape     `bson:"shapes" json:"shapes"`
 }
 
-// routeStop represents the stop information contained within the trips_n_stops
+// RouteStop represents the stop information contained within the trips_n_stops
 // collection in MongoDB. The information contains the StopId that can be used
 // to identify each stop uniquely, the name of that stop, the stop number used
 // by consumers of the Dublin Bus service, the coordinates of
@@ -26,13 +26,15 @@ type busRouteJSON struct {
 // number that can be used to sort the stops to ensure that they are in the
 // correct order on a given route. All fields are returned as strings from the
 // database
-type routeStop struct {
-	StopId       string `bson:"stop_id" json:"stop_id"`
-	StopName     string `bson:"stop_name" json:"stop_name"`
-	StopNumber   string `bson:"stop_number" json:"stop_number"`
-	StopLat      string `bson:"stop_lat" json:"stop_lat"`
-	StopLon      string `bson:"stop_lon" json:"stop_lon"`
-	StopSequence string `bson:"stop_sequence" json:"stop_sequence"`
+type RouteStop struct {
+	StopId        string  `bson:"stop_id" json:"stop_id"`
+	StopName      string  `bson:"stop_name" json:"stop_name"`
+	StopNumber    string  `bson:"stop_number" json:"stop_number"`
+	StopLat       float64 `bson:"stop_lat" json:"stop_lat"`
+	StopLon       float64 `bson:"stop_lon" json:"stop_lon"`
+	StopSequence  string  `bson:"stop_sequence" json:"stop_sequence"`
+	ArrivalTime   string  `bson:"arrival_time" json:"arrival_time"`
+	DepartureTime string  `bson:"departure_time" json:"departure_time"`
 }
 
 // route is a struct that contains a means of matching the route number (referred to
@@ -56,11 +58,14 @@ type Shape struct {
 }
 
 type BusStop struct {
-	StopId     string `bson:"stop_id,omitempty" json:"stop_id,omitempty"`
-	StopName   string `bson:"stop_name" json:"stop_name"`
-	StopNumber string `bson:"stop_number" json:"stop_number"`
-	StopLat    string `bson:"stop_lat" json:"stop_lat"`
-	StopLon    string `bson:"stop_lon" json:"stop_lon"`
+	StopId        string `bson:"stop_id,omitempty" json:"stop_id,omitempty"`
+	StopName      string `bson:"stop_name" json:"stop_name"`
+	StopNumber    string `bson:"stop_number" json:"stop_number"`
+	StopLat       string `bson:"stop_lat" json:"stop_lat"`
+	StopLon       string `bson:"stop_lon" json:"stop_lon"`
+	StopSequence  string `bson:"stop_sequence" json:"stop_sequence"`
+	ArrivalTime   string `bson:"arrival_time" json:"arrival_time"`
+	DepartureTime string `bson:"departure_time" json:"departure_time"`
 }
 
 type StopWithCoordinates struct {
