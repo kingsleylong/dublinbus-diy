@@ -42,7 +42,7 @@ type RouteStop struct {
 	StopSequence      string  `bson:"stop_sequence" json:"stop_sequence"`
 	ArrivalTime       string  `bson:"arrival_time" json:"arrival_time"`
 	DepartureTime     string  `bson:"departure_time" json:"departure_time"`
-	DistanceTravelled float64 `bson:"distance_travelled" json:"distance_travelled"`
+	DistanceTravelled float64 `bson:"shape_dist_traveled" json:"shape_dist_traveled"`
 }
 
 // route is a struct that contains a means of matching the route number (referred to
@@ -80,7 +80,7 @@ type BusStop struct {
 	StopSequence      string `bson:"stop_sequence" json:"stop_sequence"`
 	ArrivalTime       string `bson:"arrival_time" json:"arrival_time"`
 	DepartureTime     string `bson:"departure_time" json:"departure_time"`
-	DistanceTravelled string `bson:"distance_travelled" json:"distance_travelled"`
+	DistanceTravelled string `bson:"shape_dist_traveled" json:"shape_dist_traveled"`
 }
 
 // StopWithCoordinates contains the fields necessary to map out a route
