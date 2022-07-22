@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:web/models/map_polylines.dart';
 import 'package:web/models/search_form.dart';
 import 'package:web/views/responsive_layout.dart';
+import 'package:web/views/tabs.dart';
 
 import 'desktop_body.dart';
 import 'mobile_body.dart';
@@ -22,7 +23,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 1, vsync: this);
+    _tabController = TabController(length: tabList.length, vsync: this);
   }
 
   @override

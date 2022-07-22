@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 const List<Tab> tabList = [
   Tab(text: "Plan My Journey"),
   // Tab(text: "Find My Route"),
-  Tab(text: "Get Me There On-Time"),
+  // Tab(text: "Get Me There On-Time"),
 ];
 
 class PlanMyJourneyTab extends StatefulWidget {
