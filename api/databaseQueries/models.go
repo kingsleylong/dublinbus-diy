@@ -34,14 +34,15 @@ type busRouteJSON struct {
 // All fields are returned as strings from the database, apart from the
 // coordinates of the stop that come back as a float each
 type RouteStop struct {
-	StopId        string  `bson:"stop_id" json:"stop_id"`
-	StopName      string  `bson:"stop_name" json:"stop_name"`
-	StopNumber    string  `bson:"stop_number" json:"stop_number"`
-	StopLat       float64 `bson:"stop_lat" json:"stop_lat"`
-	StopLon       float64 `bson:"stop_lon" json:"stop_lon"`
-	StopSequence  string  `bson:"stop_sequence" json:"stop_sequence"`
-	ArrivalTime   string  `bson:"arrival_time" json:"arrival_time"`
-	DepartureTime string  `bson:"departure_time" json:"departure_time"`
+	StopId            string  `bson:"stop_id" json:"stop_id"`
+	StopName          string  `bson:"stop_name" json:"stop_name"`
+	StopNumber        string  `bson:"stop_number" json:"stop_number"`
+	StopLat           float64 `bson:"stop_lat" json:"stop_lat"`
+	StopLon           float64 `bson:"stop_lon" json:"stop_lon"`
+	StopSequence      string  `bson:"stop_sequence" json:"stop_sequence"`
+	ArrivalTime       string  `bson:"arrival_time" json:"arrival_time"`
+	DepartureTime     string  `bson:"departure_time" json:"departure_time"`
+	DistanceTravelled float64 `bson:"distance_travelled" json:"distance_travelled"`
 }
 
 // route is a struct that contains a means of matching the route number (referred to
@@ -71,14 +72,15 @@ type Shape struct {
 // arrival and departure times for the bus making the given trip. All fields
 // are returned as strings from the database
 type BusStop struct {
-	StopId        string `bson:"stop_id,omitempty" json:"stop_id,omitempty"`
-	StopName      string `bson:"stop_name" json:"stop_name"`
-	StopNumber    string `bson:"stop_number" json:"stop_number"`
-	StopLat       string `bson:"stop_lat" json:"stop_lat"`
-	StopLon       string `bson:"stop_lon" json:"stop_lon"`
-	StopSequence  string `bson:"stop_sequence" json:"stop_sequence"`
-	ArrivalTime   string `bson:"arrival_time" json:"arrival_time"`
-	DepartureTime string `bson:"departure_time" json:"departure_time"`
+	StopId            string `bson:"stop_id,omitempty" json:"stop_id,omitempty"`
+	StopName          string `bson:"stop_name" json:"stop_name"`
+	StopNumber        string `bson:"stop_number" json:"stop_number"`
+	StopLat           string `bson:"stop_lat" json:"stop_lat"`
+	StopLon           string `bson:"stop_lon" json:"stop_lon"`
+	StopSequence      string `bson:"stop_sequence" json:"stop_sequence"`
+	ArrivalTime       string `bson:"arrival_time" json:"arrival_time"`
+	DepartureTime     string `bson:"departure_time" json:"departure_time"`
+	DistanceTravelled string `bson:"distance_travelled" json:"distance_travelled"`
 }
 
 // StopWithCoordinates contains the fields necessary to map out a route

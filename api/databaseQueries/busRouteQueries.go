@@ -118,6 +118,7 @@ func FindMatchingRouteForDeparture(destination string,
 			stop.StopSequence = currentStop.StopSequence
 			stop.ArrivalTime = currentStop.ArrivalTime
 			stop.DepartureTime = currentStop.DepartureTime
+			stop.DistanceTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 			route.Stops = append(route.Stops, stop)
 		}
 		route.Shapes = currentRoute.Shapes
@@ -231,6 +232,7 @@ func FindMatchingRouteForArrival(origin string,
 			stop.StopSequence = currentStop.StopSequence
 			stop.ArrivalTime = currentStop.ArrivalTime
 			stop.DepartureTime = currentStop.DepartureTime
+			stop.DistanceTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 			route.Stops = append(route.Stops, stop)
 		}
 		route.Shapes = currentRoute.Shapes
@@ -339,6 +341,7 @@ func FindMatchingRouteDemo(c *gin.Context) {
 			stop.StopSequence = currentStop.StopSequence
 			stop.ArrivalTime = currentStop.ArrivalTime
 			stop.DepartureTime = currentStop.DepartureTime
+			stop.DistanceTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 			route.Stops = append(route.Stops, stop)
 		}
 		route.Shapes = currentRoute.Shapes
