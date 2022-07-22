@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web/models/bus_stop.dart';
-import 'package:web/views/googlemap.dart';
-
-import 'tab_views.dart';
+import 'package:web/views/tabs/plan_journey_mobile_tabview.dart';
 
 class MobileBody extends StatefulWidget {
   const MobileBody(
@@ -30,7 +27,7 @@ class _MobileBodyState extends State<MobileBody> {
           controller: widget.tabController,
           tabs: const [
             Tab(text: "Plan My Journey"),
-            Tab(text: "Find My Route"),
+            // Tab(text: "Find My Route"),
             Tab(text: "Get Me There On-Time"),
           ],
         ),
@@ -38,10 +35,10 @@ class _MobileBodyState extends State<MobileBody> {
       body: TabBarView(
           controller: widget.tabController,
           children: const <Widget>[
-            PlanMyJourneyTabView(googleMapComponent: GoogleMapComponent(),),
-            Center(
-              child: Text("It's rainy here"),
-            ),
+            PlanMyJourneyTabMobileView(),
+            // Center(
+            //   child: Text("It's rainy here"),
+            // ),
             Center(
               child: Text("It's sunny here"),
             ),
