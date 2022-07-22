@@ -13,7 +13,9 @@ class PlanMyJourneyTabMobileView extends StatelessWidget {
     return Column(
       // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        // The Google map sits in the center
         const Expanded(child: GoogleMapComponent()),
+        // The search filters panel sit at the bottom
         buildSearchFilterPanel(context),
       ],
     );
@@ -47,13 +49,13 @@ class PlanMyJourneyTabMobileView extends StatelessWidget {
               expanded: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const <Widget>[
+                  // The form that contains the search filters and the submit button
                   SearchForm(),
                 ],
               ),
               builder: (_, collapsed, expanded) {
                 return Padding(
-                  padding:
-                      const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                  padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
                   child: Expandable(
                     collapsed: collapsed,
                     expanded: expanded,

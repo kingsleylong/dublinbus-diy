@@ -18,43 +18,35 @@ class _DesktopBodyState extends State<DesktopBody> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Dublin Bus DIY")),
-      body: Row(
-        // alignment: Alignment.topLeft,
-        children: [
-          // left bar
-          buildLeftBar(),
-          // right information box, use Expanded class to take the rest of space
-          // const Expanded(
-          //   child: GoogleMapComponent(),
-          // )
-          // buildLeftTabViews(),
+        appBar: AppBar(title: const Text("Dublin Bus DIY")),
+        body: Row(
+          // alignment: Alignment.topLeft,
+          children: [
+            // left bar
+            buildLeftBar(),
+            // right information box, use Expanded class to take the rest of space
+            // const Expanded(
+            //   child: GoogleMapComponent(),
+            // )
+            // buildLeftTabViews(),
 
-          Expanded(
-            child: buildRightInformationBox(),
-          ),
-        ],
-      )
-    );
+            Expanded(
+              child: buildRightInformationBox(),
+            ),
+          ],
+        ));
   }
 
   TabBarView buildRightInformationBox() {
     print('Build right information box');
     return TabBarView(
-      controller: widget.tabController,
-      // disable swiping from TabBarView
-      // https://flutteragency.com/how-to-disable-swipe-tabbar-in-flutter/
-      physics: const NeverScrollableScrollPhysics(),
-      children: <Widget>[
-        googleMapComponent,
-        // const Center(
-        //   child: Text("It's rainy here"),
-        // ),
-        const Center(
-          child: Text("It's sunny here"),
-        ),
-      ]
-    );
+        controller: widget.tabController,
+        // disable swiping from TabBarView
+        // https://flutteragency.com/how-to-disable-swipe-tabbar-in-flutter/
+        physics: const NeverScrollableScrollPhysics(),
+        children: <Widget>[
+          googleMapComponent,
+        ]);
   }
 
   TabBarView buildLeftTabViews() {
@@ -62,16 +54,8 @@ class _DesktopBodyState extends State<DesktopBody> {
         controller: widget.tabController,
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
-          PlanMyJourneyTabView(
-              googleMapComponent: googleMapComponent),
-          // const Center(
-          //   child: Text("It's rainy here"),
-          // ),
-          const Center(
-            child: Text("It's sunny here"),
-          ),
-        ]
-    );
+          PlanMyJourneyTabView(googleMapComponent: googleMapComponent),
+        ]);
   }
 
   SizedBox buildLeftBar() {
@@ -96,9 +80,8 @@ class _DesktopBodyState extends State<DesktopBody> {
             child: buildLeftTabViews(),
           ),
 
-        //weather info
+          //weather info
           // TODO
-
         ],
       ),
     );

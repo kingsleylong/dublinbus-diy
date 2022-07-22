@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:web/views/tabs/plan_journey_mobile_tabview.dart';
 
 class MobileBody extends StatefulWidget {
-  const MobileBody(
-      {Key? key, required this.tabController}
-      ) : super(key: key);
+  const MobileBody({Key? key, required this.tabController}) : super(key: key);
 
   final TabController tabController;
 
@@ -27,23 +25,12 @@ class _MobileBodyState extends State<MobileBody> {
           controller: widget.tabController,
           tabs: const [
             Tab(text: "Plan My Journey"),
-            // Tab(text: "Find My Route"),
-            Tab(text: "Get Me There On-Time"),
           ],
         ),
       ),
-      body: TabBarView(
-          controller: widget.tabController,
-          children: const <Widget>[
-            PlanMyJourneyTabMobileView(),
-            // Center(
-            //   child: Text("It's rainy here"),
-            // ),
-            Center(
-              child: Text("It's sunny here"),
-            ),
-          ]
-      ),
+      body: TabBarView(controller: widget.tabController, children: const <Widget>[
+        PlanMyJourneyTabMobileView(),
+      ]),
     );
   }
 }
