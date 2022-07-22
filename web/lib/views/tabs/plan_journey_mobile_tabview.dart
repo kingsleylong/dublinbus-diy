@@ -67,10 +67,4 @@ class PlanMyJourneyTabMobileView extends StatelessWidget {
       ),
     );
   }
-
-  buildSearchFilterBody() {
-    return <Widget>[
-      const SearchForm(),
-    ];
-  }
 }
