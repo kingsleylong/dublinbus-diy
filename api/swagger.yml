@@ -57,7 +57,7 @@ paths:
                 items:
                   $ref: "#/definitions/BusStop"
                 description: The bus stops nearby the address searched by the filter.
-  /route/matchingRoute:
+  /route/matchingRoute/{origin}/{destination}/{timeType}/{time}:
     get:
       tags:
         - "route"
@@ -68,19 +68,19 @@ paths:
         - "application/json"
       parameters:
         - name: "origin"
-          in: "query"
+          in: "path"
           description: "The origin bus stop number"
           required: true
           type: "string"
           default: "2007" # Woodbine Road / UCD
         - name: "destination"
-          in: "query"
+          in: "path"
           description: "The destination bus stop number"
           required: true
           type: "string"
           default: "6059" # The Spire of Dublin
         - name: "timeType"
-          in: "query"
+          in: "path"
           description: "The type of time used to find the route"
           required: true
           type: "array"
@@ -91,7 +91,7 @@ paths:
               - "arrival"
             default: "departure"
         - name: "time"
-          in: "query"
+          in: "path"
           description: "The time used to find the route"
           required: true
           type: "string"
@@ -104,12 +104,6 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/Route"
-        "400":
-          description: "invalid request"
-          schema: 
-            type: "string"
-            description: "Message returned pointing out invalid timeType entry"
-
 
 definitions:
   BusStop:
