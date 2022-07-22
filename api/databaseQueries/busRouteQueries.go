@@ -103,12 +103,13 @@ func FindMatchingRouteForDeparture(destination string,
 	var resultJSON []busRouteJSON
 	var route busRouteJSON
 	var stop RouteStop
+	var shape ShapeJSON
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
 	for _, currentRoute := range result {
-		route.ID = currentRoute.Id
+		route.RouteNum = currentRoute.Id
 		for _, currentStop := range currentRoute.Stops {
 			stop.StopId = currentStop.StopId
 			stop.StopName = currentStop.StopName
@@ -118,10 +119,17 @@ func FindMatchingRouteForDeparture(destination string,
 			stop.StopSequence = currentStop.StopSequence
 			stop.ArrivalTime = currentStop.ArrivalTime
 			stop.DepartureTime = currentStop.DepartureTime
-			stop.DistanceTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
+			stop.DistanceTravelled, _ =
+				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 			route.Stops = append(route.Stops, stop)
 		}
-		route.Shapes = currentRoute.Shapes
+		for _, currentShape := range currentRoute.Shapes {
+			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
+			shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
+			shape.ShapePtSequence = currentShape.ShapePtSequence
+			shape.ShapeDistTravel = currentShape.ShapeDistTravel
+			route.Shapes = append(route.Shapes, shape)
+		}
 		resultJSON = append(resultJSON, route)
 	}
 
@@ -217,12 +225,13 @@ func FindMatchingRouteForArrival(origin string,
 	var resultJSON []busRouteJSON
 	var route busRouteJSON
 	var stop RouteStop
+	var shape ShapeJSON
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
 	for _, currentRoute := range result {
-		route.ID = currentRoute.Id
+		route.RouteNum = currentRoute.Id
 		for _, currentStop := range currentRoute.Stops {
 			stop.StopId = currentStop.StopId
 			stop.StopName = currentStop.StopName
@@ -232,10 +241,17 @@ func FindMatchingRouteForArrival(origin string,
 			stop.StopSequence = currentStop.StopSequence
 			stop.ArrivalTime = currentStop.ArrivalTime
 			stop.DepartureTime = currentStop.DepartureTime
-			stop.DistanceTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
+			stop.DistanceTravelled, _ =
+				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 			route.Stops = append(route.Stops, stop)
 		}
-		route.Shapes = currentRoute.Shapes
+		for _, currentShape := range currentRoute.Shapes {
+			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
+			shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
+			shape.ShapePtSequence = currentShape.ShapePtSequence
+			shape.ShapeDistTravel = currentShape.ShapeDistTravel
+			route.Shapes = append(route.Shapes, shape)
+		}
 		resultJSON = append(resultJSON, route)
 	}
 
@@ -326,12 +342,13 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	var resultJSON []busRouteJSON
 	var route busRouteJSON
 	var stop RouteStop
+	var shape ShapeJSON
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
 	for _, currentRoute := range result {
-		route.ID = currentRoute.Id
+		route.RouteNum = currentRoute.Id
 		for _, currentStop := range currentRoute.Stops {
 			stop.StopId = currentStop.StopId
 			stop.StopName = currentStop.StopName
@@ -341,10 +358,17 @@ func FindMatchingRouteDemo(c *gin.Context) {
 			stop.StopSequence = currentStop.StopSequence
 			stop.ArrivalTime = currentStop.ArrivalTime
 			stop.DepartureTime = currentStop.DepartureTime
-			stop.DistanceTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
+			stop.DistanceTravelled, _ =
+				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 			route.Stops = append(route.Stops, stop)
 		}
-		route.Shapes = currentRoute.Shapes
+		for _, currentShape := range currentRoute.Shapes {
+			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
+			shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
+			shape.ShapePtSequence = currentShape.ShapePtSequence
+			shape.ShapeDistTravel = currentShape.ShapeDistTravel
+			route.Shapes = append(route.Shapes, shape)
+		}
 		resultJSON = append(resultJSON, route)
 	}
 

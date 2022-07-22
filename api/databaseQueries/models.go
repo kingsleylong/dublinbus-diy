@@ -18,9 +18,9 @@ type busRoute struct {
 // In the busRouteJSON this array is made of type RouteStop which as a key difference
 // returns the coordinates of each bus stop as type float as opposed to strings.
 type busRouteJSON struct {
-	ID     string      `bson:"_id" json:"_id"`
-	Stops  []RouteStop `bson:"stops" json:"stops"`
-	Shapes []Shape     `bson:"shapes" json:"shapes"`
+	RouteNum string      `bson:"route_num" json:"route_num"`
+	Stops    []RouteStop `bson:"stops" json:"stops"`
+	Shapes   []ShapeJSON `bson:"shapes" json:"shapes"`
 }
 
 // RouteStop represents the stop information contained within the trips_n_stops
@@ -63,6 +63,13 @@ type Shape struct {
 	ShapePtLon      string `bson:"shape_pt_lon" json:"shape_pt_lon"`
 	ShapePtSequence string `bson:"shape_pt_sequence" json:"shape_pt_sequence"`
 	ShapeDistTravel string `bson:"shape_dist_traveled" json:"shape_dist_traveled"`
+}
+
+type ShapeJSON struct {
+	ShapePtLat      float64 `bson:"shape_pt_lat" json:"shape_pt_lat"`
+	ShapePtLon      float64 `bson:"shape_pt_lon" json:"shape_pt_lon"`
+	ShapePtSequence string  `bson:"shape_pt_sequence" json:"shape_pt_sequence"`
+	ShapeDistTravel string  `bson:"shape_dist_travel" json:"shape_dist_travel"`
 }
 
 // BusStop contains all the necessary information from the mongo collection
