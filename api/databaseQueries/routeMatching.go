@@ -23,7 +23,7 @@ func FindMatchingRoute(c *gin.Context) {
 	if timeType == "arrival" {
 		busRoutes := FindMatchingRouteForArrival(origin, destination, time)
 		c.IndentedJSON(http.StatusOK, busRoutes)
-	} else if timeType == "destination" {
+	} else if timeType == "departure" {
 		busRoutes := FindMatchingRouteForDeparture(destination, origin, time)
 		c.IndentedJSON(http.StatusOK, busRoutes)
 	} else {

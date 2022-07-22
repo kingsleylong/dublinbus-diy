@@ -14,9 +14,11 @@ import (
 	"time"
 )
 
-// FindMatchingRouteForDeparture takes in two parameters (the origin and destination bus stop number)
-// and then this function attempts to find the bus route objects(s) that contain both the
-// origin and destination stop and then returns these specific routes as JSON.
+// FindMatchingRouteForDeparture takes in three parameters - the destination
+// bus stop, the origin bus stop and then the departure time all as strings.
+// This function then queries the mongo collection for trips documents that
+// match these filters before mapping the documents to the correct structure
+// and returning them within a slice of type busRouteJSON.
 func FindMatchingRouteForDeparture(destination string,
 	origin string,
 	departureTime string) []busRouteJSON {
@@ -49,6 +51,8 @@ func FindMatchingRouteForDeparture(destination string,
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
+	// Aggregation pipeline created in Mongo Compass and then transformed to suit
+	// the mongo driver in Go
 	coll := client.Database("BusData").Collection("trips_n_stops")
 	cursor, err := coll.Aggregate(ctx, bson.A{
 		bson.D{
@@ -92,10 +96,13 @@ func FindMatchingRouteForDeparture(destination string,
 		log.Print(err)
 	}
 
+	// Variables of both busRoute and busRouteJSON need to be initialised as
+	// some unmarshalling from Mongo cannot be done automatically and
+	// so must be done manually from one structure to another in the backend
 	var result []busRoute
 	var resultJSON []busRouteJSON
 	var route busRouteJSON
-	var stop StopWithCoordinates
+	var stop RouteStop
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
@@ -103,11 +110,15 @@ func FindMatchingRouteForDeparture(destination string,
 	for _, currentRoute := range result {
 		route.ID = currentRoute.Id
 		for _, currentStop := range currentRoute.Stops {
-			stop.StopID = currentStop.StopId
+			stop.StopId = currentStop.StopId
 			stop.StopName = currentStop.StopName
 			stop.StopNumber = currentStop.StopNumber
 			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
 			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
+			stop.StopSequence = currentStop.StopSequence
+			stop.ArrivalTime = currentStop.ArrivalTime
+			stop.DepartureTime = currentStop.DepartureTime
+			stop.DistanceTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 			route.Stops = append(route.Stops, stop)
 		}
 		route.Shapes = currentRoute.Shapes
@@ -117,6 +128,11 @@ func FindMatchingRouteForDeparture(destination string,
 	return resultJSON
 }
 
+// FindMatchingRouteForArrival takes in three parameters - the origin
+// bus stop, the destination bus stop and then the arrival time all as strings.
+// This function then queries the mongo collection for trips documents that
+// match these filters before mapping the documents to the correct structure
+// and returning them within a slice of type busRouteJSON.
 func FindMatchingRouteForArrival(origin string,
 	destination string,
 	arrivalTime string) []busRouteJSON {
@@ -149,6 +165,8 @@ func FindMatchingRouteForArrival(origin string,
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
+	// Aggregation pipeline created in Mongo Compass and then transformed to suit
+	// the mongo driver in Go
 	coll := client.Database("BusData").Collection("trips_n_stops")
 	cursor, err := coll.Aggregate(ctx, bson.A{
 		bson.D{
@@ -192,10 +210,13 @@ func FindMatchingRouteForArrival(origin string,
 		log.Print(err)
 	}
 
+	// Variables of both busRoute and busRouteJSON need to be initialised as
+	// some unmarshalling from Mongo cannot be done automatically and
+	// so must be done manually from one structure to another in the backend
 	var result []busRoute
 	var resultJSON []busRouteJSON
 	var route busRouteJSON
-	var stop StopWithCoordinates
+	var stop RouteStop
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
@@ -203,11 +224,15 @@ func FindMatchingRouteForArrival(origin string,
 	for _, currentRoute := range result {
 		route.ID = currentRoute.Id
 		for _, currentStop := range currentRoute.Stops {
-			stop.StopID = currentStop.StopId
+			stop.StopId = currentStop.StopId
 			stop.StopName = currentStop.StopName
 			stop.StopNumber = currentStop.StopNumber
 			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
 			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
+			stop.StopSequence = currentStop.StopSequence
+			stop.ArrivalTime = currentStop.ArrivalTime
+			stop.DepartureTime = currentStop.DepartureTime
+			stop.DistanceTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 			route.Stops = append(route.Stops, stop)
 		}
 		route.Shapes = currentRoute.Shapes
@@ -217,6 +242,11 @@ func FindMatchingRouteForArrival(origin string,
 	return resultJSON
 }
 
+// FindMatchingRouteDemo is a demo function designed for development
+// purposes to test the functionality of different elements of the route
+// matching service without affecting the "stable" functionality present.
+// This function is for development only and will be removed before the
+// final product is created
 func FindMatchingRouteDemo(c *gin.Context) {
 
 	// Assign values to connection string variables
@@ -295,7 +325,7 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	var result []busRoute
 	var resultJSON []busRouteJSON
 	var route busRouteJSON
-	var stop StopWithCoordinates
+	var stop RouteStop
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
@@ -303,11 +333,15 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	for _, currentRoute := range result {
 		route.ID = currentRoute.Id
 		for _, currentStop := range currentRoute.Stops {
-			stop.StopID = currentStop.StopId
+			stop.StopId = currentStop.StopId
 			stop.StopName = currentStop.StopName
 			stop.StopNumber = currentStop.StopNumber
 			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
 			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
+			stop.StopSequence = currentStop.StopSequence
+			stop.ArrivalTime = currentStop.ArrivalTime
+			stop.DepartureTime = currentStop.DepartureTime
+			stop.DistanceTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 			route.Stops = append(route.Stops, stop)
 		}
 		route.Shapes = currentRoute.Shapes
