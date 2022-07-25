@@ -271,6 +271,21 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
 
+	var originDist float64
+	var destDist float64
+	//var fee busRouteJSON
+
+	const (
+		XpressoAdult   = float64(3.00)
+		ShortZoneAdult = float64(1.7)
+		LongZoneAdult  = float64(2.60)
+	)
+
+	ShortZoneDistance := 3000.0
+
+	//	xpress routes names variable - 46A added just for testing
+	XpressRoutes := []string{"46a", "27x", "33d", "33x", "39x", "41x", "51x", "51d", "51x", "69x", "77x", "84x"}
+
 	// Read in route number parameter provided in URL
 	//	originStopNum := c.Param("originStopNum")
 
@@ -376,52 +391,34 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	// PRINT THE LONGZONE FEE, ELSE PRINT THE SHORTZONE FEE
 	//IF ROUTE_SHORT_NAME CONTAINS THE XPRESSO ROUTES, PRINT THE XPRESSO FEE
 
-	var originDist float64
-	var destDist float64
-	//var fee busRouteJSON
-
-	const (
-		XpressoAdult   = float64(3.00)
-		ShortZoneAdult = float64(1.7)
-		LongZoneAdult  = float64(2.60)
-	)
-	//	xpress routes names variable - 46A added just for testing
-	XpressRoutes := []string{"46a", "27x", "33d", "33x", "39x", "41x", "51x", "51d", "51x", "69x", "77x", "84x"}
-
 	for _, calcRoute := range resultJSON {
 		for i, _ := range XpressRoutes {
 			if calcRoute.RouteNum == XpressRoutes[i] {
-				xpressFee := XpressoAdult
-				route.FareCalculation = xpressFee
-				resultJSON = append(resultJSON, route)
+				route.FareCalculation = XpressoAdult
 				break
 			}
+		}
 
-			for _, calcStop := range calcRoute.Stops {
-				if calcStop.StopNumber == "4727" {
-					originDist = calcStop.DistanceTravelled
-					continue
-				} else if calcStop.StopNumber == "2070" {
-					destDist = calcStop.DistanceTravelled
-					continue
-				}
-				totalDist := destDist - originDist
-
-				ShortZoneDistance := 3000.0
-
-				if totalDist < ShortZoneDistance {
-					distFee := ShortZoneAdult
-					route.FareCalculation = distFee
-					resultJSON = append(resultJSON, route)
-					continue
-					//c.IndentedJSON(http.StatusOK, ShortZoneAdult)
-				} else if totalDist >= ShortZoneDistance {
-					distFee := LongZoneAdult
-					route.FareCalculation = distFee
-					resultJSON = append(resultJSON, route)
-					break
-				}
+		for _, calcStop := range calcRoute.Stops {
+			if calcStop.StopNumber == "4727" {
+				originDist = calcStop.DistanceTravelled
+				continue
+			} else if calcStop.StopNumber == "2070" {
+				destDist = calcStop.DistanceTravelled
+				continue
 			}
+		}
+		totalDist := destDist - originDist
+
+		if totalDist < ShortZoneDistance {
+			distFee := ShortZoneAdult
+			route.FareCalculation = distFee
+			break
+			//c.IndentedJSON(http.StatusOK, ShortZoneAdult)
+		} else if totalDist >= ShortZoneDistance {
+			distFee := LongZoneAdult
+			route.FareCalculation = distFee
+			break
 		}
 	}
 
