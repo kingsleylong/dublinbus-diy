@@ -64,9 +64,14 @@ class _RouteOptionsState extends State<RouteOptions> {
           items[index].isExpanded = !isExpanded;
           print("new isExpanded: ${items[index].isExpanded}");
         });
+        // add the polyline and marker for the selected route by changing the
+        // state from the Provider and notify the Consumers.
+        Provider.of<PolylinesModel>(context, listen: false)
+            .addBusRouteAsPolyline(items[index].busRoute);
       },
       children: items.map<ExpansionPanel>((Item item) {
         return ExpansionPanel(
+          canTapOnHeader: true,
           headerBuilder: (BuildContext context, bool isExpanded) {
             return ListTile(
               title: Text(
@@ -76,16 +81,6 @@ class _RouteOptionsState extends State<RouteOptions> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              onTap: () {
-                setState(() {
-                  item.isExpanded = !isExpanded;
-                });
-                print('item.isExpanded: ${item.isExpanded}');
-                // add the polyline and marker for the selected route by changing
-                // the state from the Provider and notify the Consumers.
-                Provider.of<PolylinesModel>(context, listen: false)
-                    .addBusRouteAsPolyline(item.busRoute);
-              },
             );
           },
           body: ListTile(
