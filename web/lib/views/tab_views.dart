@@ -31,7 +31,9 @@ class PlanMyJourneyTabView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             const SearchForm(),
-            const RouteOptions(),
+            const Expanded(
+              child: RouteOptions(),
+            ),
             ConstrainedBox(
               constraints: const BoxConstraints(
                 minHeight: 2.0,
