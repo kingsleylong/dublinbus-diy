@@ -363,6 +363,7 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	}
 
 	for _, currentRoute := range result {
+		xpress := false
 		route.RouteNum = currentRoute.Id
 		for _, currentStop := range currentRoute.Stops {
 			stop.StopId = currentStop.StopId
@@ -384,6 +385,32 @@ func FindMatchingRouteDemo(c *gin.Context) {
 			shape.ShapeDistTravel = currentShape.ShapeDistTravel
 			route.Shapes = append(route.Shapes, shape)
 		}
+
+		for _, xpressRoute := range XpressRoutes {
+			if route.RouteNum == xpressRoute {
+				xpress = true
+			}
+		}
+
+		if xpress == false {
+			for _, stopCounter := range route.Stops {
+				if stopCounter.StopNumber == "4727" {
+					originDist = stopCounter.DistanceTravelled
+				} else if stopCounter.StopNumber == "2070" {
+					destDist = stopCounter.DistanceTravelled
+				}
+			}
+			totalDist := destDist - originDist
+
+			if totalDist < ShortZoneDistance {
+				route.FareCalculation = ShortZoneAdult
+			} else {
+				route.FareCalculation = LongZoneAdult
+			}
+		} else {
+			route.FareCalculation = XpressoAdult
+		}
+
 		resultJSON = append(resultJSON, route)
 	}
 
@@ -391,36 +418,34 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	// PRINT THE LONGZONE FEE, ELSE PRINT THE SHORTZONE FEE
 	//IF ROUTE_SHORT_NAME CONTAINS THE XPRESSO ROUTES, PRINT THE XPRESSO FEE
 
-	for _, calcRoute := range resultJSON {
-		for i, _ := range XpressRoutes {
-			if calcRoute.RouteNum == XpressRoutes[i] {
-				route.FareCalculation = XpressoAdult
-				break
-			}
-		}
-
-		for _, calcStop := range calcRoute.Stops {
-			if calcStop.StopNumber == "4727" {
-				originDist = calcStop.DistanceTravelled
-				continue
-			} else if calcStop.StopNumber == "2070" {
-				destDist = calcStop.DistanceTravelled
-				continue
-			}
-		}
-		totalDist := destDist - originDist
-
-		if totalDist < ShortZoneDistance {
-			distFee := ShortZoneAdult
-			route.FareCalculation = distFee
-			break
-			//c.IndentedJSON(http.StatusOK, ShortZoneAdult)
-		} else if totalDist >= ShortZoneDistance {
-			distFee := LongZoneAdult
-			route.FareCalculation = distFee
-			break
-		}
-	}
+	//for _, calcRoute := range resultJSON {
+	//	for i, _ := range XpressRoutes {
+	//		if calcRoute.RouteNum == XpressRoutes[i] {
+	//			xpressFee := XpressoAdult
+	//			calcRoute.FareCalculation = xpressFee
+	//			break
+	//		}
+	//	}
+	//
+	//	for _, calcStop := range calcRoute.Stops {
+	//		if calcStop.StopNumber == "4727" {
+	//			originDist = calcStop.DistanceTravelled
+	//			continue
+	//		} else if calcStop.StopNumber == "2070" {
+	//			destDist = calcStop.DistanceTravelled
+	//			continue
+	//		}
+	//	}
+	//
+	//	if totalDist < ShortZoneDistance {
+	//		distFee := ShortZoneAdult
+	//		calcRoute.FareCalculation = distFee
+	//		//c.IndentedJSON(http.StatusOK, ShortZoneAdult)
+	//	} else if totalDist >= ShortZoneDistance {
+	//		distFee := LongZoneAdult
+	//		calcRoute.FareCalculation = distFee
+	//	}
+	//}
 
 	c.IndentedJSON(http.StatusOK, resultJSON)
 }
