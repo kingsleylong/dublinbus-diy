@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:web/models/bus_route.dart';
 import 'package:web/models/map_polylines.dart';
 import 'package:web/models/search_form.dart';
 
@@ -90,7 +89,7 @@ class _RouteOptionsState extends State<RouteOptions> {
             );
           },
           body: ListTile(
-            title: Text(item.headerValue),
+            title: Text(item.expandedValue),
             subtitle: Center(
               child: Text(item.expandedDetailsValue),
             ),
