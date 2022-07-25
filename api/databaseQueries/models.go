@@ -115,6 +115,9 @@ type findByAddressResponse struct {
 	Nearby  []StopWithCoordinates `bson:"nearby" json:"nearby"`
 }
 
+// busFares is an object that is used to map the fares for a respective
+// route for each given demographic. These fare values are all floating
+// point numbers and are calculated using the CalculateFare function
 type busFares struct {
 	AdultLeap   float64 `bson:"adult_leap" json:"adult_leap"`
 	AdultCash   float64 `bson:"adult_cash" json:"adult_cash"`
