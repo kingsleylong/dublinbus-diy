@@ -130,6 +130,9 @@ func FindMatchingRouteForDeparture(destination string,
 			shape.ShapeDistTravel = currentShape.ShapeDistTravel
 			route.Shapes = append(route.Shapes, shape)
 		}
+
+		route.FareCalculation = CalculateFare(currentRoute, origin, destination)
+
 		resultJSON = append(resultJSON, route)
 	}
 
@@ -252,6 +255,8 @@ func FindMatchingRouteForArrival(origin string,
 			shape.ShapeDistTravel = currentShape.ShapeDistTravel
 			route.Shapes = append(route.Shapes, shape)
 		}
+
+		route.FareCalculation = CalculateFare(currentRoute, origin, destination)
 		resultJSON = append(resultJSON, route)
 	}
 
@@ -271,20 +276,20 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
 
-	var originDist float64
-	var destDist float64
-	//var fee busRouteJSON
-
-	const (
-		XpressoAdult   = float64(3.00)
-		ShortZoneAdult = float64(1.7)
-		LongZoneAdult  = float64(2.60)
-	)
-
-	ShortZoneDistance := 3000.0
-
-	//	xpress routes names variable - 46A added just for testing
-	XpressRoutes := []string{"46a", "27x", "33d", "33x", "39x", "41x", "51x", "51d", "51x", "69x", "77x", "84x"}
+	//var originDist float64
+	//var destDist float64
+	////var fee busRouteJSON
+	//
+	//const (
+	//	XpressoAdult   = float64(3.00)
+	//	ShortZoneAdult = float64(1.7)
+	//	LongZoneAdult  = float64(2.60)
+	//)
+	//
+	//ShortZoneDistance := 3000.0
+	//
+	////	xpress routes names variable - 46A added just for testing
+	//XpressRoutes := []string{"46a", "27x", "33d", "33x", "39x", "41x", "51x", "51d", "51x", "69x", "77x", "84x"}
 
 	// Read in route number parameter provided in URL
 	//	originStopNum := c.Param("originStopNum")
@@ -363,7 +368,7 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	}
 
 	for _, currentRoute := range result {
-		xpress := false
+		//xpress := false
 		route.RouteNum = currentRoute.Id
 		for _, currentStop := range currentRoute.Stops {
 			stop.StopId = currentStop.StopId
@@ -386,30 +391,32 @@ func FindMatchingRouteDemo(c *gin.Context) {
 			route.Shapes = append(route.Shapes, shape)
 		}
 
-		for _, xpressRoute := range XpressRoutes {
-			if route.RouteNum == xpressRoute {
-				xpress = true
-			}
-		}
+		//for _, xpressRoute := range XpressRoutes {
+		//	if route.RouteNum == xpressRoute {
+		//		xpress = true
+		//	}
+		//}
+		//
+		//if xpress == false {
+		//	for _, stopCounter := range route.Stops {
+		//		if stopCounter.StopNumber == "4727" {
+		//			originDist = stopCounter.DistanceTravelled
+		//		} else if stopCounter.StopNumber == "2070" {
+		//			destDist = stopCounter.DistanceTravelled
+		//		}
+		//	}
+		//	totalDist := destDist - originDist
+		//
+		//	if totalDist < ShortZoneDistance {
+		//		route.FareCalculation = ShortZoneAdult
+		//	} else {
+		//		route.FareCalculation = LongZoneAdult
+		//	}
+		//} else {
+		//	route.FareCalculation = XpressoAdult
+		//}
 
-		if xpress == false {
-			for _, stopCounter := range route.Stops {
-				if stopCounter.StopNumber == "4727" {
-					originDist = stopCounter.DistanceTravelled
-				} else if stopCounter.StopNumber == "2070" {
-					destDist = stopCounter.DistanceTravelled
-				}
-			}
-			totalDist := destDist - originDist
-
-			if totalDist < ShortZoneDistance {
-				route.FareCalculation = ShortZoneAdult
-			} else {
-				route.FareCalculation = LongZoneAdult
-			}
-		} else {
-			route.FareCalculation = XpressoAdult
-		}
+		//route.FareCalculation = CalculateFare(currentRoute)
 
 		resultJSON = append(resultJSON, route)
 	}
