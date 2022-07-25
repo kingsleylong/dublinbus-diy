@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:date_time_picker/date_time_picker.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:web/models/bus_route.dart';
 import 'package:web/models/bus_stop.dart';
@@ -49,6 +51,13 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   final _originSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
   // The instance field that holds the state of destination dropdown list
   final _destinationSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
+  late TextEditingController _dateTimePickerController;
+
+  @override
+  void initState() {
+    super.initState();
+    _dateTimePickerController = TextEditingController(text: DateTime.now().toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +80,24 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: buildSearchableDestinationDropdownList(),
+            ),
+            // Departure/Arrival time
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: DateTimePicker(
+                // Data time picker: https://pub.dev/packages/date_time_picker
+                type: DateTimePickerType.dateTimeSeparate,
+                // Date format: https://api.flutter.dev/flutter/intl/DateFormat-class.html
+                dateMask: 'E d MMM, yyyy',
+                controller: _dateTimePickerController,
+                firstDate: DateTime.now(),
+                // We allow travel planning ahead of 4 days
+                lastDate: DateTime.now().add(const Duration(hours: 4*24)),
+                icon: const Icon(Icons.event),
+                dateLabelText: 'Date',
+                timeLabelText: "Hour",
+                onChanged: (val) => print(val),
+              ),
             ),
             // Submit button
             Padding(
@@ -117,24 +144,31 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
     // Check the examples code for usage: https://github.com/salim-lachdhaf/searchable_dropdown
     return DropdownSearch<BusStop>(
       key: _originSelectionKey,
-      asyncItems: (filter) => fetchFutureBusStopsByName(filter),
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'ucd' : filter),
       compareFn: (i, s) => i.isEqual(s),
+      dropdownDecoratorProps: const DropDownDecoratorProps(
+        dropdownSearchDecoration: InputDecoration(
+          labelText: 'Origin',
+          border: OutlineInputBorder(),
+          icon: Icon(Icons.map),
+        ),
+      ),
       popupProps: PopupProps.menu(
         showSearchBox: true,
         title: const Text('Search origin bus stop'),
         isFilterOnline: true,
         showSelectedItems: true,
         itemBuilder: _originPopupItemBuilder,
-        favoriteItemProps: FavoriteItemProps(
-          showFavoriteItems: true,
-          // TODO This is a fake favorite feature. We need to implement in future to let the user
-          //  mark the favorite stops
-          favoriteItems: (us) {
-            return us
-              .where((e) => e.stopName!.contains("UCD"))
-              .toList();
-          },
-        ),
+        // favoriteItemProps: FavoriteItemProps(
+        //   showFavoriteItems: true,
+        //   // TODO This is a fake favorite feature. We need to implement in future to let the user
+        //   //  mark the favorite stops
+        //   favoriteItems: (us) {
+        //     return us
+        //       .where((e) => e.stopName!.contains("UCD"))
+        //       .toList();
+        //   },
+        // ),
       ),
     );
   }
@@ -142,29 +176,39 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   Widget buildSearchableDestinationDropdownList() {
     return DropdownSearch<BusStop>(
       key: _destinationSelectionKey,
-      asyncItems: (filter) => fetchFutureBusStopsByName(filter),
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'spire' : filter),
       compareFn: (i, s) => i.isEqual(s),
+      dropdownDecoratorProps: const DropDownDecoratorProps(
+        dropdownSearchDecoration: InputDecoration(
+          labelText: 'Destination',
+          border: OutlineInputBorder(),
+          icon: Icon(Icons.map),
+        ),
+      ),
       popupProps: PopupProps.menu(
         showSearchBox: true,
         title: const Text('Search destination bus stop'),
         isFilterOnline: true,
         showSelectedItems: true,
         itemBuilder: _originPopupItemBuilder,
-        favoriteItemProps: FavoriteItemProps(
-          showFavoriteItems: true,
-          favoriteItems: (us) {
-            return us
-                .where((e) => e.stopName!.contains("Spire"))
-                .toList();
-          },
-        ),
+        // favoriteItemProps: FavoriteItemProps(
+        //   showFavoriteItems: true,
+        //   favoriteItems: (us) {
+        //     return us
+        //         .where((e) => e.stopName!.contains("Spire"))
+        //         .toList();
+        //   },
+        // ),
       ),
     );
   }
 
   Future<List<BusStop>> fetchFutureBusStopsByName(String filter) async {
+    List<BusStop> busStopList = [];
+
     String url = '$apiHost/api/stop/findByAddress';
-    final paramsStr = (filter == '') ? '' : '&filter=$filter';
+    // final paramsStr = (filter == '') ? '' : '&filter=$filter';
+    final paramsStr = (filter == '') ? '' : '/$filter';
     final response = await http.get(
       Uri.parse('$url$paramsStr'),
       headers: {
@@ -174,26 +218,22 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response, then parse the JSON.
-      final List busStopsJson = jsonDecode(response.body);
+      final Map<String, dynamic> busStopsJson = jsonDecode(response.body);
+      final List? matchedStopsJson = busStopsJson['matched'];
+      final List? nearbyStopsJson = busStopsJson['nearby'];
 
-      print("Bus stops size: ${busStopsJson.length}");
-      List<BusStop> busStopList = List.generate(busStopsJson.length, (index) => BusStop.fromJson
-        (busStopsJson[index]));
-      // TODO There is one bug here. The only one polyline was shown on the map, but if you
-      //  switch to other tabs and come back, all polylines will be there.
-
-      // Provider.of<PolylinesModel>(context, listen: false).addBusRouteListAsPolylines(busRouteList);
-      // busRouteList.map((busRoute) => (){
-      //     Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(busRoute);
-      //     // print(Provider.of<PolylinesModel>(context, listen: false));
-      //   }
-      // );
-      // for(BusRoute busRoute in busStopList) {
-      //   Provider.of<PolylinesModel>(context, listen: false).addBusRouteAsPolyline(busRoute);
-      // }
-      // print('PolylinesModel size: ${Provider.of<PolylinesModel>(context, listen: false).items
-      //     .length}');
-
+      List<BusStop> matchedStopList;
+      List<BusStop> nearbyStopList;
+      if (matchedStopsJson != null) {
+        matchedStopList = List.generate(matchedStopsJson.length, (index) =>
+          BusStop.fromJson(matchedStopsJson[index], BusStopType.matched));
+        busStopList.addAll(matchedStopList);
+      }
+      if (nearbyStopsJson != null) {
+        nearbyStopList = List.generate(nearbyStopsJson.length, (index) =>
+          BusStop.fromJson(nearbyStopsJson[index], BusStopType.nearby));
+        busStopList.addAll(nearbyStopList);
+      }
       return busStopList;
     } else {
       // If the server did not return a 200 OK response, then throw an exception.
@@ -216,8 +256,7 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
         title: Text(item.stopName!),
         subtitle: Text(item.stopNumber.toString()),
         leading: CircleAvatar(
-          // this does not work - throws 404 error
-          // backgroundImage: NetworkImage(item.avatar ?? ''),
+          child: buildBusStopAvatarByType(item),
         ),
       ),
     );
@@ -226,6 +265,10 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   Future<List<BusRoute>> fetchBusRoutes() async {
     print('Selected origin: ${_originSelectionKey.currentState?.getSelectedItem?.stopNumber}');
     print('Selected destination: ${_destinationSelectionKey.currentState?.getSelectedItem?.stopNumber}');
+    print('Selected datetime: ${_dateTimePickerController.value.text}');
+    var parseTime = DateTime.parse(_dateTimePickerController.value.text);
+    // Date format: https://api.flutter.dev/flutter/intl/DateFormat-class.html
+    print('parseTime: $parseTime  ${DateFormat('MM-dd-yyyy HH:mm:ss').format(parseTime)}');
     final response = await http.get(
       Uri.parse('$apiHost/api/route/matchingRoute'),
       headers: {
@@ -282,7 +325,13 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
           return ExpansionPanel(
               headerBuilder: (BuildContext context, bool isExpanded) {
                 return ListTile(
-                  title: Text(item.headerValue),
+                  title: Text(
+                    item.headerValue,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   onTap: () {
                     setState(() {
                       item.isExpanded = !isExpanded;
@@ -295,6 +344,9 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
               },
               body: ListTile(
                 title: Text(item.expandedValue),
+                subtitle: Center(
+                  child: Text(item.expandedDetailsValue),
+                ),
               ),
               isExpanded: item.isExpanded,
           );
@@ -305,25 +357,40 @@ class _PlanMyJourneyTabViewState extends State<PlanMyJourneyTabView> {
   List<Item> generateItems(List<BusRoute> data) {
     return List<Item>.generate(data.length, (int index) {
       return Item(
-        headerValue: data[index].routeNumber,
+        // TODO integrate the travel time
+        headerValue: '${data[index].routeNumber}      30 min',
         expandedValue: '${data[index].stops.length} stops. Starts from ${data[index].stops[0].stopName}',
+        expandedDetailsValue: data[index].stops
+            .map((stop) => '${stop.stopName} - ${stop.stopNumber}')
+            .reduce((value, element) => '${value}\n${element}'),
         busRoute: data[index],
       );
     });
+  }
+  
+  // use icon to distinguish the bus stop type
+  buildBusStopAvatarByType(BusStop item) {
+    if (item.type == BusStopType.matched) {
+      return const Icon(Icons.search);
+    } else {
+      return const Icon(Icons.location_searching);
+    }
   }
 }
 
 // stores ExpansionPanel state information
 class Item {
   Item({
-    required this.expandedValue,
     required this.headerValue,
     required this.busRoute,
     this.isExpanded = false,
+    required this.expandedValue,
+    required this.expandedDetailsValue,
   });
 
-  String expandedValue;
   String headerValue;
   bool isExpanded;
   BusRoute busRoute;
+  String expandedValue;
+  String expandedDetailsValue;
 }

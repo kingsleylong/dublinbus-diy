@@ -129,15 +129,20 @@ func GetStopByName(stopName string) []StopWithCoordinates {
 	return matchingStops
 }
 
+// GetStopsList is a function that maps to the findByAddress API which
+// returns a pair of arrays that contain stops found by regex patterns
+// with stop names in our database and stops found that are nearby using
+// geolocation respectively
 func GetStopsList(c *gin.Context) {
 
 	stopSearch := c.Param("stopSearch")
 	stopsFromDB := GetStopByName(stopSearch)
 	stopsFromGeocoding := FindNearbyStops(stopSearch)
 
-	var busStops [][]StopWithCoordinates
+	var busStops findByAddressResponse
 
-	busStops = append(busStops, stopsFromDB, stopsFromGeocoding)
+	busStops.Matched = stopsFromDB
+	busStops.Nearby = stopsFromGeocoding
 
 	c.IndentedJSON(http.StatusOK, busStops)
 }

@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   description: "The API for DublinBus web service"
-  version: "1.0.0"
+  version: "0.0.2"
   title: "Dublin Bus"
   termsOfService: "http://swagger.io/terms/"
   license:
@@ -43,10 +43,21 @@ paths:
         "200":
           description: "successful operation"
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/BusStop"
-  /route/matchingRoute:
+            # construct customized object
+            # https://swagger.io/docs/specification/describing-responses/
+            type: object
+            properties:
+              matched:
+                type: "array"
+                items:
+                  $ref: "#/definitions/BusStop"
+                description: The bus stops matched by the filter.
+              nearby:
+                type: "array"
+                items:
+                  $ref: "#/definitions/BusStop"
+                description: The bus stops nearby the address searched by the filter.
+  /route/matchingRoute/{origin}/{destination}/{timeType}/{time}:
     get:
       tags:
         - "route"
@@ -57,19 +68,19 @@ paths:
         - "application/json"
       parameters:
         - name: "origin"
-          in: "query"
+          in: "path"
           description: "The origin bus stop number"
           required: true
           type: "string"
           default: "2007" # Woodbine Road / UCD
         - name: "destination"
-          in: "query"
+          in: "path"
           description: "The destination bus stop number"
           required: true
           type: "string"
           default: "6059" # The Spire of Dublin
         - name: "timeType"
-          in: "query"
+          in: "path"
           description: "The type of time used to find the route"
           required: true
           type: "array"
@@ -80,7 +91,7 @@ paths:
               - "arrival"
             default: "departure"
         - name: "time"
-          in: "query"
+          in: "path"
           description: "The time used to find the route"
           required: true
           type: "string"
@@ -125,6 +136,10 @@ definitions:
         type: "array"
         items:
           $ref: "#/definitions/Shape"
+      travel_time:
+        type: "integer"
+        format: "int32"
+        description: "The predicted travel time in minutes."
   Shape:
     type: "object"
     properties:
