@@ -131,7 +131,7 @@ func FindMatchingRouteForDeparture(destination string,
 			route.Shapes = append(route.Shapes, shape)
 		}
 
-		route.FareCalculation = CalculateFare(currentRoute, origin, destination)
+		route.Fares = CalculateFare(currentRoute, origin, destination)
 
 		resultJSON = append(resultJSON, route)
 	}
@@ -256,7 +256,7 @@ func FindMatchingRouteForArrival(origin string,
 			route.Shapes = append(route.Shapes, shape)
 		}
 
-		route.FareCalculation = CalculateFare(currentRoute, origin, destination)
+		route.Fares = CalculateFare(currentRoute, origin, destination)
 		resultJSON = append(resultJSON, route)
 	}
 
@@ -390,33 +390,6 @@ func FindMatchingRouteDemo(c *gin.Context) {
 			shape.ShapeDistTravel = currentShape.ShapeDistTravel
 			route.Shapes = append(route.Shapes, shape)
 		}
-
-		//for _, xpressRoute := range XpressRoutes {
-		//	if route.RouteNum == xpressRoute {
-		//		xpress = true
-		//	}
-		//}
-		//
-		//if xpress == false {
-		//	for _, stopCounter := range route.Stops {
-		//		if stopCounter.StopNumber == "4727" {
-		//			originDist = stopCounter.DistanceTravelled
-		//		} else if stopCounter.StopNumber == "2070" {
-		//			destDist = stopCounter.DistanceTravelled
-		//		}
-		//	}
-		//	totalDist := destDist - originDist
-		//
-		//	if totalDist < ShortZoneDistance {
-		//		route.FareCalculation = ShortZoneAdult
-		//	} else {
-		//		route.FareCalculation = LongZoneAdult
-		//	}
-		//} else {
-		//	route.FareCalculation = XpressoAdult
-		//}
-
-		//route.FareCalculation = CalculateFare(currentRoute)
 
 		resultJSON = append(resultJSON, route)
 	}

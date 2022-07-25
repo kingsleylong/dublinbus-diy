@@ -7,18 +7,31 @@ var XpressRoutes = []string{"46a", "27x", "33d", "33x", "39x", "41x",
 	"51x", "51d", "51x", "69x", "77x", "84x"}
 
 const (
-	XpressoAdult      = float64(3.00)
-	ShortZoneAdult    = float64(1.7)
-	LongZoneAdult     = float64(2.60)
+	XpressoAdultCash   = float64(3.00)
+	ShortZoneAdultCash = float64(1.70)
+	LongZoneAdultCash  = float64(2.60)
+	XpressoAdultLeap   = float64(2.40)
+	ShortZoneAdultLeap = float64(1.30)
+	LongZoneAdultLeap  = float64(2.00)
+
+	XpressoStudentLeap   = float64(1.20)
+	ShortZoneStudentLeap = float64(0.65)
+	LongZoneStudentLeap  = float64(1.00)
+
+	XpressoChildLeap  = float64(1.00)
+	LongZoneChildLeap = float64(0.65)
+	XpressoChildCash  = float64(1.30)
+	LongZoneChildCash = float64(0.90)
 	ShortZoneDistance = float64(3000.0)
 )
 
 func CalculateFare(route busRoute,
 	originStop string,
-	destinationStop string) float64 {
+	destinationStop string) busFares {
 
 	var originDist float64
 	var destDist float64
+	var calculatedFares busFares
 
 	express = false
 	for _, routeNum := range XpressRoutes {
@@ -28,7 +41,12 @@ func CalculateFare(route busRoute,
 	}
 
 	if express {
-		return XpressoAdult
+		calculatedFares.AdultLeap = XpressoAdultLeap
+		calculatedFares.AdultCash = XpressoAdultCash
+		calculatedFares.StudentLeap = XpressoStudentLeap
+		calculatedFares.ChildLeap = XpressoChildLeap
+		calculatedFares.ChildCash = XpressoChildCash
+		return calculatedFares
 	} else {
 		for _, stopCounter := range route.Stops {
 			if stopCounter.StopNumber == originStop {
@@ -41,9 +59,19 @@ func CalculateFare(route busRoute,
 		totalDist := destDist - originDist
 
 		if totalDist < ShortZoneDistance {
-			return ShortZoneAdult
+			calculatedFares.AdultLeap = ShortZoneAdultLeap
+			calculatedFares.AdultCash = ShortZoneAdultCash
+			calculatedFares.StudentLeap = ShortZoneStudentLeap
+			calculatedFares.ChildLeap = LongZoneChildLeap
+			calculatedFares.ChildCash = LongZoneChildCash
+			return calculatedFares
 		} else {
-			return LongZoneAdult
+			calculatedFares.AdultLeap = LongZoneAdultLeap
+			calculatedFares.AdultCash = LongZoneAdultCash
+			calculatedFares.StudentLeap = LongZoneStudentLeap
+			calculatedFares.ChildLeap = LongZoneChildLeap
+			calculatedFares.ChildCash = LongZoneChildCash
+			return calculatedFares
 		}
 	}
 }
