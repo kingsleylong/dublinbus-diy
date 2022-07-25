@@ -3,7 +3,6 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:web/api/fetch_bus_route.dart';
 import 'package:web/api/fetch_bus_stop.dart';
 import 'package:web/models/bus_route.dart';
 import 'package:web/models/bus_route_filter.dart';
