@@ -104,12 +104,15 @@ func FindMatchingRouteForDeparture(destination string,
 	var route busRouteJSON
 	var stop RouteStop
 	var shape ShapeJSON
+	var stops []RouteStop
+	var shapes []ShapeJSON
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
 	for _, currentRoute := range result {
 		route.RouteNum = currentRoute.Id
+		stops = []RouteStop{}
 		for _, currentStop := range currentRoute.Stops {
 			stop.StopId = currentStop.StopId
 			stop.StopName = currentStop.StopName
@@ -121,15 +124,18 @@ func FindMatchingRouteForDeparture(destination string,
 			stop.DepartureTime = currentStop.DepartureTime
 			stop.DistanceTravelled, _ =
 				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
-			route.Stops = append(route.Stops, stop)
+			stops = append(stops, stop)
 		}
+		route.Stops = stops
+		shapes = []ShapeJSON{}
 		for _, currentShape := range currentRoute.Shapes {
 			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
 			shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
 			shape.ShapePtSequence = currentShape.ShapePtSequence
 			shape.ShapeDistTravel = currentShape.ShapeDistTravel
-			route.Shapes = append(route.Shapes, shape)
+			shapes = append(shapes, shape)
 		}
+		route.Shapes = shapes
 
 		route.Fares = CalculateFare(currentRoute, origin, destination)
 
