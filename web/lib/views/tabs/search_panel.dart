@@ -1,9 +1,12 @@
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:web/fetch_bus_stop.dart';
+import 'package:web/api/fetch_bus_route.dart';
+import 'package:web/api/fetch_bus_stop.dart';
 import 'package:web/models/bus_route.dart';
+import 'package:web/models/bus_route_filter.dart';
 import 'package:web/models/bus_stop.dart';
 import 'package:web/models/map_polylines.dart';
 import 'package:web/models/search_form.dart';
@@ -17,10 +20,6 @@ class SearchForm extends StatefulWidget {
 
 class _SearchFormState extends State<SearchForm> {
   late Future<List<BusRoute>> futureBusRoutes;
-
-  // Use a flag to control the visibility of the route options
-  // https://stackoverflow.com/a/46126667
-  bool visibilityRouteOptions = false;
 
   // late List<Item> items;
 
@@ -40,21 +39,17 @@ class _SearchFormState extends State<SearchForm> {
                 // The form fields should be wrapped by Padding otherwise they would overlap each other
                 // https://docs.flutter.dev/cookbook/forms/text-input
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   child: buildSearchableOriginDropdownList(searchFormModel),
                 ),
                 // Destination dropdown list
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  child:
-                      buildSearchableDestinationDropdownList(searchFormModel),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  child: buildSearchableDestinationDropdownList(searchFormModel),
                 ),
                 // Departure/Arrival time
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   child: DateTimePicker(
                     // Data time picker: https://pub.dev/packages/date_time_picker
                     type: DateTimePickerType.dateTimeSeparate,
@@ -82,29 +77,41 @@ class _SearchFormState extends State<SearchForm> {
                       // Validate will return true if the form is valid, or false if
                       // the form is invalid.
                       if (searchFormModel.formKey.currentState!.validate()) {
-                        Provider.of<PolylinesModel>(context, listen: false)
-                            .removeAll();
-                        // futureBusRoutes = fetchBusRoutes();
-                        setState(() {
-                          visibilityRouteOptions = true;
-                        });
+                        Provider.of<PolylinesModel>(context, listen: false).removeAll();
+                        print(
+                            'Selected origin: ${searchFormModel.originSelectionKey.currentState?.getSelectedItem?.stopNumber}');
+                        print(
+                            'Selected destination: ${searchFormModel.destinationSelectionKey.currentState?.getSelectedItem?.stopNumber}');
+                        print(
+                            'Selected datetime: ${searchFormModel.dateTimePickerController.value.text}');
+
+                        DateTime parseTime =
+                            DateTime.parse(searchFormModel.dateTimePickerController.value.text);
+                        String formatTime = DateFormat('MM-dd-yyyy HH:mm:ss').format(parseTime);
+
+                        // Date format: https://api.flutter.dev/flutter/intl/DateFormat-class.html
+                        print(
+                            'parseTime: $parseTime  ${DateFormat('MM-dd-yyyy HH:mm:ss').format(parseTime)}');
+
+                        BusRouteSearchFilter searchFilter = BusRouteSearchFilter(
+                            searchFormModel
+                                .originSelectionKey.currentState?.getSelectedItem?.stopNumber,
+                            searchFormModel
+                                .destinationSelectionKey.currentState?.getSelectedItem?.stopNumber,
+                            TimeType.arrival,
+                            // TODO TOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOODO
+                            DateFormat('MM-dd-yyyy HH:mm:ss').format(parseTime));
+
+                        // futureBusRoutes = fetchBusRoutes(searchFilter);
+                        Provider.of<SearchFormModel>(context, listen: false).fetchBusRoute(searchFilter);
+                        // Provider.of<SearchFormModel>(context, listen: false)
+                        //     .visibilityRouteOptions = true;
+                        // searchFormModel.busRoutes = futureBusRoutes;
                       }
                     },
                     child: const Text('Plan'),
                   ),
                 ),
-                // if(visibilityRouteOptions)
-                //   Expanded(
-                //     child: Padding(
-                //       padding: const EdgeInsets.all(8),
-                //       // child: buildRouteOptionsListView2(widget),
-                //     ),
-                //   ),
-                // ConstrainedBox(
-                //   constraints: const BoxConstraints(
-                //     minHeight: 2.0,
-                //   ),
-                // ),
               ],
             )),
       ),
@@ -116,8 +123,7 @@ class _SearchFormState extends State<SearchForm> {
     // Check the examples code for usage: https://github.com/salim-lachdhaf/searchable_dropdown
     return DropdownSearch<BusStop>(
       key: searchFormModel.originSelectionKey,
-      asyncItems: (filter) =>
-          fetchFutureBusStopsByName(filter == '' ? 'ucd' : filter),
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'ucd' : filter),
       compareFn: (i, s) => i.isEqual(s),
       dropdownDecoratorProps: const DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
@@ -146,12 +152,10 @@ class _SearchFormState extends State<SearchForm> {
     );
   }
 
-  Widget buildSearchableDestinationDropdownList(
-      SearchFormModel searchFormModel) {
+  Widget buildSearchableDestinationDropdownList(SearchFormModel searchFormModel) {
     return DropdownSearch<BusStop>(
       key: searchFormModel.destinationSelectionKey,
-      asyncItems: (filter) =>
-          fetchFutureBusStopsByName(filter == '' ? 'spire' : filter),
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'spire' : filter),
       compareFn: (i, s) => i.isEqual(s),
       dropdownDecoratorProps: const DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
@@ -178,8 +182,7 @@ class _SearchFormState extends State<SearchForm> {
     );
   }
 
-  Widget _dropdownPopupItemBuilder(
-      BuildContext context, BusStop item, bool isSelected) {
+  Widget _dropdownPopupItemBuilder(BuildContext context, BusStop item, bool isSelected) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       decoration: !isSelected

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'env.dart';
-import 'models/bus_stop.dart';
+import '../env.dart';
+import '../models/bus_stop.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<BusStop>> fetchFutureBusStopsByName(String filter) async {

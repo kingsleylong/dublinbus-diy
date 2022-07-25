@@ -53,8 +53,8 @@ class _DesktopBodyState extends State<DesktopBody> {
     return TabBarView(
         controller: widget.tabController,
         physics: const NeverScrollableScrollPhysics(),
-        children: <Widget>[
-          PlanMyJourneyTabView(googleMapComponent: googleMapComponent),
+        children: const <Widget>[
+          PlanMyJourneyTabView(),
         ]);
   }
 
