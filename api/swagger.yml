@@ -140,6 +140,10 @@ definitions:
         type: "integer"
         format: "int32"
         description: "The predicted travel time in minutes."
+      fares:
+        type: "object"
+        items:
+          $ref: "#/definitions/fares"
   Shape:
     type: "object"
     properties:
@@ -164,6 +168,24 @@ definitions:
         type: "string"
       message:
         type: "string"
+  Fares:
+    type: "object"
+    properties:
+      adult_leap:
+        type: "number"
+        format: "double"
+      adult_cash:
+        type: "number"
+        format: "double"
+      student_leap:
+        type: "number"
+        format: "double"
+      child_leap:
+        type: "number"
+        format: "double"
+      child_cash:
+        type: "number"
+        format: "double"
 externalDocs:
   description: "Find out more about Swagger"
   url: "http://swagger.io"
