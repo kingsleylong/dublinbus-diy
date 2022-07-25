@@ -1,8 +1,7 @@
 import 'dart:convert';
-
-import '../env.dart';
-import '../models/bus_stop.dart';
 import 'package:http/http.dart' as http;
+import 'package:web/env.dart';
+import 'package:web/models/bus_stop.dart';
 
 Future<List<BusStop>> fetchFutureBusStopsByName(String filter) async {
   List<BusStop> busStopList = [];
@@ -26,17 +25,13 @@ Future<List<BusStop>> fetchFutureBusStopsByName(String filter) async {
     List<BusStop> matchedStopList;
     List<BusStop> nearbyStopList;
     if (matchedStopsJson != null) {
-      matchedStopList = List.generate(
-          matchedStopsJson.length,
-              (index) =>
-              BusStop.fromJson(matchedStopsJson[index], BusStopType.matched));
+      matchedStopList = List.generate(matchedStopsJson.length,
+          (index) => BusStop.fromJson(matchedStopsJson[index], BusStopType.matched));
       busStopList.addAll(matchedStopList);
     }
     if (nearbyStopsJson != null) {
-      nearbyStopList = List.generate(
-          nearbyStopsJson.length,
-              (index) =>
-              BusStop.fromJson(nearbyStopsJson[index], BusStopType.nearby));
+      nearbyStopList = List.generate(nearbyStopsJson.length,
+          (index) => BusStop.fromJson(nearbyStopsJson[index], BusStopType.nearby));
       busStopList.addAll(nearbyStopList);
     }
     return busStopList;
