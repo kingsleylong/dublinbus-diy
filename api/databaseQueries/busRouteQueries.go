@@ -414,38 +414,5 @@ func FindMatchingRouteDemo(c *gin.Context) {
 		resultJSON = append(resultJSON, route)
 	}
 
-	// IF DESTINATION (SHAPE_DIST_TRAVELLED) - ORIGIN (SHAPE_DIST_TRAVELLED) > 3000
-	// PRINT THE LONGZONE FEE, ELSE PRINT THE SHORTZONE FEE
-	//IF ROUTE_SHORT_NAME CONTAINS THE XPRESSO ROUTES, PRINT THE XPRESSO FEE
-
-	//for _, calcRoute := range resultJSON {
-	//	for i, _ := range XpressRoutes {
-	//		if calcRoute.RouteNum == XpressRoutes[i] {
-	//			xpressFee := XpressoAdult
-	//			calcRoute.FareCalculation = xpressFee
-	//			break
-	//		}
-	//	}
-	//
-	//	for _, calcStop := range calcRoute.Stops {
-	//		if calcStop.StopNumber == "4727" {
-	//			originDist = calcStop.DistanceTravelled
-	//			continue
-	//		} else if calcStop.StopNumber == "2070" {
-	//			destDist = calcStop.DistanceTravelled
-	//			continue
-	//		}
-	//	}
-	//
-	//	if totalDist < ShortZoneDistance {
-	//		distFee := ShortZoneAdult
-	//		calcRoute.FareCalculation = distFee
-	//		//c.IndentedJSON(http.StatusOK, ShortZoneAdult)
-	//	} else if totalDist >= ShortZoneDistance {
-	//		distFee := LongZoneAdult
-	//		calcRoute.FareCalculation = distFee
-	//	}
-	//}
-
 	c.IndentedJSON(http.StatusOK, resultJSON)
 }
