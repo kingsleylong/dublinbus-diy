@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:web/models/bus_route.dart';
 import 'package:web/models/map_polylines.dart';
 
 class GoogleMapComponent extends StatefulWidget {
@@ -37,7 +36,8 @@ class _GoogleMapComponentState extends State<GoogleMapComponent> {
               target: _center,
               zoom: 11.0,
             ),
-            polylines: Set<Polyline>.of(polylinesModel.items),
+            polylines: Set<Polyline>.of(polylinesModel.itemsOfPolylines),
+            markers: Set<Marker>.of(polylinesModel.itemsOfMarkers),
           ),
         ],
       ),

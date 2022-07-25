@@ -14,10 +14,10 @@ class _DublinBusDiyAppState extends State<DublinBusDiyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       // Title for web page
       title: "Dublin Bus DIY",
-      home: const HomePage(),
+      home: HomePage(),
       debugShowCheckedModeBanner: true,
     );
   }

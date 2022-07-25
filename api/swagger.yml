@@ -1,0 +1,169 @@
+swagger: "2.0"
+info:
+  description: "The API for DublinBus web service"
+  version: "0.0.2"
+  title: "Dublin Bus"
+  termsOfService: "http://swagger.io/terms/"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "ipa-003.ucd.ie"
+# The base path will be added by Nginx for reverse proxy.
+# It's not required in the api module.
+basePath: "/api"
+tags:
+  - name: "stop"
+    description: "The bus stops from GTFS static files"
+    externalDocs:
+      description: "TODO: GTFS static files reference"
+      url: "http://TO_BE_REPLACED.ucd.ie"
+  - name: "route"
+    description: "Plan the journey"
+schemes:
+  # - "https"
+  - "http"
+paths:
+  /stop/findByAddress:
+    get:
+      tags:
+        - "stop"
+      summary: "Finds Bus Stops by address"
+      description: "The address can be a key word. If it can not be found in the database, the stops near by
+      the address will be suggested"
+      operationId: "findByAddress"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "filter"
+          in: "query"
+          description: "Address key words that need to be considered for filter"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            # construct customized object
+            # https://swagger.io/docs/specification/describing-responses/
+            type: object
+            properties:
+              matched:
+                type: "array"
+                items:
+                  $ref: "#/definitions/BusStop"
+                description: The bus stops matched by the filter.
+              nearby:
+                type: "array"
+                items:
+                  $ref: "#/definitions/BusStop"
+                description: The bus stops nearby the address searched by the filter.
+  /route/matchingRoute/{origin}/{destination}/{timeType}/{time}:
+    get:
+      tags:
+        - "route"
+      summary: "Finds Routes by origin/destination bus stops and time"
+      description: "Finds Routes by origin/destination bus stops and departure/arrival time"
+      operationId: "matchingRoute"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "origin"
+          in: "path"
+          description: "The origin bus stop number"
+          required: true
+          type: "string"
+          default: "2007" # Woodbine Road / UCD
+        - name: "destination"
+          in: "path"
+          description: "The destination bus stop number"
+          required: true
+          type: "string"
+          default: "6059" # The Spire of Dublin
+        - name: "timeType"
+          in: "path"
+          description: "The type of time used to find the route"
+          required: true
+          type: "array"
+          items:
+            type: "string"
+            enum:
+              - "departure"
+              - "arrival"
+            default: "departure"
+        - name: "time"
+          in: "path"
+          description: "The time used to find the route"
+          required: true
+          type: "string"
+          format: "date-time"
+          default: "07-22-2022 13:22:22"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Route"
+
+definitions:
+  BusStop:
+    type: "object"
+    properties:
+      stop_id:
+        type: "string"
+        description: "The unique ID value for a stop"
+      stop_number:
+        type: "string"
+        description: "The stop number."
+      stop_name:
+        type: "string"
+      stop_lat:
+        type: "number"
+        format: "double"
+      stop_lon:
+        type: "number"
+        format: "double"
+  Route:
+    type: "object"
+    properties:
+      route_num:
+        type: "string"
+      stops:
+        type: "array"
+        items:
+          $ref: "#/definitions/BusStop"
+      shapes:
+        type: "array"
+        items:
+          $ref: "#/definitions/Shape"
+      travel_time:
+        type: "integer"
+        format: "int32"
+        description: "The predicted travel time in minutes."
+  Shape:
+    type: "object"
+    properties:
+      shape_pt_lat:
+        type: "number"
+        format: "double"
+      shape_pt_lon:
+        type: "number"
+        format: "double"
+      shape_pt_sequence:
+        type: "integer"
+        format: "int32"
+      shape_dist_traveled:
+        type: "string"
+  ApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      type:
+        type: "string"
+      message:
+        type: "string"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"

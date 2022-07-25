@@ -19,6 +19,9 @@ RUN ls -lR /config
 # 2.=======================BUILD FLUTTER===========================
 # The build container will only compile flutter project
 FROM fischerscode/flutter:stable AS build
+# use ARG to pass the build time arguments
+# https://docs.docker.com/engine/reference/builder/#arg
+ARG API_HOST
 WORKDIR /flutter
 # switch to root user to change folder permission for flutter CLI
 # https://stackoverflow.com/a/24555761/12328041
@@ -34,6 +37,7 @@ COPY --from=configs /config/web/index.html /flutter/web/index.html
 # get the dependancies before building
 RUN flutter pub get
 # build flutter web platform with verbos information
+# https://docs.docker.com/engine/reference/builder/#using-arg-variables
 RUN flutter build -v web
 
 # 3.=======================BUILD NGINX==========================

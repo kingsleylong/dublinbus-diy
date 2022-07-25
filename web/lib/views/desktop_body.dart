@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:web/views/googlemap.dart';
 
@@ -43,11 +42,14 @@ class _DesktopBodyState extends State<DesktopBody> {
     print('Build right information box');
     return TabBarView(
       controller: widget.tabController,
+      // disable swiping from TabBarView
+      // https://flutteragency.com/how-to-disable-swipe-tabbar-in-flutter/
+      physics: const NeverScrollableScrollPhysics(),
       children: <Widget>[
         googleMapComponent,
-        const Center(
-          child: Text("It's rainy here"),
-        ),
+        // const Center(
+        //   child: Text("It's rainy here"),
+        // ),
         const Center(
           child: Text("It's sunny here"),
         ),
@@ -58,12 +60,13 @@ class _DesktopBodyState extends State<DesktopBody> {
   TabBarView buildLeftTabViews() {
     return TabBarView(
         controller: widget.tabController,
+        physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
           PlanMyJourneyTabView(
               googleMapComponent: googleMapComponent),
-          const Center(
-            child: Text("It's rainy here"),
-          ),
+          // const Center(
+          //   child: Text("It's rainy here"),
+          // ),
           const Center(
             child: Text("It's sunny here"),
           ),
@@ -81,7 +84,7 @@ class _DesktopBodyState extends State<DesktopBody> {
             child: TabBar(
               // expand the tab bar out of range and slide the bar when clicking
               // tabs at the edges https://stackoverflow.com/a/60636918
-              isScrollable: true,
+              // isScrollable: true,
               // Access a field of the widget in its state https://stackoverflow.com/a/58767810
               controller: widget.tabController,
               tabs: tabList,
