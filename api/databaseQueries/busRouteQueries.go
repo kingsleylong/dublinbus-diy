@@ -5,83 +5,29 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
-// busRoute is a type that is designed to read from the trips_new collection
-// from MongoDB. It contains the id fields that combine to form a unique key
-// for each entry (i.e. the route id, the shape id, the direction id, the trip id
-// and the stop id). It also includes coordinates for the stop associated with this
-// object as well as information on the route and the shape string used to
-// draw the shape on the map. All fields map to type string from the database
-type busRoute struct {
-	Id          primitive.ObjectID `bson:"_id,omitempty" json:"-"`
-	RouteId     string             `bson:"route_id" json:"route_id"`
-	TripId      string             `bson:"trip_id" json:"trip_id"`
-	ShapeId     string             `bson:"shape_id" json:"shape_id"`
-	DirectionId string             `bson:"direction_id" json:"direction_id"`
-	Route       route              `bson:"route" json:"route"`
-	Shapes      []shape            `bson:"shapes" json:"shapes"`
-	Stops       []routeStop        `bson:"stops" json:"stops"`
-}
-
-// routeStop represents the stop information contained within the trips_n_stops
-// collection in MongoDB. The information contains the StopId that can be used
-// to identify each stop uniquely, the name of that stop, the stop number used
-// by consumers of the Dublin Bus service, the coordinates of
-// the stop that can be used to mark the stop on the map and finally a sequence
-// number that can be used to sort the stops to ensure that they are in the
-// correct order on a given route. All fields are returned as strings from the
-// database
-type routeStop struct {
-	StopId       string `bson:"stop_id" json:"stop_id"`
-	StopName     string `bson:"stop_name" json:"stop_name"`
-	StopNumber   string `bson:"stop_number" json:"stop_number"`
-	StopLat      string `bson:"stop_lat" json:"stop_lat"`
-	StopLon      string `bson:"stop_lon" json:"stop_lon"`
-	StopSequence string `bson:"stop_sequence" json:"stop_sequence"`
-}
-
-// route is a struct that contains a means of matching the route number (referred to
-// as RouteShortName in this object) to the route id (i.e. the RouteId). All
-// fields map to type string from the database
-type route struct {
-	RouteId        string `bson:"route_id" json:"route_id"`
-	RouteShortName string `bson:"route_short_name" json:"route_short_name"`
-}
-
-// shape is struct that contains the coordinates for each turn in a bus
-// line as it travels its designated route that combined together allow
-// the bus route to be drawn on a map matching the road network of Dublin.
-// All fields map to type string from the database
-type shape struct {
-	ShapeId         string `bson:"shape_id" json:"shape_id"`
-	ShapePtLat      string `bson:"shape_pt_lat" json:"shape_pt_lat"`
-	ShapePtLon      string `bson:"shape_pt_lon" json:"shape_pt_lon"`
-	ShapePtSequence string `bson:"shape_pt_sequence" json:"shape_pt_sequence"`
-	ShapeDistTravel string `bson:"shape_dist_traveled" json:"shape_dist_traveled"`
-}
-
-// FindMatchingRoute takes in two parameters (the origin and destination bus stop number)
-// and then this function attempts to find the bus route objects(s) that contain both the
-// origin and destination stop and then returns these specific routes as JSON.
-func FindMatchingRoute(c *gin.Context) {
+// FindMatchingRouteForDeparture takes in three parameters - the destination
+// bus stop, the origin bus stop and then the departure time all as strings.
+// This function then queries the mongo collection for trips documents that
+// match these filters before mapping the documents to the correct structure
+// and returning them within a slice of type busRouteJSON.
+func FindMatchingRouteForDeparture(destination string,
+	origin string,
+	departureTime string) []busRouteJSON {
 
 	// Assign values to connection string variables
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	// Read in route number parameter provided in URL
-	originStopNum := c.Param("originStopNum")
-	destStopNum := c.Param("destStopNum")
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -105,52 +51,260 @@ func FindMatchingRoute(c *gin.Context) {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
-	// Arrays to hold routes for the origin and destination stops
-	var originRoutes []busRoute
-	var destinationRoutes []busRoute
-	var matchingRoutes []busRoute
-	var originRoute busRoute
-	var destinationRoute busRoute
-
-	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("trips_n_stops")
-
-	// Find documents that have the required origin stop as a stop on the route
-	// and store these routes in array
-	originBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
-		string(originStopNum)}})
+	// Aggregation pipeline created in Mongo Compass and then transformed to suit
+	// the mongo driver in Go
+	coll := client.Database("BusData").Collection("trips_n_stops")
+	cursor, err := coll.Aggregate(ctx, bson.A{
+		bson.D{
+			{"$match",
+				bson.D{
+					{"stops.stop_number", destination},
+					{"stops",
+						bson.D{
+							{"$elemMatch",
+								bson.D{
+									{"stop_number", origin},
+									{"departure_time",
+										bson.D{{"$gt", departureTime}}},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		bson.D{
+			{"$sort",
+				bson.D{
+					{"route.route_short_name", 1},
+					{"stops.departure_time", 1},
+					{"stops.stop_sequence", 1},
+				},
+			},
+		},
+		bson.D{
+			{"$group",
+				bson.D{
+					{"_id", "$route.route_short_name"},
+					{"stops", bson.D{{"$first", "$stops"}}},
+					{"shapes", bson.D{{"$first", "$shapes"}}},
+				},
+			},
+		},
+	})
 	if err != nil {
 		log.Print(err)
 	}
 
-	for originBusRoutes.Next(ctx) {
-		originBusRoutes.Decode(&originRoute)
-		originRoutes = append(originRoutes, originRoute)
-	}
-
-	destinationBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
-		string(destStopNum)}})
-	if err != nil {
+	// Variables of both busRoute and busRouteJSON need to be initialised as
+	// some unmarshalling from Mongo cannot be done automatically and
+	// so must be done manually from one structure to another in the backend
+	var result []busRoute
+	var resultJSON []busRouteJSON
+	var route busRouteJSON
+	var stop RouteStop
+	var shape ShapeJSON
+	var stops []RouteStop
+	var shapes []ShapeJSON
+	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
-	for destinationBusRoutes.Next(ctx) {
-		destinationBusRoutes.Decode(&destinationRoute)
-		destinationRoutes = append(destinationRoutes, destinationRoute)
-	}
+	// Loop through the stops that are in the result slice and start manually
+	// converting them to the RouteStop type to be added to a busRouteJSON
+	// object that is part of the returned slice. This is necessary as some
+	// data types need to be changed and this has to be done manually
+	for _, currentRoute := range result {
+		route.RouteNum = currentRoute.Id
 
-	for _, origin := range originRoutes {
-		for _, destination := range destinationRoutes {
-			if destination.RouteId == origin.RouteId {
-				matchingRoutes = append(matchingRoutes, destination)
-				break
-			}
+		// An empty slice of stops is created with each new outer iteration so
+		// that duplicates aren't added to later routes in their stop arrays
+		stops = []RouteStop{}
+		for _, currentStop := range currentRoute.Stops {
+			stop.StopId = currentStop.StopId
+			stop.StopName = currentStop.StopName
+			stop.StopNumber = currentStop.StopNumber
+			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
+			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
+			stop.StopSequence = currentStop.StopSequence
+			stop.ArrivalTime = currentStop.ArrivalTime
+			stop.DepartureTime = currentStop.DepartureTime
+			stop.DistanceTravelled, _ =
+				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
+			stops = append(stops, stop)
 		}
+		route.Stops = stops
+
+		// An empty slice of shapes is created here for each outer iteration for
+		// the same reason as the empty slice for the stops above
+		shapes = []ShapeJSON{}
+		for _, currentShape := range currentRoute.Shapes {
+			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
+			shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
+			shape.ShapePtSequence = currentShape.ShapePtSequence
+			shape.ShapeDistTravel = currentShape.ShapeDistTravel
+			shapes = append(shapes, shape)
+		}
+		route.Shapes = shapes
+
+		// Use the CalculateFare function from fareCalculation.go to get the fares
+		// object for each route
+		route.Fares = CalculateFare(currentRoute, origin, destination)
+
+		resultJSON = append(resultJSON, route)
 	}
 
-	c.IndentedJSON(http.StatusOK, matchingRoutes)
+	return resultJSON
 }
 
+// FindMatchingRouteForArrival takes in three parameters - the origin
+// bus stop, the destination bus stop and then the arrival time all as strings.
+// This function then queries the mongo collection for trips documents that
+// match these filters before mapping the documents to the correct structure
+// and returning them within a slice of type busRouteJSON.
+func FindMatchingRouteForArrival(origin string,
+	destination string,
+	arrivalTime string) []busRouteJSON {
+
+	// Assign values to connection string variables
+	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
+	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
+	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
+
+	// Create connection to mongo server and log any resulting error
+	client, err := mongo.NewClient(options.Client().
+		ApplyURI(
+			fmt.Sprintf(
+				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
+				mongoUsername,
+				mongoPassword,
+				mongoHost,
+				mongoPort)))
+	if err != nil {
+		log.Print(err)
+	}
+
+	// Create context variable and assign time for timeout
+	// Log any resulting error here also
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Print(err)
+	}
+	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
+
+	// Aggregation pipeline created in Mongo Compass and then transformed to suit
+	// the mongo driver in Go
+	coll := client.Database("BusData").Collection("trips_n_stops")
+	cursor, err := coll.Aggregate(ctx, bson.A{
+		bson.D{
+			{"$match",
+				bson.D{
+					{"stops.stop_number", origin},
+					{"stops",
+						bson.D{
+							{"$elemMatch",
+								bson.D{
+									{"stop_number", destination},
+									{"arrival_time",
+										bson.D{{"$lte", arrivalTime}}},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		bson.D{
+			{"$sort",
+				bson.D{
+					{"route.route_short_name", 1},
+					{"stops.arrival_time", -1},
+					{"stops.stop_sequence", 1},
+				},
+			},
+		},
+		bson.D{
+			{"$group",
+				bson.D{
+					{"_id", "$route.route_short_name"},
+					{"stops", bson.D{{"$first", "$stops"}}},
+					{"shapes", bson.D{{"$first", "$shapes"}}},
+				},
+			},
+		},
+	})
+	if err != nil {
+		log.Print(err)
+	}
+
+	// Variables of both busRoute and busRouteJSON need to be initialised as
+	// some unmarshalling from Mongo cannot be done automatically and
+	// so must be done manually from one structure to another in the backend
+	var result []busRoute
+	var resultJSON []busRouteJSON
+	var route busRouteJSON
+	var stop RouteStop
+	var shape ShapeJSON
+	var stops []RouteStop
+	var shapes []ShapeJSON
+	if err = cursor.All(ctx, &result); err != nil {
+		log.Print(err)
+	}
+
+	// Loop through the stops that are in the result slice and start manually
+	// converting them to the RouteStop type to be added to a busRouteJSON
+	// object that is part of the returned slice. This is necessary as some
+	// data types need to be changed and this has to be done manually
+	for _, currentRoute := range result {
+		route.RouteNum = currentRoute.Id
+
+		// An empty slice of stops is created with each new outer iteration so
+		// that duplicates aren't added to later routes in their stop arrays
+		stops = []RouteStop{}
+		for _, currentStop := range currentRoute.Stops {
+			stop.StopId = currentStop.StopId
+			stop.StopName = currentStop.StopName
+			stop.StopNumber = currentStop.StopNumber
+			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
+			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
+			stop.StopSequence = currentStop.StopSequence
+			stop.ArrivalTime = currentStop.ArrivalTime
+			stop.DepartureTime = currentStop.DepartureTime
+			stop.DistanceTravelled, _ =
+				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
+			stops = append(stops, stop)
+		}
+		route.Stops = stops
+
+		// An empty slice of shapes is created here for each outer iteration for
+		// the same reason as the empty slice for the stops above
+		shapes = []ShapeJSON{}
+		for _, currentShape := range currentRoute.Shapes {
+			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
+			shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
+			shape.ShapePtSequence = currentShape.ShapePtSequence
+			shape.ShapeDistTravel = currentShape.ShapeDistTravel
+			shapes = append(shapes, shape)
+		}
+		route.Shapes = shapes
+
+		// Use the CalculateFare function from fareCalculation.go to get the fares
+		// object for each route
+		route.Fares = CalculateFare(currentRoute, origin, destination)
+
+		resultJSON = append(resultJSON, route)
+	}
+
+	return resultJSON
+}
+
+// FindMatchingRouteDemo is a demo function designed for development
+// purposes to test the functionality of different elements of the route
+// matching service without affecting the "stable" functionality present.
+// This function is for development only and will be removed before the
+// final product is created
 func FindMatchingRouteDemo(c *gin.Context) {
 
 	// Assign values to connection string variables
@@ -159,9 +313,6 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
 
-	// Read in route number parameter provided in URL
-	//	originStopNum := c.Param("originStopNum")
-
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
 		ApplyURI(
@@ -184,48 +335,90 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
-	// Arrays to hold routes for the origin and destination stops
-	var originRoutes []busRoute
-	var destinationRoutes []busRoute
-	var matchingRoutes []busRoute
-	var originRoute busRoute
-	var destinationRoute busRoute
-
-	dbPointer := client.Database("BusData")
-	collectionPointer := dbPointer.Collection("trips_n_stops")
-
-	// Find documents that have the required origin stop as a stop on the route
-	// and store these routes in array
-	originBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
-		"2955"}})
+	coll := client.Database("BusData").Collection("trips_n_stops")
+	cursor, err := coll.Aggregate(ctx, bson.A{
+		bson.D{
+			{"$match",
+				bson.D{
+					{"stops.stop_number", "4727"},
+					{"stops",
+						bson.D{
+							{"$elemMatch",
+								bson.D{
+									{"stop_number", "2070"},
+									{"departure_time", bson.D{{"$gt", "19:55:00"}}},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		bson.D{
+			{"$sort",
+				bson.D{
+					{"route.route_short_name", 1},
+					{"stops.departure_time", 1},
+					{"stops.stop_sequence", 1},
+				},
+			},
+		},
+		bson.D{
+			{"$group",
+				bson.D{
+					{"_id", "$route.route_short_name"},
+					{"stops", bson.D{{"$first", "$stops"}}},
+					{"shapes", bson.D{{"$first", "$shapes"}}},
+				},
+			},
+		},
+	})
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	var result []busRoute
+	var resultJSON []busRouteJSON
+	var route busRouteJSON
+	var stop RouteStop
+	var shape ShapeJSON
+	var stops []RouteStop
+	var shapes []ShapeJSON
+	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
-	for originBusRoutes.Next(ctx) {
-		originBusRoutes.Decode(&originRoute)
-		originRoutes = append(originRoutes, originRoute)
-	}
-
-	destinationBusRoutes, err := collectionPointer.Find(ctx, bson.D{{"stops.stop_number",
-		"7067"}})
-	if err != nil {
-		log.Print(err)
-	}
-
-	for destinationBusRoutes.Next(ctx) {
-		destinationBusRoutes.Decode(&destinationRoute)
-		destinationRoutes = append(destinationRoutes, destinationRoute)
-	}
-
-	for _, origin := range originRoutes {
-		for _, destination := range destinationRoutes {
-			if destination.RouteId == origin.RouteId {
-				matchingRoutes = append(matchingRoutes, destination)
-				break
-			}
+	for _, currentRoute := range result {
+		route.RouteNum = currentRoute.Id
+		stops = []RouteStop{}
+		for _, currentStop := range currentRoute.Stops {
+			stop.StopId = currentStop.StopId
+			stop.StopName = currentStop.StopName
+			stop.StopNumber = currentStop.StopNumber
+			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
+			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
+			stop.StopSequence = currentStop.StopSequence
+			stop.ArrivalTime = currentStop.ArrivalTime
+			stop.DepartureTime = currentStop.DepartureTime
+			stop.DistanceTravelled, _ =
+				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
+			stops = append(stops, stop)
 		}
+		route.Stops = stops
+		shapes = []ShapeJSON{}
+		for _, currentShape := range currentRoute.Shapes {
+			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
+			shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
+			shape.ShapePtSequence = currentShape.ShapePtSequence
+			shape.ShapeDistTravel = currentShape.ShapeDistTravel
+			shapes = append(shapes, shape)
+		}
+		route.Shapes = shapes
+
+		route.Fares = CalculateFare(currentRoute, "4727", "2070")
+
+		resultJSON = append(resultJSON, route)
 	}
 
-	c.IndentedJSON(http.StatusOK, matchingRoutes)
+	c.IndentedJSON(http.StatusOK, resultJSON)
 }

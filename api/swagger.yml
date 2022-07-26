@@ -57,7 +57,7 @@ paths:
                 items:
                   $ref: "#/definitions/BusStop"
                 description: The bus stops nearby the address searched by the filter.
-  /route/matchingRoute:
+  /route/matchingRoute/{origin}/{destination}/{timeType}/{time}:
     get:
       tags:
         - "route"
@@ -68,19 +68,19 @@ paths:
         - "application/json"
       parameters:
         - name: "origin"
-          in: "query"
+          in: "path"
           description: "The origin bus stop number"
           required: true
           type: "string"
           default: "2007" # Woodbine Road / UCD
         - name: "destination"
-          in: "query"
+          in: "path"
           description: "The destination bus stop number"
           required: true
           type: "string"
           default: "6059" # The Spire of Dublin
         - name: "timeType"
-          in: "query"
+          in: "path"
           description: "The type of time used to find the route"
           required: true
           type: "array"
@@ -91,7 +91,7 @@ paths:
               - "arrival"
             default: "departure"
         - name: "time"
-          in: "query"
+          in: "path"
           description: "The time used to find the route"
           required: true
           type: "string"
@@ -128,8 +128,6 @@ definitions:
     properties:
       route_num:
         type: "string"
-      direction:
-        type: "string"
       stops:
         type: "array"
         items:
@@ -142,6 +140,10 @@ definitions:
         type: "integer"
         format: "int32"
         description: "The predicted travel time in minutes."
+      fares:
+        type: "object"
+        items:
+          $ref: "#/definitions/fares"
   Shape:
     type: "object"
     properties:
@@ -166,6 +168,24 @@ definitions:
         type: "string"
       message:
         type: "string"
+  Fares:
+    type: "object"
+    properties:
+      adult_leap:
+        type: "number"
+        format: "double"
+      adult_cash:
+        type: "number"
+        format: "double"
+      student_leap:
+        type: "number"
+        format: "double"
+      child_leap:
+        type: "number"
+        format: "double"
+      child_cash:
+        type: "number"
+        format: "double"
 externalDocs:
   description: "Find out more about Swagger"
   url: "http://swagger.io"
