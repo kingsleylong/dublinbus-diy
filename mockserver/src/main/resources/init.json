@@ -2691,7 +2691,8 @@
               "shape_pt_sequence": 365,
               "shape_dist_traveled": "26358.91"
             }
-          ]
+          ],
+          "travel_time": 15
         }
       ]
     },
