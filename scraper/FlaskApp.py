@@ -2,7 +2,7 @@
 import json
 
 import bson
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, jsonify
 import pandas as pd
 import pickle
 from pymongo import MongoClient
