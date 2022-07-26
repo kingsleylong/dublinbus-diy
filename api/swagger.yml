@@ -142,8 +142,7 @@ definitions:
         description: "The predicted travel time in minutes."
       fares:
         type: "object"
-        items:
-          $ref: "#/definitions/fares"
+        $ref: "#/definitions/Fares"
   Shape:
     type: "object"
     properties:
