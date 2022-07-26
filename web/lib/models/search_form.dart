@@ -17,6 +17,18 @@ class SearchFormModel extends ChangeNotifier {
   // https://stackoverflow.com/a/46126667
   bool visibilityRouteOptions = false;
 
+  bool visibilitySearchForm = true;
+
+  hideSearchForm() {
+    visibilitySearchForm = false;
+    notifyListeners();
+  }
+
+  showSearchForm() {
+    visibilitySearchForm = true;
+    notifyListeners();
+  }
+
   // The instance field that holds the state of origin dropdown list
   final _originSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
 
