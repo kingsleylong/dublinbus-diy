@@ -25,7 +25,7 @@ def get_prediction(line, dir_, day,hour, month,departure_time): #full_date_hour
 # allow prediction model on analytics page to take user inputs as prediction model parameters
 
 # open pickle file and load into variable clf
-    with open(f'RF_{line}_Model_dir{dir_}.pkl', 'rb') as pickle_file:
+    with open("/usr/local/dublinbus/data/ml/Pickles/" + f'RF_{line}_Model_dir{dir_}.pkl', 'rb') as pickle_file:
         clf = pickle.load(pickle_file)
 
 # Establishing connection
