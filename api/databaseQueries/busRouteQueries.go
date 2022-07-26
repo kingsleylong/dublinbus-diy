@@ -110,8 +110,15 @@ func FindMatchingRouteForDeparture(destination string,
 		log.Print(err)
 	}
 
+	// Loop through the stops that are in the result slice and start manually
+	// converting them to the RouteStop type to be added to a busRouteJSON
+	// object that is part of the returned slice. This is necessary as some
+	// data types need to be changed and this has to be done manually
 	for _, currentRoute := range result {
 		route.RouteNum = currentRoute.Id
+
+		// An empty slice of stops is created with each new outer iteration so
+		// that duplicates aren't added to later routes in their stop arrays
 		stops = []RouteStop{}
 		for _, currentStop := range currentRoute.Stops {
 			stop.StopId = currentStop.StopId
@@ -127,6 +134,9 @@ func FindMatchingRouteForDeparture(destination string,
 			stops = append(stops, stop)
 		}
 		route.Stops = stops
+
+		// An empty slice of shapes is created here for each outer iteration for
+		// the same reason as the empty slice for the stops above
 		shapes = []ShapeJSON{}
 		for _, currentShape := range currentRoute.Shapes {
 			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
@@ -137,6 +147,8 @@ func FindMatchingRouteForDeparture(destination string,
 		}
 		route.Shapes = shapes
 
+		// Use the CalculateFare function from fareCalculation.go to get the fares
+		// object for each route
 		route.Fares = CalculateFare(currentRoute, origin, destination)
 
 		resultJSON = append(resultJSON, route)
@@ -235,12 +247,22 @@ func FindMatchingRouteForArrival(origin string,
 	var route busRouteJSON
 	var stop RouteStop
 	var shape ShapeJSON
+	var stops []RouteStop
+	var shapes []ShapeJSON
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
+	// Loop through the stops that are in the result slice and start manually
+	// converting them to the RouteStop type to be added to a busRouteJSON
+	// object that is part of the returned slice. This is necessary as some
+	// data types need to be changed and this has to be done manually
 	for _, currentRoute := range result {
 		route.RouteNum = currentRoute.Id
+
+		// An empty slice of stops is created with each new outer iteration so
+		// that duplicates aren't added to later routes in their stop arrays
+		stops = []RouteStop{}
 		for _, currentStop := range currentRoute.Stops {
 			stop.StopId = currentStop.StopId
 			stop.StopName = currentStop.StopName
@@ -252,17 +274,26 @@ func FindMatchingRouteForArrival(origin string,
 			stop.DepartureTime = currentStop.DepartureTime
 			stop.DistanceTravelled, _ =
 				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
-			route.Stops = append(route.Stops, stop)
+			stops = append(stops, stop)
 		}
+		route.Stops = stops
+
+		// An empty slice of shapes is created here for each outer iteration for
+		// the same reason as the empty slice for the stops above
+		shapes = []ShapeJSON{}
 		for _, currentShape := range currentRoute.Shapes {
 			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
 			shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
 			shape.ShapePtSequence = currentShape.ShapePtSequence
 			shape.ShapeDistTravel = currentShape.ShapeDistTravel
-			route.Shapes = append(route.Shapes, shape)
+			shapes = append(shapes, shape)
 		}
+		route.Shapes = shapes
 
+		// Use the CalculateFare function from fareCalculation.go to get the fares
+		// object for each route
 		route.Fares = CalculateFare(currentRoute, origin, destination)
+
 		resultJSON = append(resultJSON, route)
 	}
 
@@ -281,24 +312,6 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	//var originDist float64
-	//var destDist float64
-	////var fee busRouteJSON
-	//
-	//const (
-	//	XpressoAdult   = float64(3.00)
-	//	ShortZoneAdult = float64(1.7)
-	//	LongZoneAdult  = float64(2.60)
-	//)
-	//
-	//ShortZoneDistance := 3000.0
-	//
-	////	xpress routes names variable - 46A added just for testing
-	//XpressRoutes := []string{"46a", "27x", "33d", "33x", "39x", "41x", "51x", "51d", "51x", "69x", "77x", "84x"}
-
-	// Read in route number parameter provided in URL
-	//	originStopNum := c.Param("originStopNum")
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -369,13 +382,15 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	var route busRouteJSON
 	var stop RouteStop
 	var shape ShapeJSON
+	var stops []RouteStop
+	var shapes []ShapeJSON
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
 
 	for _, currentRoute := range result {
-		//xpress := false
 		route.RouteNum = currentRoute.Id
+		stops = []RouteStop{}
 		for _, currentStop := range currentRoute.Stops {
 			stop.StopId = currentStop.StopId
 			stop.StopName = currentStop.StopName
@@ -387,15 +402,20 @@ func FindMatchingRouteDemo(c *gin.Context) {
 			stop.DepartureTime = currentStop.DepartureTime
 			stop.DistanceTravelled, _ =
 				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
-			route.Stops = append(route.Stops, stop)
+			stops = append(stops, stop)
 		}
+		route.Stops = stops
+		shapes = []ShapeJSON{}
 		for _, currentShape := range currentRoute.Shapes {
 			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
 			shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
 			shape.ShapePtSequence = currentShape.ShapePtSequence
 			shape.ShapeDistTravel = currentShape.ShapeDistTravel
-			route.Shapes = append(route.Shapes, shape)
+			shapes = append(shapes, shape)
 		}
+		route.Shapes = shapes
+
+		route.Fares = CalculateFare(currentRoute, "4727", "2070")
 
 		resultJSON = append(resultJSON, route)
 	}
