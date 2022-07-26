@@ -17,16 +17,16 @@ class _MobileBodyState extends State<MobileBody> {
       // Create an AppBar https://docs.flutter.dev/cookbook/design/tabs#interactive-example
       appBar: AppBar(
         title: const Text("Dublin Bus DIYs"),
-        bottom: TabBar(
-          // expand the tab bar out of range and slide the bar when clicking
-          // tabs at the edges https://stackoverflow.com/a/60636918
-          // isScrollable: true,
-          // Access a field of the widget in its state https://stackoverflow.com/a/58767810
-          controller: widget.tabController,
-          tabs: const [
-            Tab(text: "Plan My Journey"),
-          ],
-        ),
+        // bottom: TabBar(
+        //   // expand the tab bar out of range and slide the bar when clicking
+        //   // tabs at the edges https://stackoverflow.com/a/60636918
+        //   // isScrollable: true,
+        //   // Access a field of the widget in its state https://stackoverflow.com/a/58767810
+        //   controller: widget.tabController,
+        //   tabs: const [
+        //     Tab(text: "Plan My Journey"),
+        //   ],
+        // ),
       ),
       body: TabBarView(controller: widget.tabController, children: const <Widget>[
         PlanMyJourneyTabMobileView(),
