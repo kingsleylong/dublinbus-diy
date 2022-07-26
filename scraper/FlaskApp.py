@@ -7,6 +7,7 @@ import pandas as pd
 import pickle
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
+import configparser
 
 # load config file
 print('reading configurations')
