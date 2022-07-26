@@ -25,7 +25,7 @@ def get_prediction(line, dir_, day,hour, month,departure_time): #full_date_hour
 # allow prediction model on analytics page to take user inputs as prediction model parameters
 
 # open pickle file and load into variable clf
-    with open(f'RF_{line}_Model_dir{dir_}.pkl', 'rb') as pickle_file:
+    with open("/usr/local/dublinbus/data/ml/Pickles/" + f'RF_{line}_Model_dir{dir_}.pkl', 'rb') as pickle_file:
         clf = pickle.load(pickle_file)
 
 # Establishing connection
@@ -86,7 +86,7 @@ def get_prediction(line, dir_, day,hour, month,departure_time): #full_date_hour
     pred_seconds = clf.predict(X)[0]
 
     # read the error range (MAE) from csv file to get a range for the prediction
-    data = pd.read_csv(f"line_{line}_rf_metrics_dir{dir_}.csv", sep = ":",names=[' metrics ',  'values'])
+    data = pd.read_csv("/usr/local/dublinbus/data/ml/Pickles/" + f"line_{line}_rf_metrics_dir{dir_}.csv", sep = ":",names=[' metrics ',  'values'])
     value = data.iloc[7]
     value[1]
 
