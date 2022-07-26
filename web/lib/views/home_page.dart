@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web/models/map_polylines.dart';
+import 'package:web/models/search_form.dart';
 import 'package:web/views/responsive_layout.dart';
+import 'package:web/views/tabs.dart';
 
 import 'desktop_body.dart';
 import 'mobile_body.dart';
@@ -21,7 +23,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: tabList.length, vsync: this);
   }
 
   @override
@@ -32,6 +34,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       body: MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (context) => PolylinesModel()),
+          ChangeNotifierProvider(create: (context) => SearchFormModel()),
         ],
         child: ResponsiveLayout(
           mobileBody: MobileBody(

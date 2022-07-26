@@ -78,7 +78,7 @@
   {
     "httpRequest": {
       "method": "GET",
-      "path": "/api/route/matchingRoute"
+      "path": "/api/route/matchingRoute.*"
     },
     "httpResponse": {
       "body": [
