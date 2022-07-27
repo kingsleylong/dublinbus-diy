@@ -22,7 +22,7 @@ func main() {
 		databaseQueries.FindMatchingRoute)
 
 	router.GET("/coordinatesTest/:searchString", databaseQueries.GetCoordinatesTest)
-	router.GET("/travelTime", databaseQueries.GetTravelTimePrediction)
+	router.GET("/travelTime", databaseQueries.GetTravelTimePredictionTest)
 
 	err := router.Run("0.0.0.0:8080")
 	if err != nil {
