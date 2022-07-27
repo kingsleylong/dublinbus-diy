@@ -3,8 +3,8 @@ enum BusStopType {
 }
 
 class BusStop {
-  String? stopNumber;
-  String? stopName;
+  String stopNumber;
+  String stopName;
   double? latitude;
   double? longitude;
   Enum? type;
