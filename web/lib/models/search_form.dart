@@ -82,14 +82,15 @@ class SearchFormModel extends ChangeNotifier {
       List<BusRoute> busRouteList = [];
       final List? busRoutesJson = jsonDecode(response.body);
 
-      if (busRoutesJson != null) {
+      if (busRoutesJson != null && busRoutesJson.isNotEmpty) {
         busRouteList =
             List.generate(busRoutesJson.length, (index) => BusRoute.fromJson(busRoutesJson[index]));
+        _busRoutes = busRouteList;
+        _busRouteItems = generateItems(busRouteList);
+      } else {
+        _busRoutes = [];
+        _busRouteItems = [];
       }
-      _busRoutes = busRouteList;
-      _busRouteItems = generateItems(busRouteList);
-
-      print('in model: ${busRoutes.length}');
       visibilityRouteOptions = true;
       notifyListeners();
       // return busRouteList;

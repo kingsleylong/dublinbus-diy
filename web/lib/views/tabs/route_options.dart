@@ -52,9 +52,11 @@ class _RouteOptionsState extends State<RouteOptions> {
     }
   }
 
-  _buildRouteOptionPanels(List<Item> items) {
-    // List<Item> items = generateItems(data);
-    print("items: ${items[0].toString()}");
+  _buildRouteOptionPanels(List<Item>? items) {
+    if (items == null || items.isEmpty) {
+      return const Center(child: Text('No routes found.'));
+    }
+    print("items size: ${items.length}, first ele: ${items[0].toString()}");
     // Use ExpansionPanel to display the route options for easy use.
     // https://api.flutter.dev/flutter/material/ExpansionPanel-class.html
     return ExpansionPanelList(
@@ -100,17 +102,18 @@ class _RouteOptionsState extends State<RouteOptions> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Row(children: [
-                    const Icon(Icons.timer_outlined),
-                    Text(
-                      '${busRoute.travelTimes?.transitTimeMin} - ${busRoute.travelTimes
-                          ?.transitTimeMax} min',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                  Row(
+                    children: [
+                      const Icon(Icons.timer_outlined),
+                      Text(
+                        '${busRoute.travelTimes?.transitTimeMin} - ${busRoute.travelTimes?.transitTimeMax} min',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],),
+                    ],
+                  ),
                 ],
               ),
             );
