@@ -7,9 +7,9 @@ import (
 	"net/http"
 )
 
-func GetTravelTimePrediction(c *gin.Context) {
+func GetTravelTimePredictionTest(c *gin.Context) {
 
-	resp, err := http.Get("http://localhost:5000/prediction/145/3/12/4/64800")
+	resp, err := http.Get("http://localhost:5000/prediction/145/1/3/12/4/64800/date")
 	if err != nil {
 		log.Print(err)
 	}
@@ -22,3 +22,7 @@ func GetTravelTimePrediction(c *gin.Context) {
 	bodyString := string(body)
 	c.IndentedJSON(http.StatusOK, bodyString)
 }
+
+//func GetTravelTimePrediction() []float64 {
+//
+//}
