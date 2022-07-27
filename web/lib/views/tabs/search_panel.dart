@@ -3,6 +3,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 import 'package:web/api/fetch_bus_stop.dart';
 import 'package:web/models/bus_route.dart';
 import 'package:web/models/bus_route_filter.dart';
@@ -46,6 +47,22 @@ class _SearchFormState extends State<SearchForm> {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   child: buildSearchableDestinationDropdownList(searchFormModel),
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  child: ToggleSwitch(
+                    // https://pub.dev/packages/toggle_switch
+                    // Here, default theme colors are used for activeBgColor, activeFgColor, inactiveBgColor and inactiveFgColor
+                    minWidth: 150,
+                    inactiveBgColor: Colors.grey[300],
+                    initialLabelIndex: searchFormModel.timeTypeToggleIndex,
+                    totalSwitches: 2,
+                    labels: const ['Departure', 'Arrival'],
+                    onToggle: (index) {
+                      searchFormModel.timeTypeToggleIndex = index;
+                      print('switched to: ${searchFormModel.timeTypeToggleIndex}');
+                    },
+                  ),
+                ),
                 // Departure/Arrival time
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -86,7 +103,6 @@ class _SearchFormState extends State<SearchForm> {
 
                         DateTime parseTime =
                             DateTime.parse(searchFormModel.dateTimePickerController.value.text);
-                        String formatTime = DateFormat('MM-dd-yyyy HH:mm:ss').format(parseTime);
 
                         // Date format: https://api.flutter.dev/flutter/intl/DateFormat-class.html
                         print(
@@ -97,12 +113,12 @@ class _SearchFormState extends State<SearchForm> {
                                 .originSelectionKey.currentState?.getSelectedItem?.stopNumber,
                             searchFormModel
                                 .destinationSelectionKey.currentState?.getSelectedItem?.stopNumber,
-                            TimeType.arrival,
-                            // TODO TOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOODO
+                            searchFormModel.timeTypes[searchFormModel.timeTypeToggleIndex ?? 0],
                             DateFormat('MM-dd-yyyy HH:mm:ss').format(parseTime));
 
                         // futureBusRoutes = fetchBusRoutes(searchFilter);
-                        Provider.of<SearchFormModel>(context, listen: false).fetchBusRoute(searchFilter);
+                        Provider.of<SearchFormModel>(context, listen: false)
+                            .fetchBusRoute(searchFilter);
                         // Provider.of<SearchFormModel>(context, listen: false)
                         //     .visibilityRouteOptions = true;
                         // searchFormModel.busRoutes = futureBusRoutes;
@@ -122,7 +138,7 @@ class _SearchFormState extends State<SearchForm> {
     // Check the examples code for usage: https://github.com/salim-lachdhaf/searchable_dropdown
     return DropdownSearch<BusStop>(
       key: searchFormModel.originSelectionKey,
-      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'ucd' : filter),
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'donnybrook' : filter),
       compareFn: (i, s) => i.isEqual(s),
       dropdownDecoratorProps: const DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
@@ -154,7 +170,7 @@ class _SearchFormState extends State<SearchForm> {
   Widget buildSearchableDestinationDropdownList(SearchFormModel searchFormModel) {
     return DropdownSearch<BusStop>(
       key: searchFormModel.destinationSelectionKey,
-      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'spire' : filter),
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'ucd' : filter),
       compareFn: (i, s) => i.isEqual(s),
       dropdownDecoratorProps: const DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
@@ -193,7 +209,7 @@ class _SearchFormState extends State<SearchForm> {
             ),
       child: ListTile(
         selected: isSelected,
-        title: Text(item.stopName!),
+        title: Text(item.stopName),
         subtitle: Text(item.stopNumber.toString()),
         leading: CircleAvatar(
           child: buildBusStopAvatarByType(item),

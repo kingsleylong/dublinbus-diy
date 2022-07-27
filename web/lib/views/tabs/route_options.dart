@@ -103,8 +103,8 @@ class _RouteOptionsState extends State<RouteOptions> {
                   Row(children: [
                     const Icon(Icons.timer_outlined),
                     Text(
-                      '${busRoute.travelTimes.transitTimeMin} - ${busRoute.travelTimes
-                          .transitTimeMax} min',
+                      '${busRoute.travelTimes?.transitTimeMin} - ${busRoute.travelTimes
+                          ?.transitTimeMax} min',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

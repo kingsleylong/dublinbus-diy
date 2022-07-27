@@ -41,6 +41,7 @@ dependencies:
   date_time_picker: "^2.1.0"
   intl: ^0.17.0
   expandable: ^5.0.1
+  toggle_switch: ^2.0.1
 
 dev_dependencies:
   flutter_test:

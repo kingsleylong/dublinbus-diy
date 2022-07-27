@@ -43,6 +43,12 @@ class SearchFormModel extends ChangeNotifier {
 
   late List<Item> _busRouteItems;
 
+  // The instance field that holds the state of the time type toggle button
+  int? timeTypeToggleIndex = 0;
+
+  // The available options for the time type toggle button
+  List<TimeType> timeTypes = [TimeType.departure, TimeType.arrival];
+
   // The route option items used for the ExpandablePanel
   // late List<Item> _items;
 

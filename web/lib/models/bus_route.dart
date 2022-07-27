@@ -6,7 +6,7 @@ class BusRoute {
   List<BusStop> stops;
   List<Shape> shapes;
   Fares fares;
-  TravelTimes travelTimes;
+  TravelTimes? travelTimes;
 
   BusRoute(
       this.routeNumber, this.stops, this.shapes, this.fares, this.travelTimes);
@@ -18,8 +18,8 @@ class BusRoute {
       json['route_num'],
       stopsJson.map((busStopJson) => BusStop.fromJson(busStopJson, null)).toList(),
       shapesJson.map((shapeJson) => Shape.fromJson(shapeJson)).toList(),
-      Fares.fromJson(json['fares']),
-      TravelTimes.fromJson(json['travel_time']),
+      Fares.fromJson(json['fares'] ?? {}),
+      TravelTimes.fromJson(json['travel_time'] ?? {}),
     );
   }
 }
@@ -45,9 +45,9 @@ class Fares {
 }
 
 class TravelTimes {
-  int transitTime;
-  int transitTimeMin;
-  int transitTimeMax;
+  int? transitTime;
+  int? transitTimeMin;
+  int? transitTimeMax;
 
   TravelTimes(this.transitTime, this.transitTimeMin, this.transitTimeMax);
 
