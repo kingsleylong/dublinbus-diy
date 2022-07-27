@@ -96,12 +96,12 @@ class SearchFormModel extends ChangeNotifier {
   List<Item> generateItems(List<BusRoute> data) {
     return List<Item>.generate(data.length, (int index) {
       return Item(
-        headerValue: '${data[index].routeNumber}      ${data[index].travelTime} min',
+        headerValue: data[index].routeNumber,
         expandedValue:
-        '${data[index].stops.length} stops. Starts from ${data[index].stops[0].stopName}',
+            '${data[index].stops.length} stops. Starts from ${data[index].stops[0].stopName}.',
         expandedDetailsValue: data[index]
             .stops
-            .map((stop) => '${stop.stopName} - ${stop.stopNumber}')
+            .map((stop) => '${stop.stopName} - stop ${stop.stopNumber}')
             .reduce((value, element) => '$value\n$element'),
         busRoute: data[index],
       );

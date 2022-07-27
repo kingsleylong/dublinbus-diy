@@ -70,21 +70,67 @@ class _RouteOptionsState extends State<RouteOptions> {
             .addBusRouteAsPolyline(items[index].busRoute);
       },
       children: items.map<ExpansionPanel>((Item item) {
+        var busRoute = item.busRoute;
+        var fares = item.busRoute.fares;
         return ExpansionPanel(
           canTapOnHeader: true,
           headerBuilder: (BuildContext context, bool isExpanded) {
             return ListTile(
-              title: Text(
-                item.headerValue,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.directions_bus),
+                      Text(
+                        busRoute.routeNumber,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    busRoute.stops[0].stopName,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '${busRoute.travelTimes.transitTimeMin} - ${busRoute.travelTimes
+                        .transitTimeMax} min',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             );
           },
           body: ListTile(
-            title: Text(item.expandedValue),
+            title: Column(
+              children: [
+                Text(item.expandedValue),
+                const Text('Fares:'),
+                Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                  // use the Null-coalescing operators to provide an alternative value
+                  // when the expression evaluates to null
+                  // https://dart.dev/codelabs/null-safety#exercise-null-coalescing-operators
+                  Text('Adult Leap: ${fares.adultLeap ?? '-'}'),
+                  Text('Adult Cash: ${fares.adultCash ?? '-'}'),
+                ]),
+                Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                  Text('Child Cash: ${fares.childCash ?? '-'}'),
+                  Text('Child Leap: ${fares.childLeap ?? '-'}'),
+                ]),
+                Text('Student Leap: ${fares.studentLeap ?? '-'}'),
+              ],
+            ),
             subtitle: Center(
               child: Text(item.expandedDetailsValue),
             ),
