@@ -4,7 +4,7 @@ import "strconv"
 
 // Declare initial variables to be used during function call
 var express bool
-var XpressRoutes = []string{"46a", "27x", "33d", "33x", "39x", "41x",
+var XpressRoutes = []string{"27x", "33d", "33x", "39x", "41x",
 	"51x", "51d", "51x", "69x", "77x", "84x"}
 
 const (
@@ -77,7 +77,7 @@ func CalculateFare(route busRoute,
 
 		// Use comparison of distance travelled against the short zone
 		// limit to determine the appropriate fares and return
-		
+
 		if totalDist < ShortZoneDistance {
 			calculatedFares.AdultLeap = ShortZoneAdultLeap
 			calculatedFares.AdultCash = ShortZoneAdultCash
