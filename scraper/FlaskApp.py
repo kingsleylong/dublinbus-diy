@@ -7,6 +7,7 @@ import pandas as pd
 import pickle
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
+import configparser
 
 # load config file
 print('reading configurations')
@@ -20,8 +21,8 @@ uri = connectionsconfig['uri']
 # flask app into variable
 app = Flask(__name__)
 
-@app.route('/prediction/<line>/<dir_>/<day>/<hour>/<month>/<departure_time>', methods=['GET', 'POST'])
-def get_prediction(line, dir_, day,hour, month,departure_time): #full_date_hour
+@app.route('/prediction/<line>/<dir_>/<day>/<hour>/<month>/<departure_time>/<date_txt>', methods=['GET', 'POST'])
+def get_prediction(line, dir_, day,hour, month,departure_time,date_txt): #full_date_hour
 # allow prediction model on analytics page to take user inputs as prediction model parameters
 
 # open pickle file and load into variable clf
@@ -51,7 +52,7 @@ def get_prediction(line, dir_, day,hour, month,departure_time): #full_date_hour
         }},
         {
             "$match" :{
-                "list.dt_txt" :"2022-06-27 16:00:00"
+                "list.dt_txt" : date_txt
             }
 
         },
