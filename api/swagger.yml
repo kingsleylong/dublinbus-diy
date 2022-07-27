@@ -138,8 +138,7 @@ definitions:
           $ref: "#/definitions/Shape"
       travel_time:
         type: "object"
-        items:
-          $ref: "#/definitions/TravelTime"
+        $ref: "#/definitions/TravelTime"
         description: "The predicted travel time in minutes."
       fares:
         type: "object"
