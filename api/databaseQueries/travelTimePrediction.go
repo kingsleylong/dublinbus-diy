@@ -31,7 +31,7 @@ func GetTravelTimePredictionTest(c *gin.Context) {
 	result.TransitTime, _ = strconv.ParseFloat(bodyStrings[0], 64)
 	result.TransitTimePlusMAE, _ = strconv.ParseFloat(bodyStrings[1], 64)
 	result.TransitTimeMinusMAE, _ = strconv.ParseFloat(bodyStrings[2], 64)
-	
+
 	c.IndentedJSON(http.StatusOK, result)
 }
 
