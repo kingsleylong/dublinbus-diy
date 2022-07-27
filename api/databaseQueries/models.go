@@ -125,3 +125,15 @@ type busFares struct {
 	ChildLeap   float64 `bson:"child_leap" json:"child_leap"`
 	ChildCash   float64 `bson:"child_cash" json:"child_cash"`
 }
+
+type TravelTimePredictionString struct {
+	TransitTime         string `bson:"transit_time" json:"transit_time"`
+	TransitTimePlusMAE  string `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
+	TransitTimeMinusMAE string `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
+}
+
+type TravelTimePrediction struct {
+	TransitTime         float64 `bson:"transit_time" json:"transit_time"`
+	TransitTimePlusMAE  float64 `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
+	TransitTimeMinusMAE float64 `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
+}

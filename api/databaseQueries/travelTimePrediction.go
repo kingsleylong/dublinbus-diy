@@ -5,11 +5,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 func GetTravelTimePredictionTest(c *gin.Context) {
 
-	resp, err := http.Get("http://localhost:5000/prediction/145/1/3/12/4/64800/date")
+	resp, err := http.Get("http://localhost:5000/prediction/102/1/3/12/4/64800/2022-07-27 14:00:00")
 	if err != nil {
 		log.Print(err)
 	}
@@ -20,7 +22,17 @@ func GetTravelTimePredictionTest(c *gin.Context) {
 	}
 
 	bodyString := string(body)
-	c.IndentedJSON(http.StatusOK, bodyString)
+	bodyStringAdjusted := strings.Replace(bodyString, "[", "", 1)
+	bodyStringAdjusted = strings.Replace(bodyStringAdjusted, "]\n", "", 1)
+	bodyStrings := strings.Split(bodyStringAdjusted, ",")
+
+	var result TravelTimePrediction
+
+	result.TransitTime, _ = strconv.ParseFloat(bodyStrings[0], 64)
+	result.TransitTimePlusMAE, _ = strconv.ParseFloat(bodyStrings[1], 64)
+	result.TransitTimeMinusMAE, _ = strconv.ParseFloat(bodyStrings[2], 64)
+	
+	c.IndentedJSON(http.StatusOK, result)
 }
 
 //func GetTravelTimePrediction() []float64 {
