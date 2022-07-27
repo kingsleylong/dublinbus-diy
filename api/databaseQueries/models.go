@@ -7,9 +7,10 @@ package databaseQueries
 // The Stops array is made of type BusStop while the Shapes array is made of type
 // Shape.
 type busRoute struct {
-	Id     string    `bson:"_id" json:"_id"`
-	Stops  []BusStop `bson:"stops" json:"stops"`
-	Shapes []Shape   `bson:"shapes" json:"shapes"`
+	Id        string    `bson:"_id" json:"_id"`
+	Direction string    `bson:"direction_id" json:"direction_id"`
+	Stops     []BusStop `bson:"stops" json:"stops"`
+	Shapes    []Shape   `bson:"shapes" json:"shapes"`
 }
 
 // busRouteJSON is designed in a very similar fashion to the busRoute structure.
@@ -18,10 +19,11 @@ type busRoute struct {
 // In the busRouteJSON this array is made of type RouteStop which as a key difference
 // returns the coordinates of each bus stop as type float as opposed to strings.
 type busRouteJSON struct {
-	RouteNum string      `bson:"route_num" json:"route_num"`
-	Stops    []RouteStop `bson:"stops" json:"stops"`
-	Shapes   []ShapeJSON `bson:"shapes" json:"shapes"`
-	Fares    busFares    `bson:"fares" json:"fares"`
+	RouteNum  string      `bson:"route_num" json:"route_num"`
+	Stops     []RouteStop `bson:"stops" json:"stops"`
+	Shapes    []ShapeJSON `bson:"shapes" json:"shapes"`
+	Fares     busFares    `bson:"fares" json:"fares"`
+	Direction string      `bson:"direction" json:"direction"`
 }
 
 // RouteStop represents the stop information contained within the trips_n_stops

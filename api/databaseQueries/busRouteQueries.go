@@ -369,6 +369,7 @@ func FindMatchingRouteDemo(c *gin.Context) {
 					{"_id", "$route.route_short_name"},
 					{"stops", bson.D{{"$first", "$stops"}}},
 					{"shapes", bson.D{{"$first", "$shapes"}}},
+					{"direction_id", bson.D{{"$first", "$direction_id"}}},
 				},
 			},
 		},
@@ -417,8 +418,17 @@ func FindMatchingRouteDemo(c *gin.Context) {
 
 		route.Fares = CalculateFare(currentRoute, "4727", "2070")
 
+		//directionInt, _ := strconv.ParseInt(currentRoute.Direction, 0, 32)
+		//directionInt = directionInt + 1
+		//route.Direction = string(directionInt)
+		if currentRoute.Direction == "1" {
+			route.Direction = "2"
+		} else {
+			route.Direction = "1"
+		}
+
 		resultJSON = append(resultJSON, route)
 	}
 
-	c.IndentedJSON(http.StatusOK, resultJSON)
+	c.IndentedJSON(http.StatusOK, result)
 }
