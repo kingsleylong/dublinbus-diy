@@ -8,3 +8,4 @@ services:
       - /usr/local/dublinbus/data:/usr/local/dublinbus/data:ro
     ports:
       - "80:5000"
+    restart: always
