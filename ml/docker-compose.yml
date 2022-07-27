@@ -1,6 +1,6 @@
 version: "3.3"
 services:
-  ml:
+  api:
     build: .
     volumes:
       - /usr/local/dublinbus/config/scraper:/app/scripts/config:ro
