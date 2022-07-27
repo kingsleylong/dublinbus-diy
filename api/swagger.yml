@@ -72,13 +72,13 @@ paths:
           description: "The origin bus stop number"
           required: true
           type: "string"
-          default: "2007" # Woodbine Road / UCD
+          default: "759" # Donnybrook Stadium
         - name: "destination"
           in: "path"
           description: "The destination bus stop number"
           required: true
           type: "string"
-          default: "6059" # The Spire of Dublin
+          default: "2007" # UCD
         - name: "timeType"
           in: "path"
           description: "The type of time used to find the route"
@@ -137,8 +137,8 @@ definitions:
         items:
           $ref: "#/definitions/Shape"
       travel_time:
-        type: "integer"
-        format: "int32"
+        type: "object"
+        $ref: "#/definitions/TravelTime"
         description: "The predicted travel time in minutes."
       fares:
         type: "object"
@@ -185,6 +185,19 @@ definitions:
       child_cash:
         type: "number"
         format: "double"
+  TravelTime:
+    type: "object"
+    properties:
+      transit_time:
+        type: "number"
+        format: "int32"
+      transit_time_plus_mae:
+        type: "number"
+        format: "int32"
+      transit_time_minus_mae:
+        type: "number"
+        format: "int32"
+
 externalDocs:
   description: "Find out more about Swagger"
   url: "http://swagger.io"

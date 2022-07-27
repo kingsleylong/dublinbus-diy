@@ -43,6 +43,12 @@ class SearchFormModel extends ChangeNotifier {
 
   late List<Item> _busRouteItems;
 
+  // The instance field that holds the state of the time type toggle button
+  int? timeTypeToggleIndex = 0;
+
+  // The available options for the time type toggle button
+  List<TimeType> timeTypes = [TimeType.departure, TimeType.arrival];
+
   // The route option items used for the ExpandablePanel
   // late List<Item> _items;
 
@@ -76,14 +82,15 @@ class SearchFormModel extends ChangeNotifier {
       List<BusRoute> busRouteList = [];
       final List? busRoutesJson = jsonDecode(response.body);
 
-      if (busRoutesJson != null) {
+      if (busRoutesJson != null && busRoutesJson.isNotEmpty) {
         busRouteList =
             List.generate(busRoutesJson.length, (index) => BusRoute.fromJson(busRoutesJson[index]));
+        _busRoutes = busRouteList;
+        _busRouteItems = generateItems(busRouteList);
+      } else {
+        _busRoutes = [];
+        _busRouteItems = [];
       }
-      _busRoutes = busRouteList;
-      _busRouteItems = generateItems(busRouteList);
-
-      print('in model: ${busRoutes.length}');
       visibilityRouteOptions = true;
       notifyListeners();
       // return busRouteList;
@@ -96,12 +103,12 @@ class SearchFormModel extends ChangeNotifier {
   List<Item> generateItems(List<BusRoute> data) {
     return List<Item>.generate(data.length, (int index) {
       return Item(
-        headerValue: '${data[index].routeNumber}      ${data[index].travelTime} min',
+        headerValue: data[index].routeNumber,
         expandedValue:
-        '${data[index].stops.length} stops. Starts from ${data[index].stops[0].stopName}',
+            '${data[index].stops.length} stops. Starts from ${data[index].stops[0].stopName}.',
         expandedDetailsValue: data[index]
             .stops
-            .map((stop) => '${stop.stopName} - ${stop.stopNumber}')
+            .map((stop) => '${stop.stopName} - stop ${stop.stopNumber}')
             .reduce((value, element) => '$value\n$element'),
         busRoute: data[index],
       );

@@ -2691,7 +2691,19 @@
               "shape_pt_sequence": 365,
               "shape_dist_traveled": "26358.91"
             }
-          ]
+          ],
+          "travel_time": {
+            "transit_time": 15,
+            "transit_time_plus_mae": 13,
+            "transit_time_minus_mae": 17
+          },
+          "fares": {
+            "adult_leap": 1.8,
+            "adult_cash": 2.5,
+            "student_leap": 1.2,
+            "child_leaps": 0.8,
+            "child_cashs": 1.3
+          }
         }
       ]
     },
