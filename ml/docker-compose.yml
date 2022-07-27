@@ -1,0 +1,10 @@
+version: "3.3"
+services:
+  ml:
+    build: .
+    volumes:
+      - /usr/local/dublinbus/config/scraper:/app/scripts/config:ro
+      - /usr/local/dublinbus/data:/app/scripts/data:ro
+      - /usr/local/dublinbus/data:/usr/local/dublinbus/data:ro
+    ports:
+      - "80:5000"
