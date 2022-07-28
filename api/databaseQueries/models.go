@@ -19,11 +19,12 @@ type busRoute struct {
 // In the busRouteJSON this array is made of type RouteStop which as a key difference
 // returns the coordinates of each bus stop as type float as opposed to strings.
 type busRouteJSON struct {
-	RouteNum  string      `bson:"route_num" json:"route_num"`
-	Stops     []RouteStop `bson:"stops" json:"stops"`
-	Shapes    []ShapeJSON `bson:"shapes" json:"shapes"`
-	Fares     busFares    `bson:"fares" json:"fares"`
-	Direction string      `bson:"direction" json:"direction"`
+	RouteNum   string               `bson:"route_num" json:"route_num"`
+	Stops      []RouteStop          `bson:"stops" json:"stops"`
+	Shapes     []ShapeJSON          `bson:"shapes" json:"shapes"`
+	Fares      busFares             `bson:"fares" json:"fares"`
+	TravelTime TravelTimePrediction `bson:"travel_time" json:"travel_time"`
+	Direction  string               `bson:"direction" json:"direction"`
 }
 
 // RouteStop represents the stop information contained within the trips_n_stops
