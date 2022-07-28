@@ -2,54 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web/models/map_polylines.dart';
 import 'package:web/models/search_form.dart';
+import 'package:web/views/googlemap_mobile.dart';
 
-class RouteOptions extends StatefulWidget {
-  const RouteOptions({Key? key}) : super(key: key);
+class RouteOptionsMobile extends StatefulWidget {
+  const RouteOptionsMobile({Key? key}) : super(key: key);
 
   @override
-  State<RouteOptions> createState() => _RouteOptionsState();
+  State<RouteOptionsMobile> createState() => _RouteOptionsMobileState();
 }
 
-class _RouteOptionsState extends State<RouteOptions> {
+class _RouteOptionsMobileState extends State<RouteOptionsMobile> {
   @override
   Widget build(BuildContext context) {
-    if (Provider.of<SearchFormModel>(context).visibilityRouteOptions) {
-      return Consumer<SearchFormModel>(
-        builder: (context, model, child) => SingleChildScrollView(
-          child: _buildRouteOptionPanels(model.busRouteItems),
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Route Options'),
         ),
-      );
-      //   const Expanded(
-      //     child: Padding(
-      //       padding: EdgeInsets.all(8),
-      //       child: RouteOptions(),
-      //     ),
-      //   ),
-      // ConstrainedBox(
-      //   constraints: const BoxConstraints(
-      //     minHeight: 2.0,
-      //   ),
-      // ),
-
-      // return FutureBuilder<List<BusRoute>>(
-      //   future: Provider.of<SearchFormModel>(context).busRoutes,
-      //   builder: (context, snapshot) {
-      //     if (snapshot.hasData) {
-      //       return SingleChildScrollView(
-      //         child: _buildRouteOptionPanels(snapshot.data!),
-      //       );
-      //     } else if (snapshot.hasError) {
-      //       return Text('${snapshot.error}');
-      //     }
-      //     // By default, show a loading spinner.
-      //     return const Center(
-      //       child: CircularProgressIndicator(),
-      //     );
-      //   },
-      // );
-    } else {
-      return Container();
-    }
+        body: Consumer<SearchFormModel>(
+          builder: (context, model, child) => SingleChildScrollView(
+            child: _buildRouteOptionPanels(model.busRouteItems),
+          ),
+        ));
   }
 
   _buildRouteOptionPanels(List<Item>? items) {
@@ -119,6 +92,15 @@ class _RouteOptionsState extends State<RouteOptions> {
             );
           },
           body: ListTile(
+            onTap: () {
+              setState(() {
+                item.isExpanded = false;
+              });
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => const GoogleMapMobileComponent()));
+            },
             title: Column(
               children: [
                 Text(item.expandedValue),
