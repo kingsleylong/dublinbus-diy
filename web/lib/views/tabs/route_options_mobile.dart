@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web/models/map_polylines.dart';
 import 'package:web/models/search_form.dart';
+import 'package:web/views/googlemap_mobile.dart';
 
 class RouteOptionsMobile extends StatefulWidget {
   const RouteOptionsMobile({Key? key}) : super(key: key);
@@ -91,6 +92,14 @@ class _RouteOptionsMobileState extends State<RouteOptionsMobile> {
             );
           },
           body: ListTile(
+            onTap: () {
+              
+              item.isExpanded = false;
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => const GoogleMapMobileComponent()));
+            },
             title: Column(
               children: [
                 Text(item.expandedValue),
