@@ -127,14 +127,14 @@ class _RouteOptionsState extends State<RouteOptions> {
                   // use the Null-coalescing operators to provide an alternative value
                   // when the expression evaluates to null
                   // https://dart.dev/codelabs/null-safety#exercise-null-coalescing-operators
-                  Text('Adult Leap: ${fares.adultLeap ?? '-'}'),
-                  Text('Adult Cash: ${fares.adultCash ?? '-'}'),
+                  Text('Adult Leap: €${fares.adultLeap ?? '-'}'),
+                  Text('Adult Cash: €${fares.adultCash ?? '-'}'),
                 ]),
                 Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                  Text('Child Cash: ${fares.childCash ?? '-'}'),
-                  Text('Child Leap: ${fares.childLeap ?? '-'}'),
+                  Text('Child Cash: €${fares.childCash ?? '-'}'),
+                  Text('Child Leap: €${fares.childLeap ?? '-'}'),
                 ]),
-                Text('Student Leap: ${fares.studentLeap ?? '-'}'),
+                Text('Student Leap: €${fares.studentLeap ?? '-'}'),
               ],
             ),
             subtitle: Center(
