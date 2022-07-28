@@ -93,8 +93,9 @@ class _RouteOptionsMobileState extends State<RouteOptionsMobile> {
           },
           body: ListTile(
             onTap: () {
-              
-              item.isExpanded = false;
+              setState(() {
+                item.isExpanded = false;
+              });
               Navigator.push(
                   context,
                   MaterialPageRoute(
