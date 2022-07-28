@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:web/models/search_form.dart';
-import 'package:web/views/googlemap.dart';
+import 'package:web/models/responsive.dart';
 import 'package:web/views/tabs/route_options.dart';
 import 'package:web/views/tabs/search_panel.dart';
 
@@ -30,7 +28,7 @@ class PlanMyJourneyTabView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            const SearchForm(),
+            const SearchForm(screenSize: ScreenSize.desktop),
             const Expanded(
               child: RouteOptions(),
             ),

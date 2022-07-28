@@ -1,5 +1,6 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:web/models/responsive.dart';
 import 'package:web/views/googlemap.dart';
 import 'package:web/views/tabs/route_options.dart';
 import 'package:web/views/tabs/search_panel.dart';
@@ -47,7 +48,7 @@ class PlanMyJourneyTabMobileView extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              expanded: const SearchForm(),
+              expanded: const SearchForm(screenSize: ScreenSize.mobile),
               builder: (_, collapsed, expanded) {
                 return Padding(
                   padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
