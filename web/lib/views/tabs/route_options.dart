@@ -125,7 +125,9 @@ class _RouteOptionsState extends State<RouteOptions> {
                 const Text('Fares:'),
                 // Use Wrap to arrange the children widgets horizontally
                 // https://stackoverflow.com/a/50096780
-                Wrap(children: [
+                Wrap(
+                  spacing: 10,
+                    children: [
                   // use the Null-coalescing operators to provide an alternative value
                   // when the expression evaluates to null
                   // https://dart.dev/codelabs/null-safety#exercise-null-coalescing-operators
