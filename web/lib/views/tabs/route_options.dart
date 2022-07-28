@@ -123,18 +123,20 @@ class _RouteOptionsState extends State<RouteOptions> {
               children: [
                 Text(item.expandedValue),
                 const Text('Fares:'),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                // Use Wrap to arrange the children widgets horizontally
+                // https://stackoverflow.com/a/50096780
+                Wrap(
+                  spacing: 10,
+                    children: [
                   // use the Null-coalescing operators to provide an alternative value
                   // when the expression evaluates to null
                   // https://dart.dev/codelabs/null-safety#exercise-null-coalescing-operators
-                  Text('Adult Leap: ${fares.adultLeap ?? '-'}'),
-                  Text('Adult Cash: ${fares.adultCash ?? '-'}'),
+                  Text('Adult Leap: €${fares.adultLeap ?? '-'}'),
+                  Text('Adult Cash: €${fares.adultCash ?? '-'}'),
+                  Text('Child Cash: €${fares.childCash ?? '-'}'),
+                  Text('Child Leap: €${fares.childLeap ?? '-'}'),
+                  Text('Student Leap: €${fares.studentLeap ?? '-'}'),
                 ]),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                  Text('Child Cash: ${fares.childCash ?? '-'}'),
-                  Text('Child Leap: ${fares.childLeap ?? '-'}'),
-                ]),
-                Text('Student Leap: ${fares.studentLeap ?? '-'}'),
               ],
             ),
             subtitle: Center(

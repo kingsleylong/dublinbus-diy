@@ -63,17 +63,17 @@ class _DesktopBodyState extends State<DesktopBody> {
       width: 350,
       child: Column(
         children: [
-          ColoredBox(
-            color: Colors.red,
-            child: TabBar(
-              // expand the tab bar out of range and slide the bar when clicking
-              // tabs at the edges https://stackoverflow.com/a/60636918
-              // isScrollable: true,
-              // Access a field of the widget in its state https://stackoverflow.com/a/58767810
-              controller: widget.tabController,
-              tabs: tabList,
-            ),
-          ),
+          // ColoredBox(
+          //   color: Colors.red,
+          //   child: TabBar(
+          //     // expand the tab bar out of range and slide the bar when clicking
+          //     // tabs at the edges https://stackoverflow.com/a/60636918
+          //     // isScrollable: true,
+          //     // Access a field of the widget in its state https://stackoverflow.com/a/58767810
+          //     controller: widget.tabController,
+          //     tabs: tabList,
+          //   ),
+          // ),
           //
           // // tab views
           Expanded(
