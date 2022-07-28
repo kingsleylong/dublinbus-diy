@@ -1,21 +1,17 @@
 package databaseQueries
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func GetTravelTimePredictionTest(c *gin.Context) {
-
-	resp, err := http.
-		Get("http://ec2-34-239-115-43.compute-1.amazonaws.com/prediction/102/1/3/12/4/64800/2022-07-28 14:00:00")
-	if err != nil {
-		log.Print(err)
-	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -44,6 +40,14 @@ func GetTravelTimePrediction(routeNum string,
 	hour, month := DateExtraction(date)
 	departureTime := SecondsExtraction(date)
 
+	resp, err := http.
+		Get(fmt.
+			Sprintf("http://ec2-34-239-115-43.compute-1.amazonaws.com/prediction/%s/%s/%s/%s/%s/%s/%s",
+				routeNum, direction, dayOfWeek, hour, month, departureTime, date))
+	if err != nil {
+		log.Print(err)
+	}
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Print(err)
@@ -61,4 +65,55 @@ func GetTravelTimePrediction(routeNum string,
 	travelTime.TransitTimeMinusMAE, _ = strconv.ParseFloat(bodyStrings[2], 64)
 
 	return travelTime
+}
+
+func DayOfTheWeek(date string) string {
+
+	//2022-07-28 14:00:00
+
+	dateTimeSplit := strings.Split(date, " ")
+	dateSplit := strings.Split(dateTimeSplit[0], "-")
+	timeSplit := strings.Split(dateTimeSplit[1], ":")
+
+	year, _ := strconv.ParseInt(dateSplit[0], 10, 64)
+	month, _ := strconv.ParseInt(dateSplit[1], 10, 64)
+	day, _ := strconv.ParseInt(dateSplit[2], 10, 64)
+
+	hour, _ := strconv.ParseInt(timeSplit[0], 10, 64)
+	minute, _ := strconv.ParseInt(timeSplit[1], 10, 64)
+	second, _ := strconv.ParseInt(timeSplit[2], 10, 64)
+
+	dayOfWeek := time.Date(int(year),
+		time.Month(month),
+		int(day),
+		int(hour),
+		int(minute), int(second), 0, time.Local).Weekday().String()
+
+	var dayNum string
+	switch dayOfWeek {
+	case "Sunday":
+		dayNum = "0"
+	case "Monday":
+		dayNum = "1"
+	case "Tuesday":
+		dayNum = "2"
+	case "Wednesday":
+		dayNum = "3"
+	case "Thursday":
+		dayNum = "4"
+	case "Friday":
+		dayNum = "5"
+	case "Saturday":
+		dayNum = "6"
+	}
+
+	return dayNum
+}
+
+func DateExtraction(date string) (string, string) {
+
+}
+
+func SecondsExtraction(date string) string {
+
 }
