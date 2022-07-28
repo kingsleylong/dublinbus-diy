@@ -47,15 +47,7 @@ class PlanMyJourneyTabMobileView extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              expanded: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const <Widget>[
-                  // The form that contains the search filters and the submit button
-                  SearchForm(),
-                  // The route options
-                  RouteOptions(),
-                ],
-              ),
+              expanded: const SearchForm(),
               builder: (_, collapsed, expanded) {
                 return Padding(
                   padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),

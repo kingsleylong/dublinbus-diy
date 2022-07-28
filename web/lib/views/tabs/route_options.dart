@@ -13,43 +13,15 @@ class RouteOptions extends StatefulWidget {
 class _RouteOptionsState extends State<RouteOptions> {
   @override
   Widget build(BuildContext context) {
-    if (Provider.of<SearchFormModel>(context).visibilityRouteOptions) {
-      return Consumer<SearchFormModel>(
-        builder: (context, model, child) => SingleChildScrollView(
-          child: _buildRouteOptionPanels(model.busRouteItems),
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Route Options'),
         ),
-      );
-      //   const Expanded(
-      //     child: Padding(
-      //       padding: EdgeInsets.all(8),
-      //       child: RouteOptions(),
-      //     ),
-      //   ),
-      // ConstrainedBox(
-      //   constraints: const BoxConstraints(
-      //     minHeight: 2.0,
-      //   ),
-      // ),
-
-      // return FutureBuilder<List<BusRoute>>(
-      //   future: Provider.of<SearchFormModel>(context).busRoutes,
-      //   builder: (context, snapshot) {
-      //     if (snapshot.hasData) {
-      //       return SingleChildScrollView(
-      //         child: _buildRouteOptionPanels(snapshot.data!),
-      //       );
-      //     } else if (snapshot.hasError) {
-      //       return Text('${snapshot.error}');
-      //     }
-      //     // By default, show a loading spinner.
-      //     return const Center(
-      //       child: CircularProgressIndicator(),
-      //     );
-      //   },
-      // );
-    } else {
-      return Container();
-    }
+        body: Consumer<SearchFormModel>(
+          builder: (context, model, child) => SingleChildScrollView(
+            child: _buildRouteOptionPanels(model.busRouteItems),
+          ),
+        ));
   }
 
   _buildRouteOptionPanels(List<Item>? items) {
@@ -125,9 +97,7 @@ class _RouteOptionsState extends State<RouteOptions> {
                 const Text('Fares:'),
                 // Use Wrap to arrange the children widgets horizontally
                 // https://stackoverflow.com/a/50096780
-                Wrap(
-                  spacing: 10,
-                    children: [
+                Wrap(spacing: 10, children: [
                   // use the Null-coalescing operators to provide an alternative value
                   // when the expression evaluates to null
                   // https://dart.dev/codelabs/null-safety#exercise-null-coalescing-operators

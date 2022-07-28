@@ -10,6 +10,7 @@ import 'package:web/models/bus_route_filter.dart';
 import 'package:web/models/bus_stop.dart';
 import 'package:web/models/map_polylines.dart';
 import 'package:web/models/search_form.dart';
+import 'package:web/views/tabs/route_options.dart';
 
 class SearchForm extends StatefulWidget {
   const SearchForm({Key? key}) : super(key: key);
@@ -122,6 +123,13 @@ class _SearchFormState extends State<SearchForm> {
                         // Provider.of<SearchFormModel>(context, listen: false)
                         //     .visibilityRouteOptions = true;
                         // searchFormModel.busRoutes = futureBusRoutes;
+
+                        // Use a new route to show the route options
+                        // https://docs.flutter.dev/cookbook/navigation/navigation-basics
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) => const RouteOptions()));
                       }
                     },
                     child: const Text('Plan'),
