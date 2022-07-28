@@ -313,6 +313,8 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
 
+	date := "2022-07-28 14:00:00"
+
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
 		ApplyURI(
@@ -418,17 +420,16 @@ func FindMatchingRouteDemo(c *gin.Context) {
 
 		route.Fares = CalculateFare(currentRoute, "4727", "2070")
 
-		//directionInt, _ := strconv.ParseInt(currentRoute.Direction, 0, 32)
-		//directionInt = directionInt + 1
-		//route.Direction = string(directionInt)
 		if currentRoute.Direction == "1" {
 			route.Direction = "2"
 		} else {
 			route.Direction = "1"
 		}
 
+		initialTravelTime := GetTravelTimePrediction(route.RouteNum, date, route.Direction)
+
 		resultJSON = append(resultJSON, route)
 	}
 
-	c.IndentedJSON(http.StatusOK, result)
+	c.IndentedJSON(http.StatusOK, resultJSON)
 }
