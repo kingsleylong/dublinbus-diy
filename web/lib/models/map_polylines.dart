@@ -66,6 +66,8 @@ class PolylinesModel extends ChangeNotifier {
     // https://github.com/flutter/plugins/blob/main/packages/google_maps_flutter/google_maps_flutter/example/lib/place_marker.dart
     // https://developers.google.com/maps/documentation/javascript/examples/marker-simple
     _markers.add(Marker(
+      // The MarkerId is the unique identifier for one marker, so it should be related to the unique
+      // property of the marker
       markerId: MarkerId(origin.stopNumber),
       position: LatLng(
         origin.latitude!,
