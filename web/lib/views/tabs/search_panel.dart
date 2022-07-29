@@ -178,6 +178,11 @@ class _SearchFormState extends State<SearchForm> {
         //   },
         // ),
       ),
+      validator: (value) {
+        if (value == null) {
+          return "Please select the origin stop";
+        }
+      },
     );
   }
 
@@ -208,6 +213,11 @@ class _SearchFormState extends State<SearchForm> {
         //   },
         // ),
       ),
+      validator: (value) {
+        if (value == null) {
+          return "Please select the destination stop";
+        }
+      },
     );
   }
 
