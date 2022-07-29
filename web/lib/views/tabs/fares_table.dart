@@ -21,7 +21,7 @@ class FaresTable extends StatelessWidget {
           columns: const <DataColumn>[
             DataColumn(
               label: Text(
-                'Fairs',
+                'Fares',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
