@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'models/app_model.dart';
 import 'models/map_polylines.dart';
 import 'models/search_form.dart';
 import 'views/home_page.dart';
@@ -25,6 +26,7 @@ class _DublinBusDiyAppState extends State<DublinBusDiyApp> {
         // https://docs.flutter.dev/development/data-and-backend/state-mgmt/simple#changenotifierprovider
         ChangeNotifierProvider<PolylinesModel>(create: (context) => PolylinesModel()),
         ChangeNotifierProvider<SearchFormModel>(create: (context) => SearchFormModel()),
+        ChangeNotifierProvider<AppModel>(create: (context) => AppModel()),
       ],
       child: const MaterialApp(
         // Title for web page

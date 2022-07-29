@@ -17,7 +17,7 @@ import 'route_options_mobile.dart';
 class SearchForm extends StatefulWidget {
   const SearchForm({Key? key, required this.screenSize}) : super(key: key);
 
-  final ScreenSize screenSize;
+  final ScreenType screenSize;
 
   @override
   State<SearchForm> createState() => _SearchFormState();
@@ -130,7 +130,7 @@ class _SearchFormState extends State<SearchForm> {
 
                         // Use a new route to show the route options
                         // https://docs.flutter.dev/cookbook/navigation/navigation-basics
-                        if (widget.screenSize == ScreenSize.mobile) {
+                        if (widget.screenSize == ScreenType.mobile) {
                           Navigator.push(
                               context,
                               MaterialPageRoute(

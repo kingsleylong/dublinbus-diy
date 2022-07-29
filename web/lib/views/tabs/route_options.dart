@@ -1,8 +1,11 @@
+import 'package:dublin_bus_diy/models/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/app_model.dart';
 import '../../models/map_polylines.dart';
 import '../../models/search_form.dart';
+import '../googlemap_mobile.dart';
 
 class RouteOptions extends StatefulWidget {
   const RouteOptions({Key? key}) : super(key: key);
@@ -88,6 +91,18 @@ class _RouteOptionsState extends State<RouteOptions> {
             );
           },
           body: ListTile(
+            onTap: () {
+              setState(() {
+                // always collapse the panel on tapping the body
+                item.isExpanded = false;
+              });
+              if (Provider.of<AppModel>(context, listen: false).screenSize == ScreenType.mobile) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => const GoogleMapMobileComponent()));
+              }
+            },
             title: Column(
               children: [
                 Text(item.expandedValue),

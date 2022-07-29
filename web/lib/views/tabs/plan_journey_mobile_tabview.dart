@@ -44,7 +44,7 @@ class PlanMyJourneyTabMobileView extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleSmall,
               )),
               collapsed: Container(),
-              expanded: const SearchForm(screenSize: ScreenSize.mobile),
+              expanded: const SearchForm(screenSize: ScreenType.mobile),
               builder: (_, collapsed, expanded) {
                 return Padding(
                   padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),

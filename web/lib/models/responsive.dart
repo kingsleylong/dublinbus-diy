@@ -1,3 +1,3 @@
-enum ScreenSize {
+enum ScreenType {
   desktop, mobile
 }

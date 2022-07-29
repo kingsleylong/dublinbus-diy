@@ -31,7 +31,7 @@ class PlanMyJourneyTabView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            const SearchForm(screenSize: ScreenSize.desktop),
+            const SearchForm(screenSize: ScreenType.desktop),
             Expanded(
               child: Provider.of<SearchFormModel>(context).visibilityRouteOptions
                   ? const RouteOptions()
