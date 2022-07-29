@@ -69,13 +69,6 @@ class _RouteOptionsState extends State<RouteOptions> {
                       ),
                     ],
                   ),
-                  Text(
-                    busRoute.stops[0].stopName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                   Row(
                     children: [
                       const Icon(Icons.timer_outlined),
