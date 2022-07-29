@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:web/views/responsive_layout.dart';
-import 'package:web/views/tabs.dart';
 
 import 'desktop_body.dart';
 import 'mobile_body.dart';
+import 'responsive_layout.dart';
+import 'tabs.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

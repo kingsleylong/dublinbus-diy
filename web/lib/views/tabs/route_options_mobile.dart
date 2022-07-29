@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:web/models/map_polylines.dart';
-import 'package:web/models/search_form.dart';
-import 'package:web/views/googlemap_mobile.dart';
+
+import '../../models/map_polylines.dart';
+import '../../models/search_form.dart';
+import '../googlemap_mobile.dart';
 
 class RouteOptionsMobile extends StatefulWidget {
   const RouteOptionsMobile({Key? key}) : super(key: key);

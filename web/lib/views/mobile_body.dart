@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web/views/tabs/plan_journey_mobile_tabview.dart';
+
+import 'tabs/plan_journey_mobile_tabview.dart';
 
 class MobileBody extends StatefulWidget {
   const MobileBody({Key? key, required this.tabController}) : super(key: key);

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:web/models/responsive.dart';
-import 'package:web/views/tabs/route_options.dart';
-import 'package:web/views/tabs/search_panel.dart';
+
+import '../models/responsive.dart';
+import 'tabs/route_options.dart';
+import 'tabs/search_panel.dart';
 
 class GetMeThereOnTimeTabView extends StatefulWidget {
   const GetMeThereOnTimeTabView({Key? key}) : super(key: key);

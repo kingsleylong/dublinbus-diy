@@ -1,4 +1,4 @@
-name: Dublin Bus DIY
+name: dublin_bus_diy
 description: Flutter module for the DublinBus project.
 
 # The following line prevents the package from being accidentally published to
@@ -42,6 +42,7 @@ dependencies:
   intl: ^0.17.0
   expandable: ^5.0.1
   toggle_switch: ^2.0.1
+  package_info_plus: ^1.4.3
 
 dev_dependencies:
   flutter_test:

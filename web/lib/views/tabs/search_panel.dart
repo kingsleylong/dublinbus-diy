@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-import 'package:web/api/fetch_bus_stop.dart';
-import 'package:web/models/bus_route.dart';
-import 'package:web/models/bus_route_filter.dart';
-import 'package:web/models/bus_stop.dart';
-import 'package:web/models/map_polylines.dart';
-import 'package:web/models/responsive.dart';
-import 'package:web/models/search_form.dart';
-import 'package:web/views/tabs/route_options.dart';
-import 'package:web/views/tabs/route_options_mobile.dart';
+
+import '../../api/fetch_bus_stop.dart';
+import '../../models/bus_route.dart';
+import '../../models/bus_route_filter.dart';
+import '../../models/bus_stop.dart';
+import '../../models/map_polylines.dart';
+import '../../models/responsive.dart';
+import '../../models/search_form.dart';
+import 'route_options_mobile.dart';
 
 class SearchForm extends StatefulWidget {
   const SearchForm({Key? key, required this.screenSize}) : super(key: key);

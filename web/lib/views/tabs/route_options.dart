@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:web/models/map_polylines.dart';
-import 'package:web/models/search_form.dart';
+
+import '../../models/map_polylines.dart';
+import '../../models/search_form.dart';
 
 class RouteOptions extends StatefulWidget {
   const RouteOptions({Key? key}) : super(key: key);

@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:web/env.dart';
-import 'package:web/models/bus_route.dart';
-import 'package:web/models/bus_route_filter.dart';
 
+import '../env.dart';
+import 'bus_route.dart';
+import 'bus_route_filter.dart';
 import 'bus_stop.dart';
 
 /// The model for the search form

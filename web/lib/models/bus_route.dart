@@ -1,5 +1,6 @@
-import 'package:web/models/bus_stop.dart';
-import 'package:web/models/shape.dart';
+
+import 'bus_stop.dart';
+import 'shape.dart';
 
 class BusRoute {
   String routeNumber;
