@@ -14,43 +14,11 @@ class RouteOptions extends StatefulWidget {
 class _RouteOptionsState extends State<RouteOptions> {
   @override
   Widget build(BuildContext context) {
-    if (Provider.of<SearchFormModel>(context).visibilityRouteOptions) {
-      return Consumer<SearchFormModel>(
-        builder: (context, model, child) => SingleChildScrollView(
-          child: _buildRouteOptionPanels(model.busRouteItems),
-        ),
-      );
-      //   const Expanded(
-      //     child: Padding(
-      //       padding: EdgeInsets.all(8),
-      //       child: RouteOptions(),
-      //     ),
-      //   ),
-      // ConstrainedBox(
-      //   constraints: const BoxConstraints(
-      //     minHeight: 2.0,
-      //   ),
-      // ),
-
-      // return FutureBuilder<List<BusRoute>>(
-      //   future: Provider.of<SearchFormModel>(context).busRoutes,
-      //   builder: (context, snapshot) {
-      //     if (snapshot.hasData) {
-      //       return SingleChildScrollView(
-      //         child: _buildRouteOptionPanels(snapshot.data!),
-      //       );
-      //     } else if (snapshot.hasError) {
-      //       return Text('${snapshot.error}');
-      //     }
-      //     // By default, show a loading spinner.
-      //     return const Center(
-      //       child: CircularProgressIndicator(),
-      //     );
-      //   },
-      // );
-    } else {
-      return Container();
-    }
+    return Consumer<SearchFormModel>(
+      builder: (context, model, child) => SingleChildScrollView(
+        child: _buildRouteOptionPanels(model.busRouteItems),
+      ),
+    );
   }
 
   _buildRouteOptionPanels(List<Item>? items) {
