@@ -180,7 +180,10 @@ func FindMatchingRouteForDeparture(destination string,
 			route.Direction = "1"
 		}
 
-		initialTravelTime := GetTravelTimePrediction(route.RouteNum, date, route.Direction)
+		initialTravelTime, err := GetTravelTimePrediction(route.RouteNum, date, route.Direction)
+		if err != nil {
+			log.Println(err)
+		}
 
 		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
 			destinationStopArrivalTime, finalStopArrivalTime)
@@ -358,7 +361,10 @@ func FindMatchingRouteForArrival(origin string,
 			route.Direction = "1"
 		}
 
-		initialTravelTime := GetTravelTimePrediction(route.RouteNum, date, route.Direction)
+		initialTravelTime, err := GetTravelTimePrediction(route.RouteNum, date, route.Direction)
+		if err != nil {
+			log.Println(err)
+		}
 
 		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
 			destinationStopArrivalTime, finalStopArrivalTime)

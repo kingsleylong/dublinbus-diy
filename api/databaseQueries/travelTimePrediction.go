@@ -1,6 +1,7 @@
 package databaseQueries
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
@@ -41,7 +42,7 @@ func GetTravelTimePredictionTest(c *gin.Context) {
 
 func GetTravelTimePrediction(routeNum string,
 	date string,
-	direction string) TravelTimePredictionFloat {
+	direction string) (TravelTimePredictionFloat, error) {
 
 	features := FeatureExtraction(date)
 
@@ -52,12 +53,14 @@ func GetTravelTimePrediction(routeNum string,
 	if err != nil {
 		log.Println("Error in the GET request")
 		log.Print(err)
+		return TravelTimePredictionFloat{0, 0, 0}, err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("Error in the read all call on the response body")
 		log.Print(err)
+		return TravelTimePredictionFloat{0, 0, 0}, err
 	}
 
 	bodyString := string(body)
@@ -65,6 +68,10 @@ func GetTravelTimePrediction(routeNum string,
 	bodyStringAdjusted = strings.Replace(bodyStringAdjusted, "]\n", "", 1)
 	bodyStrings := strings.Split(bodyStringAdjusted, ",")
 
+	if len(bodyStrings) <= 1 {
+		return TravelTimePredictionFloat{0, 0, 0}, errors.
+			New("travel time prediction could not be generated")
+	}
 	var travelTime TravelTimePredictionFloat
 
 	log.Println(bodyStrings)
@@ -73,7 +80,7 @@ func GetTravelTimePrediction(routeNum string,
 	travelTime.TransitTimePlusMAE, _ = strconv.ParseFloat(bodyStrings[1], 64)
 	travelTime.TransitTimeMinusMAE, _ = strconv.ParseFloat(bodyStrings[2], 64)
 
-	return travelTime
+	return travelTime, nil
 }
 
 func FeatureExtraction(date string) []string {
