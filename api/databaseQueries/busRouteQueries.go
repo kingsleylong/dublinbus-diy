@@ -118,6 +118,22 @@ func FindMatchingRouteForDeparture(destination string,
 		log.Print(err)
 	}
 
+	for docIndex, document := range result {
+		var originStopSequence int64
+		var destinationStopSequence int64
+		for _, initialStop := range document.Stops {
+			if initialStop.StopNumber == origin {
+				originStopSequence, _ = strconv.ParseInt(initialStop.StopSequence, 10, 64)
+			}
+			if initialStop.StopNumber == destination {
+				destinationStopSequence, _ = strconv.ParseInt(initialStop.StopSequence, 10, 64)
+			}
+		}
+		if originStopSequence > destinationStopSequence {
+			result = append(result[:docIndex], result[docIndex+1:]...)
+		}
+	}
+
 	// Loop through the stops that are in the result slice and start manually
 	// converting them to the RouteStop type to be added to a busRouteJSON
 	// object that is part of the returned slice. This is necessary as some
@@ -295,8 +311,25 @@ func FindMatchingRouteForArrival(origin string,
 	var originStopArrivalTime string
 	var destinationStopArrivalTime string
 	var finalStopArrivalTime string
+
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
+	}
+
+	for docIndex, document := range result {
+		var originStopSequence int64
+		var destinationStopSequence int64
+		for _, initialStop := range document.Stops {
+			if initialStop.StopNumber == origin {
+				originStopSequence, _ = strconv.ParseInt(initialStop.StopSequence, 10, 64)
+			}
+			if initialStop.StopNumber == destination {
+				destinationStopSequence, _ = strconv.ParseInt(initialStop.StopSequence, 10, 64)
+			}
+		}
+		if originStopSequence > destinationStopSequence {
+			result = append(result[:docIndex], result[docIndex+1:]...)
+		}
 	}
 
 	// Loop through the stops that are in the result slice and start manually
