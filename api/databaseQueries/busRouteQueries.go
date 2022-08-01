@@ -114,6 +114,8 @@ func FindMatchingRouteForDeparture(destination string,
 	var originStopArrivalTime string
 	var destinationStopArrivalTime string
 	var finalStopArrivalTime string
+	var firstStopArrivalTime string
+
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
@@ -155,6 +157,9 @@ func FindMatchingRouteForDeparture(destination string,
 			stop.DepartureTime = currentStop.DepartureTime
 			stop.DistanceTravelled, _ =
 				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
+			if currentStop.StopSequence == "1" {
+				firstStopArrivalTime = currentStop.ArrivalTime
+			}
 			if currentStop.StopNumber == origin {
 				originStopArrivalTime = currentStop.ArrivalTime
 				log.Println("Found the origin stop: " + currentStop.StopNumber)
@@ -202,7 +207,7 @@ func FindMatchingRouteForDeparture(destination string,
 		}
 
 		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
-			destinationStopArrivalTime, finalStopArrivalTime)
+			destinationStopArrivalTime, firstStopArrivalTime, finalStopArrivalTime)
 
 		route.TravelTime = journeyTravelTime
 
@@ -311,6 +316,7 @@ func FindMatchingRouteForArrival(origin string,
 	var originStopArrivalTime string
 	var destinationStopArrivalTime string
 	var finalStopArrivalTime string
+	var firstStopArrivalTime string
 
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
@@ -353,6 +359,9 @@ func FindMatchingRouteForArrival(origin string,
 			stop.DepartureTime = currentStop.DepartureTime
 			stop.DistanceTravelled, _ =
 				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
+			if currentStop.StopSequence == "1" {
+				firstStopArrivalTime = currentStop.ArrivalTime
+			}
 			if currentStop.StopNumber == origin {
 				originStopArrivalTime = currentStop.ArrivalTime
 				log.Println("Found the origin stop: " + currentStop.StopNumber)
@@ -400,7 +409,7 @@ func FindMatchingRouteForArrival(origin string,
 		}
 
 		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
-			destinationStopArrivalTime, finalStopArrivalTime)
+			destinationStopArrivalTime, firstStopArrivalTime, finalStopArrivalTime)
 
 		route.TravelTime = journeyTravelTime
 
