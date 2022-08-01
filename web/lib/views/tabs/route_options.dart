@@ -20,7 +20,9 @@ class _RouteOptionsState extends State<RouteOptions> {
   Widget build(BuildContext context) {
     return Consumer<SearchFormModel>(
       builder: (context, model, child) => SingleChildScrollView(
-        child: _buildRouteOptionPanels(model.busRouteItems),
+        child: Provider.of<SearchFormModel>(context).visibilityRouteOptions
+            ? _buildRouteOptionPanels(model.busRouteItems)
+            : const CircularProgressIndicator(),
       ),
     );
   }
