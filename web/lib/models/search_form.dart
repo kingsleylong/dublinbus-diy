@@ -99,7 +99,6 @@ class SearchFormModel extends ChangeNotifier {
       notifyListeners();
       // return busRouteList;
     } else {
-      // TODO display some error message where this happens
       // If the server did not return a 200 OK response, then throw an exception.
       throw Exception('Failed to load bus routes');
     }
