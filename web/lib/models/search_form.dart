@@ -61,6 +61,8 @@ class SearchFormModel extends ChangeNotifier {
     // start loading, hide route options
     visibilityRouteOptions = false;
     visibilityLoadingIcon = true;
+    _busRoutes.clear();
+    _busRouteItems.clear();
     // notify immediately because the below code will block execution until api returned
     notifyListeners();
 
@@ -73,6 +75,11 @@ class SearchFormModel extends ChangeNotifier {
         "Accept": "application/json",
       },
     );
+
+    // stop loading, show route options
+    visibilityRouteOptions = true;
+    visibilityLoadingIcon = false;
+    notifyListeners();
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response, then parse the JSON.
@@ -89,12 +96,10 @@ class SearchFormModel extends ChangeNotifier {
         _busRouteItems = [];
       }
 
-      // stop loading, show route options
-      visibilityRouteOptions = true;
-      visibilityLoadingIcon = false;
       notifyListeners();
       // return busRouteList;
     } else {
+      // TODO display some error message where this happens
       // If the server did not return a 200 OK response, then throw an exception.
       throw Exception('Failed to load bus routes');
     }
