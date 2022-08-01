@@ -114,24 +114,12 @@ func FindMatchingRouteForDeparture(destination string,
 	var originStopArrivalTime string
 	var destinationStopArrivalTime string
 	var finalStopArrivalTime string
+	var firstStopArrivalTime string
+	var originStopSequence int64
+	var destinationStopSequence int64
+
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
-	}
-
-	for docIndex, document := range result {
-		var originStopSequence int64
-		var destinationStopSequence int64
-		for _, initialStop := range document.Stops {
-			if initialStop.StopNumber == origin {
-				originStopSequence, _ = strconv.ParseInt(initialStop.StopSequence, 10, 64)
-			}
-			if initialStop.StopNumber == destination {
-				destinationStopSequence, _ = strconv.ParseInt(initialStop.StopSequence, 10, 64)
-			}
-		}
-		if originStopSequence > destinationStopSequence {
-			result = append(result[:docIndex], result[docIndex+1:]...)
-		}
 	}
 
 	// Loop through the stops that are in the result slice and start manually
@@ -155,7 +143,11 @@ func FindMatchingRouteForDeparture(destination string,
 			stop.DepartureTime = currentStop.DepartureTime
 			stop.DistanceTravelled, _ =
 				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
+			if currentStop.StopSequence == "1" {
+				firstStopArrivalTime = currentStop.ArrivalTime
+			}
 			if currentStop.StopNumber == origin {
+				originStopSequence, _ = strconv.ParseInt(currentStop.StopSequence, 10, 64)
 				originStopArrivalTime = currentStop.ArrivalTime
 				log.Println("Found the origin stop: " + currentStop.StopNumber)
 				log.Println("Origin stop was in the sequence at stop " + currentStop.StopSequence)
@@ -163,6 +155,7 @@ func FindMatchingRouteForDeparture(destination string,
 				log.Println("- - - - - - - - - - - - - - - - - - - - - - -")
 			}
 			if currentStop.StopNumber == destination {
+				destinationStopSequence, _ = strconv.ParseInt(currentStop.StopSequence, 10, 64)
 				destinationStopArrivalTime = currentStop.ArrivalTime
 				log.Println("Found the destination stop: " + currentStop.StopNumber)
 				log.Println("Destination stop was in the sequence at stop " + currentStop.StopSequence)
@@ -186,6 +179,10 @@ func FindMatchingRouteForDeparture(destination string,
 		}
 		route.Shapes = shapes
 
+		if originStopSequence > destinationStopSequence {
+			continue
+		}
+
 		// Use the CalculateFare function from fareCalculation.go to get the fares
 		// object for each route
 		route.Fares = CalculateFare(currentRoute, origin, destination)
@@ -202,7 +199,7 @@ func FindMatchingRouteForDeparture(destination string,
 		}
 
 		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
-			destinationStopArrivalTime, finalStopArrivalTime)
+			destinationStopArrivalTime, firstStopArrivalTime, finalStopArrivalTime)
 
 		route.TravelTime = journeyTravelTime
 
@@ -311,25 +308,12 @@ func FindMatchingRouteForArrival(origin string,
 	var originStopArrivalTime string
 	var destinationStopArrivalTime string
 	var finalStopArrivalTime string
+	var firstStopArrivalTime string
+	var originStopSequence int64
+	var destinationStopSequence int64
 
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
-	}
-
-	for docIndex, document := range result {
-		var originStopSequence int64
-		var destinationStopSequence int64
-		for _, initialStop := range document.Stops {
-			if initialStop.StopNumber == origin {
-				originStopSequence, _ = strconv.ParseInt(initialStop.StopSequence, 10, 64)
-			}
-			if initialStop.StopNumber == destination {
-				destinationStopSequence, _ = strconv.ParseInt(initialStop.StopSequence, 10, 64)
-			}
-		}
-		if originStopSequence > destinationStopSequence {
-			result = append(result[:docIndex], result[docIndex+1:]...)
-		}
 	}
 
 	// Loop through the stops that are in the result slice and start manually
@@ -337,6 +321,7 @@ func FindMatchingRouteForArrival(origin string,
 	// object that is part of the returned slice. This is necessary as some
 	// data types need to be changed and this has to be done manually
 	for _, currentRoute := range result {
+
 		route.RouteNum = currentRoute.Id
 
 		// An empty slice of stops is created with each new outer iteration so
@@ -353,7 +338,11 @@ func FindMatchingRouteForArrival(origin string,
 			stop.DepartureTime = currentStop.DepartureTime
 			stop.DistanceTravelled, _ =
 				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
+			if currentStop.StopSequence == "1" {
+				firstStopArrivalTime = currentStop.ArrivalTime
+			}
 			if currentStop.StopNumber == origin {
+				originStopSequence, _ = strconv.ParseInt(currentStop.StopSequence, 10, 64)
 				originStopArrivalTime = currentStop.ArrivalTime
 				log.Println("Found the origin stop: " + currentStop.StopNumber)
 				log.Println("Origin stop was in the sequence at stop " + currentStop.StopSequence)
@@ -361,6 +350,7 @@ func FindMatchingRouteForArrival(origin string,
 				log.Println("- - - - - - - - - - - - - - - - - - - - - - -")
 			}
 			if currentStop.StopNumber == destination {
+				destinationStopSequence, _ = strconv.ParseInt(currentStop.StopSequence, 10, 64)
 				destinationStopArrivalTime = currentStop.ArrivalTime
 				log.Println("Found the destination stop: " + currentStop.StopNumber)
 				log.Println("Destination stop was in the sequence at stop " + currentStop.StopSequence)
@@ -382,6 +372,10 @@ func FindMatchingRouteForArrival(origin string,
 			shape.ShapeDistTravel = currentShape.ShapeDistTravel
 			shapes = append(shapes, shape)
 		}
+
+		if originStopSequence > destinationStopSequence {
+			continue
+		}
 		route.Shapes = shapes
 
 		// Use the CalculateFare function from fareCalculation.go to get the fares
@@ -400,7 +394,7 @@ func FindMatchingRouteForArrival(origin string,
 		}
 
 		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
-			destinationStopArrivalTime, finalStopArrivalTime)
+			destinationStopArrivalTime, firstStopArrivalTime, finalStopArrivalTime)
 
 		route.TravelTime = journeyTravelTime
 

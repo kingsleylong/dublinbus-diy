@@ -49,7 +49,7 @@ func GetTravelTimePrediction(routeNum string,
 	resp, err := http.
 		Get(fmt.
 			Sprintf("http://ec2-34-239-115-43.compute-1.amazonaws.com/prediction/%s/%s/%s/%s/%s/%s/%s",
-				routeNum, direction, features[0], features[1], features[2], features[3], date))
+				strings.ToUpper(routeNum), direction, features[0], features[1], features[2], features[3], date))
 	if err != nil {
 		log.Println("Error in the GET request")
 		log.Print(err)
@@ -155,6 +155,7 @@ func SecondsExtraction(time []string) string {
 func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 	originArrivalTime string,
 	destinationArrivalTime string,
+	firstStopArrivalTime string,
 	finalStopArrivalTime string) TravelTimePrediction {
 
 	// Turn prediction values into seconds
@@ -167,46 +168,64 @@ func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 
 	originArrivalStringArray := strings.Split(originArrivalTime, ":")
 	destinationArrivalStringArray := strings.Split(destinationArrivalTime, ":")
+	firstStopArrivalStringArray := strings.Split(firstStopArrivalTime, ":")
 	finalStopArrivalStringArray := strings.Split(finalStopArrivalTime, ":")
 
-	originArrivalHoursAsInt, _ := strconv.ParseInt(originArrivalStringArray[0], 10, 64)
-	originArrivalMinutesAsInt, _ := strconv.ParseInt(originArrivalStringArray[1], 10, 64)
-	originArrivalSecondsAsInt, _ := strconv.ParseInt(originArrivalStringArray[2], 10, 64)
+	originArrivalHoursAsFloat, _ := strconv.ParseFloat(originArrivalStringArray[0], 64)
+	originArrivalMinutesAsFloat, _ := strconv.ParseFloat(originArrivalStringArray[1], 64)
+	originArrivalSecondsAsFloat, _ := strconv.ParseFloat(originArrivalStringArray[2], 64)
 
-	destinationArrivalHoursAsInt, _ := strconv.ParseInt(destinationArrivalStringArray[0], 10, 64)
-	destinationArrivalMinutesAsInt, _ := strconv.ParseInt(destinationArrivalStringArray[1], 10, 64)
-	destinationArrivalSecondsAsInt, _ := strconv.ParseInt(destinationArrivalStringArray[2], 10, 64)
+	destinationArrivalHoursAsFloat, _ := strconv.ParseFloat(destinationArrivalStringArray[0], 64)
+	destinationArrivalMinutesAsFloat, _ := strconv.ParseFloat(destinationArrivalStringArray[1], 64)
+	destinationArrivalSecondsAsFloat, _ := strconv.ParseFloat(destinationArrivalStringArray[2], 64)
 
-	finalStopArrivalHoursAsInt, _ := strconv.ParseInt(finalStopArrivalStringArray[0], 10, 64)
-	finalStopArrivalMinutesAsInt, _ := strconv.ParseInt(finalStopArrivalStringArray[1], 10, 64)
-	finalStopArrivalSecondsAsInt, _ := strconv.ParseInt(finalStopArrivalStringArray[2], 10, 64)
+	firstStopArrivalHoursAsFloat, _ := strconv.ParseFloat(firstStopArrivalStringArray[0], 64)
+	firstStopArrivalMinutesAsFloat, _ := strconv.ParseFloat(firstStopArrivalStringArray[1], 64)
+	firstStopArrivalSecondsAsFloat, _ := strconv.ParseFloat(firstStopArrivalStringArray[2], 64)
 
-	originHoursAsSeconds := originArrivalHoursAsInt * 3600
-	originMinutesAsSeconds := originArrivalMinutesAsInt * 60
-	originTotalSeconds := originHoursAsSeconds + originMinutesAsSeconds + originArrivalSecondsAsInt
+	finalStopArrivalHoursAsFloat, _ := strconv.ParseFloat(finalStopArrivalStringArray[0], 64)
+	finalStopArrivalMinutesAsFloat, _ := strconv.ParseFloat(finalStopArrivalStringArray[1], 64)
+	finalStopArrivalSecondsAsFloat, _ := strconv.ParseFloat(finalStopArrivalStringArray[2], 64)
+
+	originHoursAsSeconds := originArrivalHoursAsFloat * 3600
+	originMinutesAsSeconds := originArrivalMinutesAsFloat * 60
+	originTotalSeconds := originHoursAsSeconds + originMinutesAsSeconds + originArrivalSecondsAsFloat
 	log.Println("Origin times as seconds with total:")
-	log.Println(originHoursAsSeconds, originMinutesAsSeconds, originArrivalSecondsAsInt, originTotalSeconds)
+	log.Println(originHoursAsSeconds, originMinutesAsSeconds, originArrivalSecondsAsFloat, originTotalSeconds)
 	log.Println("")
 
-	destinationHoursAsSeconds := destinationArrivalHoursAsInt * 3600
-	destinationMinutesAsSeconds := destinationArrivalMinutesAsInt * 60
-	destinationTotalSeconds := destinationHoursAsSeconds + destinationMinutesAsSeconds + destinationArrivalSecondsAsInt
+	destinationHoursAsSeconds := destinationArrivalHoursAsFloat * 3600
+	destinationMinutesAsSeconds := destinationArrivalMinutesAsFloat * 60
+	destinationTotalSeconds := destinationHoursAsSeconds +
+		destinationMinutesAsSeconds + destinationArrivalSecondsAsFloat
 	log.Println("Destination times as seconds with total:")
 	log.Println(destinationHoursAsSeconds, destinationMinutesAsSeconds,
-		destinationArrivalSecondsAsInt, destinationTotalSeconds)
+		destinationArrivalSecondsAsFloat, destinationTotalSeconds)
 	log.Println("")
 
-	finalStopHoursAsSeconds := finalStopArrivalHoursAsInt * 3600
-	finalStopMinutesAsSeconds := finalStopArrivalMinutesAsInt * 60
-	finalStopTotalSeconds := finalStopHoursAsSeconds + finalStopMinutesAsSeconds + finalStopArrivalSecondsAsInt
+	firstStopHoursAsSeconds := firstStopArrivalHoursAsFloat * 3600
+	firstStopMinutesAsSeconds := firstStopArrivalMinutesAsFloat * 60
+	firstStopTotalSeconds := firstStopHoursAsSeconds +
+		firstStopMinutesAsSeconds + firstStopArrivalSecondsAsFloat
+
+	finalStopHoursAsSeconds := finalStopArrivalHoursAsFloat * 3600
+	finalStopMinutesAsSeconds := finalStopArrivalMinutesAsFloat * 60
+	finalStopTotalSeconds := finalStopHoursAsSeconds +
+		finalStopMinutesAsSeconds + finalStopArrivalSecondsAsFloat
 
 	originToDestinationSeconds := float64(destinationTotalSeconds - originTotalSeconds)
 	log.Println("Origin to destination seconds:")
 	log.Println(originToDestinationSeconds)
 	log.Println("")
 
-	fullTripSeconds := float64(finalStopTotalSeconds - originTotalSeconds)
+	fullTripSeconds := float64(finalStopTotalSeconds - firstStopTotalSeconds)
+	log.Println("Full trip seconds:")
+	log.Println(fullTripSeconds)
+	log.Println("")
 	staticTripPercentageAsDecimal := originToDestinationSeconds / fullTripSeconds
+	log.Println("Percentage of trip covered in specified origin - destination:")
+	log.Println(staticTripPercentageAsDecimal)
+	log.Println("")
 
 	//predictedTimeComplement := initialPredictionAsSeconds - originToDestinationSeconds
 	//predictedHighTimeComplement := initialHighPredictionAsSeconds - originToDestinationSeconds
