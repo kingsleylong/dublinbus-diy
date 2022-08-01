@@ -32,17 +32,19 @@ class PlanMyJourneyTabView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             const SearchForm(screenSize: ScreenType.desktop),
-            Expanded(
-              child: Provider.of<SearchFormModel>(context).visibilityRouteOptions
-                  ? const RouteOptions()
-                  : Container(),
-            ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(
-                minHeight: 2.0,
-              ),
-            ),
+            Expanded(child: showRouteOptionsOrLoadingIcon(context)),
           ],
         ));
+    // ;
+  }
+
+  Widget showRouteOptionsOrLoadingIcon(BuildContext context) {
+    if (Provider.of<SearchFormModel>(context).visibilityRouteOptions) {
+      return const RouteOptions();
+    } else if (Provider.of<SearchFormModel>(context).visibilityLoadingIcon) {
+      return const Center(child: CircularProgressIndicator());
+    } else {
+      return Container();
+    }
   }
 }
