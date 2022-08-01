@@ -67,6 +67,9 @@ class SearchFormModel extends ChangeNotifier {
   List<BusRoute> get busRoutes => _busRoutes;
 
   Future<void> fetchBusRoute(BusRouteSearchFilter searchFilter) async {
+    visibilityRouteOptions = false;
+    notifyListeners();
+
     String url = '$apiHost/api/route/matchingRoute';
     url += '/${searchFilter.originStopNumber}/${searchFilter.destinationStopNumber}'
         '/${searchFilter.timeType.name}/${searchFilter.time}';
