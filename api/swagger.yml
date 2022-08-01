@@ -72,13 +72,13 @@ paths:
           description: "The origin bus stop number"
           required: true
           type: "string"
-          default: "2007" # Woodbine Road / UCD
+          default: "759" # Donnybrook Stadium
         - name: "destination"
           in: "path"
           description: "The destination bus stop number"
           required: true
           type: "string"
-          default: "6059" # The Spire of Dublin
+          default: "2007" # UCD
         - name: "timeType"
           in: "path"
           description: "The type of time used to find the route"
