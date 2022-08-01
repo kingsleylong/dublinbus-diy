@@ -22,7 +22,7 @@ class _RouteOptionsState extends State<RouteOptions> {
       builder: (context, model, child) => SingleChildScrollView(
         child: Provider.of<SearchFormModel>(context).visibilityRouteOptions
             ? _buildRouteOptionPanels(model.busRouteItems)
-            : const CircularProgressIndicator(),
+            : const Center(child: CircularProgressIndicator()),
       ),
     );
   }
@@ -70,13 +70,6 @@ class _RouteOptionsState extends State<RouteOptions> {
                         ),
                       ),
                     ],
-                  ),
-                  Text(
-                    busRoute.stops[0].stopName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
                   ),
                   Row(
                     children: [
