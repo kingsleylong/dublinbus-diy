@@ -1,4 +1,3 @@
-
 import 'bus_stop.dart';
 import 'shape.dart';
 
@@ -9,8 +8,7 @@ class BusRoute {
   Fares fares;
   TravelTimes? travelTimes;
 
-  BusRoute(
-      this.routeNumber, this.stops, this.shapes, this.fares, this.travelTimes);
+  BusRoute(this.routeNumber, this.stops, this.shapes, this.fares, this.travelTimes);
 
   factory BusRoute.fromJson(Map<String, dynamic> json) {
     List<dynamic> stopsJson = json['stops'] as List;
@@ -36,11 +34,13 @@ class Fares {
 
   factory Fares.fromJson(Map<String, dynamic> json) {
     return Fares(
-      json['adult_leap'],
-      json['adult_cash'],
-      json['student_leap'],
-      json['child_leap'],
-      json['child_cash'],
+      // json[] may return an int and cause type error in iOS, need to handle carefully
+      // https://stackoverflow.com/questions/71615935/typeerror-type-int-is-not-a-subtype-of-type-double-flutter
+      (json['adult_leap'] as num).toDouble(),
+      (json['adult_cash'] as num).toDouble(),
+      (json['student_leap'] as num).toDouble(),
+      (json['child_leap'] as num).toDouble(),
+      (json['child_cash'] as num).toDouble(),
     );
   }
 }
