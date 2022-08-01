@@ -46,3 +46,5 @@ FROM nginx AS runtime
 WORKDIR /data/www
 # copy the compiled flutter web static files from the container at the build stage
 COPY --from=build /flutter/build/web ./
+# the volume for storing static files such as installation files, QR codes, etc
+VOLUME ["/data/files"]
