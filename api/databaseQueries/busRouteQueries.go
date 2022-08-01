@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -21,7 +22,7 @@ import (
 // and returning them within a slice of type busRouteJSON.
 func FindMatchingRouteForDeparture(destination string,
 	origin string,
-	departureTime string) []busRouteJSON {
+	date string) []busRouteJSON {
 
 	// Assign values to connection string variables
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
@@ -51,6 +52,10 @@ func FindMatchingRouteForDeparture(destination string,
 	}
 	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
 
+	dateStringSplit := strings.Split(date, " ")
+	//dateString := dateStringSplit[0]
+	timeString := dateStringSplit[1]
+
 	// Aggregation pipeline created in Mongo Compass and then transformed to suit
 	// the mongo driver in Go
 	coll := client.Database("BusData").Collection("trips_n_stops")
@@ -65,7 +70,7 @@ func FindMatchingRouteForDeparture(destination string,
 								bson.D{
 									{"stop_number", origin},
 									{"departure_time",
-										bson.D{{"$gt", departureTime}}},
+										bson.D{{"$gt", timeString}}},
 								},
 							},
 						},
@@ -106,8 +111,27 @@ func FindMatchingRouteForDeparture(destination string,
 	var shape ShapeJSON
 	var stops []RouteStop
 	var shapes []ShapeJSON
+	var originStopArrivalTime string
+	var destinationStopArrivalTime string
+	var finalStopArrivalTime string
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
+	}
+
+	for docIndex, document := range result {
+		var originStopSequence int64
+		var destinationStopSequence int64
+		for _, initialStop := range document.Stops {
+			if initialStop.StopNumber == origin {
+				originStopSequence, _ = strconv.ParseInt(initialStop.StopSequence, 10, 64)
+			}
+			if initialStop.StopNumber == destination {
+				destinationStopSequence, _ = strconv.ParseInt(initialStop.StopSequence, 10, 64)
+			}
+		}
+		if originStopSequence > destinationStopSequence {
+			result = append(result[:docIndex], result[docIndex+1:]...)
+		}
 	}
 
 	// Loop through the stops that are in the result slice and start manually
@@ -131,6 +155,21 @@ func FindMatchingRouteForDeparture(destination string,
 			stop.DepartureTime = currentStop.DepartureTime
 			stop.DistanceTravelled, _ =
 				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
+			if currentStop.StopNumber == origin {
+				originStopArrivalTime = currentStop.ArrivalTime
+				log.Println("Found the origin stop: " + currentStop.StopNumber)
+				log.Println("Origin stop was in the sequence at stop " + currentStop.StopSequence)
+				log.Println("Bus Arrived here at " + originStopArrivalTime)
+				log.Println("- - - - - - - - - - - - - - - - - - - - - - -")
+			}
+			if currentStop.StopNumber == destination {
+				destinationStopArrivalTime = currentStop.ArrivalTime
+				log.Println("Found the destination stop: " + currentStop.StopNumber)
+				log.Println("Destination stop was in the sequence at stop " + currentStop.StopSequence)
+				log.Println("Bus Arrived here at " + destinationStopArrivalTime)
+				log.Println("- - - - - - - - - - - - - - - - - - - - - - -")
+			}
+			finalStopArrivalTime = currentStop.ArrivalTime
 			stops = append(stops, stop)
 		}
 		route.Stops = stops
@@ -151,6 +190,22 @@ func FindMatchingRouteForDeparture(destination string,
 		// object for each route
 		route.Fares = CalculateFare(currentRoute, origin, destination)
 
+		if currentRoute.Direction == "1" {
+			route.Direction = "2"
+		} else {
+			route.Direction = "1"
+		}
+
+		initialTravelTime, err := GetTravelTimePrediction(route.RouteNum, date, route.Direction)
+		if err != nil {
+			log.Println(err)
+		}
+
+		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
+			destinationStopArrivalTime, finalStopArrivalTime)
+
+		route.TravelTime = journeyTravelTime
+
 		resultJSON = append(resultJSON, route)
 	}
 
@@ -164,7 +219,7 @@ func FindMatchingRouteForDeparture(destination string,
 // and returning them within a slice of type busRouteJSON.
 func FindMatchingRouteForArrival(origin string,
 	destination string,
-	arrivalTime string) []busRouteJSON {
+	date string) []busRouteJSON {
 
 	// Assign values to connection string variables
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
@@ -184,6 +239,10 @@ func FindMatchingRouteForArrival(origin string,
 	if err != nil {
 		log.Print(err)
 	}
+
+	dateStringSplit := strings.Split(date, " ")
+	//dateString := dateStringSplit[0]
+	timeString := dateStringSplit[1]
 
 	// Create context variable and assign time for timeout
 	// Log any resulting error here also
@@ -208,7 +267,7 @@ func FindMatchingRouteForArrival(origin string,
 								bson.D{
 									{"stop_number", destination},
 									{"arrival_time",
-										bson.D{{"$lte", arrivalTime}}},
+										bson.D{{"$lte", timeString}}},
 								},
 							},
 						},
@@ -249,8 +308,28 @@ func FindMatchingRouteForArrival(origin string,
 	var shape ShapeJSON
 	var stops []RouteStop
 	var shapes []ShapeJSON
+	var originStopArrivalTime string
+	var destinationStopArrivalTime string
+	var finalStopArrivalTime string
+
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
+	}
+
+	for docIndex, document := range result {
+		var originStopSequence int64
+		var destinationStopSequence int64
+		for _, initialStop := range document.Stops {
+			if initialStop.StopNumber == origin {
+				originStopSequence, _ = strconv.ParseInt(initialStop.StopSequence, 10, 64)
+			}
+			if initialStop.StopNumber == destination {
+				destinationStopSequence, _ = strconv.ParseInt(initialStop.StopSequence, 10, 64)
+			}
+		}
+		if originStopSequence > destinationStopSequence {
+			result = append(result[:docIndex], result[docIndex+1:]...)
+		}
 	}
 
 	// Loop through the stops that are in the result slice and start manually
@@ -274,6 +353,21 @@ func FindMatchingRouteForArrival(origin string,
 			stop.DepartureTime = currentStop.DepartureTime
 			stop.DistanceTravelled, _ =
 				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
+			if currentStop.StopNumber == origin {
+				originStopArrivalTime = currentStop.ArrivalTime
+				log.Println("Found the origin stop: " + currentStop.StopNumber)
+				log.Println("Origin stop was in the sequence at stop " + currentStop.StopSequence)
+				log.Println("Bus Arrived here at " + originStopArrivalTime)
+				log.Println("- - - - - - - - - - - - - - - - - - - - - - -")
+			}
+			if currentStop.StopNumber == destination {
+				destinationStopArrivalTime = currentStop.ArrivalTime
+				log.Println("Found the destination stop: " + currentStop.StopNumber)
+				log.Println("Destination stop was in the sequence at stop " + currentStop.StopSequence)
+				log.Println("Bus Arrived here at " + destinationStopArrivalTime)
+				log.Println("- - - - - - - - - - - - - - - - - - - - - - -")
+			}
+			finalStopArrivalTime = currentStop.ArrivalTime
 			stops = append(stops, stop)
 		}
 		route.Stops = stops
@@ -294,6 +388,22 @@ func FindMatchingRouteForArrival(origin string,
 		// object for each route
 		route.Fares = CalculateFare(currentRoute, origin, destination)
 
+		if currentRoute.Direction == "1" {
+			route.Direction = "2"
+		} else {
+			route.Direction = "1"
+		}
+
+		initialTravelTime, err := GetTravelTimePrediction(route.RouteNum, date, route.Direction)
+		if err != nil {
+			log.Println(err)
+		}
+
+		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
+			destinationStopArrivalTime, finalStopArrivalTime)
+
+		route.TravelTime = journeyTravelTime
+
 		resultJSON = append(resultJSON, route)
 	}
 
@@ -312,6 +422,8 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
+
+	//date := "2022-07-30 14:00:00"
 
 	// Create connection to mongo server and log any resulting error
 	client, err := mongo.NewClient(options.Client().
@@ -340,12 +452,12 @@ func FindMatchingRouteDemo(c *gin.Context) {
 		bson.D{
 			{"$match",
 				bson.D{
-					{"stops.stop_number", "4727"},
+					{"stops.stop_number", "7067"},
 					{"stops",
 						bson.D{
 							{"$elemMatch",
 								bson.D{
-									{"stop_number", "2070"},
+									{"stop_number", "2955"},
 									{"departure_time", bson.D{{"$gt", "19:55:00"}}},
 								},
 							},
@@ -385,6 +497,9 @@ func FindMatchingRouteDemo(c *gin.Context) {
 	var shape ShapeJSON
 	var stops []RouteStop
 	var shapes []ShapeJSON
+	var originStopArrivalTime string
+	var destinationStopArrivalTime string
+
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
 	}
@@ -404,6 +519,11 @@ func FindMatchingRouteDemo(c *gin.Context) {
 			stop.DistanceTravelled, _ =
 				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 			stops = append(stops, stop)
+			if currentStop.StopNumber == "2955" {
+				originStopArrivalTime = currentStop.ArrivalTime
+			} else if currentStop.StopNumber == "7067" {
+				destinationStopArrivalTime = currentStop.ArrivalTime
+			}
 		}
 		route.Stops = stops
 		shapes = []ShapeJSON{}
@@ -416,19 +536,24 @@ func FindMatchingRouteDemo(c *gin.Context) {
 		}
 		route.Shapes = shapes
 
-		route.Fares = CalculateFare(currentRoute, "4727", "2070")
+		route.Fares = CalculateFare(currentRoute, "2955", "7067")
 
-		//directionInt, _ := strconv.ParseInt(currentRoute.Direction, 0, 32)
-		//directionInt = directionInt + 1
-		//route.Direction = string(directionInt)
 		if currentRoute.Direction == "1" {
 			route.Direction = "2"
 		} else {
 			route.Direction = "1"
 		}
+		log.Println("Origin Arrival Time: " + originStopArrivalTime)
+		log.Println("Destination Arrival Time: " + destinationStopArrivalTime)
+
+		//initialTravelTime := GetTravelTimePrediction(route.RouteNum, date, route.Direction)
+		//
+		//journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime, destinationStopArrivalTime)
+		//
+		//route.TravelTime = journeyTravelTime
 
 		resultJSON = append(resultJSON, route)
 	}
 
-	c.IndentedJSON(http.StatusOK, result)
+	c.IndentedJSON(http.StatusOK, resultJSON)
 }

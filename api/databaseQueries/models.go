@@ -19,11 +19,12 @@ type busRoute struct {
 // In the busRouteJSON this array is made of type RouteStop which as a key difference
 // returns the coordinates of each bus stop as type float as opposed to strings.
 type busRouteJSON struct {
-	RouteNum  string      `bson:"route_num" json:"route_num"`
-	Stops     []RouteStop `bson:"stops" json:"stops"`
-	Shapes    []ShapeJSON `bson:"shapes" json:"shapes"`
-	Fares     busFares    `bson:"fares" json:"fares"`
-	Direction string      `bson:"direction" json:"direction"`
+	RouteNum   string               `bson:"route_num" json:"route_num"`
+	Stops      []RouteStop          `bson:"stops" json:"stops"`
+	Shapes     []ShapeJSON          `bson:"shapes" json:"shapes"`
+	Fares      busFares             `bson:"fares" json:"fares"`
+	TravelTime TravelTimePrediction `bson:"travel_time,omitempty" json:"travel_time,omitempty"`
+	Direction  string               `bson:"direction" json:"direction"`
 }
 
 // RouteStop represents the stop information contained within the trips_n_stops
@@ -134,8 +135,14 @@ type TravelTimePredictionString struct {
 	TransitTimeMinusMAE string `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
 }
 
-type TravelTimePrediction struct {
+type TravelTimePredictionFloat struct {
 	TransitTime         float64 `bson:"transit_time" json:"transit_time"`
 	TransitTimePlusMAE  float64 `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
 	TransitTimeMinusMAE float64 `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
+}
+
+type TravelTimePrediction struct {
+	TransitTime         int `bson:"transit_time" json:"transit_time"`
+	TransitTimePlusMAE  int `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
+	TransitTimeMinusMAE int `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
 }
