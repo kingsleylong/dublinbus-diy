@@ -20,7 +20,9 @@ class _RouteOptionsState extends State<RouteOptions> {
   Widget build(BuildContext context) {
     return Consumer<SearchFormModel>(
       builder: (context, model, child) => SingleChildScrollView(
-        child: _buildRouteOptionPanels(model.busRouteItems),
+        child: Provider.of<SearchFormModel>(context).visibilityRouteOptions
+            ? _buildRouteOptionPanels(model.busRouteItems)
+            : const Center(child: CircularProgressIndicator()),
       ),
     );
   }
@@ -68,13 +70,6 @@ class _RouteOptionsState extends State<RouteOptions> {
                         ),
                       ),
                     ],
-                  ),
-                  Text(
-                    busRoute.stops[0].stopName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
                   ),
                   Row(
                     children: [

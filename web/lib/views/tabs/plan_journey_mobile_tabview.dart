@@ -40,7 +40,7 @@ class PlanMyJourneyTabMobileView extends StatelessWidget {
               ),
               header: Center(
                   child: Text(
-                "Search Filters",
+                "Play My Journey",
                 style: Theme.of(context).textTheme.titleSmall,
               )),
               collapsed: Container(),
