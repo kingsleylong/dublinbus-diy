@@ -152,7 +152,7 @@ class _SearchFormState extends State<SearchForm> {
     // Check the examples code for usage: https://github.com/salim-lachdhaf/searchable_dropdown
     return DropdownSearch<BusStop>(
       key: searchFormModel.originSelectionKey,
-      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'donnybrook' : filter),
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'ucd belfield' : filter),
       compareFn: (i, s) => i.isEqual(s),
       dropdownDecoratorProps: const DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
@@ -189,7 +189,7 @@ class _SearchFormState extends State<SearchForm> {
   Widget buildSearchableDestinationDropdownList(SearchFormModel searchFormModel) {
     return DropdownSearch<BusStop>(
       key: searchFormModel.destinationSelectionKey,
-      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'ucd' : filter),
+      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'dawson street' : filter),
       compareFn: (i, s) => i.isEqual(s),
       dropdownDecoratorProps: const DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
