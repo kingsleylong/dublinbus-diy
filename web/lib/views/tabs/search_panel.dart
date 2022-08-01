@@ -4,15 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-import 'package:web/api/fetch_bus_stop.dart';
-import 'package:web/models/bus_route.dart';
-import 'package:web/models/bus_route_filter.dart';
-import 'package:web/models/bus_stop.dart';
-import 'package:web/models/map_polylines.dart';
-import 'package:web/models/search_form.dart';
+
+import '../../api/fetch_bus_stop.dart';
+import '../../models/bus_route.dart';
+import '../../models/bus_route_filter.dart';
+import '../../models/bus_stop.dart';
+import '../../models/map_polylines.dart';
+import '../../models/responsive.dart';
+import '../../models/search_form.dart';
+import 'route_options_mobile.dart';
 
 class SearchForm extends StatefulWidget {
-  const SearchForm({Key? key}) : super(key: key);
+  const SearchForm({Key? key, required this.screenSize}) : super(key: key);
+
+  final ScreenType screenSize;
 
   @override
   State<SearchForm> createState() => _SearchFormState();
@@ -122,6 +127,15 @@ class _SearchFormState extends State<SearchForm> {
                         // Provider.of<SearchFormModel>(context, listen: false)
                         //     .visibilityRouteOptions = true;
                         // searchFormModel.busRoutes = futureBusRoutes;
+
+                        // Use a new route to show the route options
+                        // https://docs.flutter.dev/cookbook/navigation/navigation-basics
+                        if (widget.screenSize == ScreenType.mobile) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) => const RouteOptionsMobile()));
+                        }
                       }
                     },
                     child: const Text('Plan'),
@@ -164,6 +178,11 @@ class _SearchFormState extends State<SearchForm> {
         //   },
         // ),
       ),
+      validator: (value) {
+        if (value == null) {
+          return "Please select the origin stop";
+        }
+      },
     );
   }
 
@@ -194,6 +213,11 @@ class _SearchFormState extends State<SearchForm> {
         //   },
         // ),
       ),
+      validator: (value) {
+        if (value == null) {
+          return "Please select the destination stop";
+        }
+      },
     );
   }
 

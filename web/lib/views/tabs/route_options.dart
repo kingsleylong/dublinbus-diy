@@ -1,7 +1,12 @@
+import 'package:dublin_bus_diy/models/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:web/models/map_polylines.dart';
-import 'package:web/models/search_form.dart';
+
+import '../../models/app_model.dart';
+import '../../models/map_polylines.dart';
+import '../../models/search_form.dart';
+import '../googlemap_mobile.dart';
+import 'fares_table.dart';
 
 class RouteOptions extends StatefulWidget {
   const RouteOptions({Key? key}) : super(key: key);
@@ -13,46 +18,15 @@ class RouteOptions extends StatefulWidget {
 class _RouteOptionsState extends State<RouteOptions> {
   @override
   Widget build(BuildContext context) {
-    if (Provider.of<SearchFormModel>(context).visibilityRouteOptions) {
-      return Consumer<SearchFormModel>(
-        builder: (context, model, child) => SingleChildScrollView(
-          child: _buildRouteOptionPanels(model.busRouteItems),
-        ),
-      );
-      //   const Expanded(
-      //     child: Padding(
-      //       padding: EdgeInsets.all(8),
-      //       child: RouteOptions(),
-      //     ),
-      //   ),
-      // ConstrainedBox(
-      //   constraints: const BoxConstraints(
-      //     minHeight: 2.0,
-      //   ),
-      // ),
-
-      // return FutureBuilder<List<BusRoute>>(
-      //   future: Provider.of<SearchFormModel>(context).busRoutes,
-      //   builder: (context, snapshot) {
-      //     if (snapshot.hasData) {
-      //       return SingleChildScrollView(
-      //         child: _buildRouteOptionPanels(snapshot.data!),
-      //       );
-      //     } else if (snapshot.hasError) {
-      //       return Text('${snapshot.error}');
-      //     }
-      //     // By default, show a loading spinner.
-      //     return const Center(
-      //       child: CircularProgressIndicator(),
-      //     );
-      //   },
-      // );
-    } else {
-      return Container();
-    }
+    return Consumer<SearchFormModel>(
+      builder: (context, model, child) => SingleChildScrollView(
+        child: _buildRouteOptionPanels(model.busRouteItems),
+      ),
+    );
   }
 
   _buildRouteOptionPanels(List<Item>? items) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
     if (items == null || items.isEmpty) {
       return const Center(child: Text('No routes found.'));
     }
@@ -119,28 +93,35 @@ class _RouteOptionsState extends State<RouteOptions> {
             );
           },
           body: ListTile(
+            onTap: () {
+              setState(() {
+                // always collapse the panel on tapping the body
+                item.isExpanded = false;
+              });
+              if (Provider.of<AppModel>(context, listen: false).screenSize == ScreenType.mobile) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => const GoogleMapMobileComponent()));
+              }
+            },
             title: Column(
               children: [
                 Text(item.expandedValue),
-                const Text('Fares:'),
-                // Use Wrap to arrange the children widgets horizontally
-                // https://stackoverflow.com/a/50096780
-                Wrap(
-                  spacing: 10,
-                    children: [
-                  // use the Null-coalescing operators to provide an alternative value
-                  // when the expression evaluates to null
-                  // https://dart.dev/codelabs/null-safety#exercise-null-coalescing-operators
-                  Text('Adult Leap: €${fares.adultLeap ?? '-'}'),
-                  Text('Adult Cash: €${fares.adultCash ?? '-'}'),
-                  Text('Child Cash: €${fares.childCash ?? '-'}'),
-                  Text('Child Leap: €${fares.childLeap ?? '-'}'),
-                  Text('Student Leap: €${fares.studentLeap ?? '-'}'),
-                ]),
+                FaresTable(fares: fares),
               ],
             ),
-            subtitle: Center(
-              child: Text(item.expandedDetailsValue),
+            subtitle: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Touch to see the route on map',
+                    style: textTheme.bodyLarge,
+                  ),
+                ),
+                Text(item.expandedDetailsValue),
+              ],
             ),
           ),
           isExpanded: item.isExpanded,

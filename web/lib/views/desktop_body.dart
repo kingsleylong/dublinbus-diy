@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web/views/googlemap.dart';
 
+import 'googlemap.dart';
 import 'tab_views.dart';
-import 'tabs.dart';
 
 class DesktopBody extends StatefulWidget {
   const DesktopBody({Key? key, required this.tabController}) : super(key: key);

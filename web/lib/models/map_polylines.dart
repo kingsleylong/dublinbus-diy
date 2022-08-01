@@ -2,7 +2,8 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:web/models/bus_route.dart';
+
+import 'bus_route.dart';
 
 // We use the ChangeNotifier to manage the state of the Models
 // https://docs.flutter.dev/development/data-and-backend/state-mgmt/simple#changenotifier
