@@ -30,18 +30,19 @@ class SearchFormModel extends ChangeNotifier {
   final TextEditingController _dateTimePickerController =
       TextEditingController(text: DateTime.now().toString());
 
-  late List<BusRoute> _busRoutes;
+  // DO NOT use the late modifier because it won't initialize the variable, even as null, before
+  // the request. Use the null safety to do that instead so we can take advantage of Conditional
+  // property access feature of dart.
+  // https://dart.dev/codelabs/null-safety
+  List<BusRoute>? _busRoutes;
 
-  late List<Item> _busRouteItems;
+  List<Item>? _busRouteItems;
 
   // The instance field that holds the state of the time type toggle button
   int? timeTypeToggleIndex = 0;
 
   // The available options for the time type toggle button
   List<TimeType> timeTypes = [TimeType.departure, TimeType.arrival];
-
-  // The route option items used for the ExpandablePanel
-  // late List<Item> _items;
 
   // getters
   TextEditingController get dateTimePickerController => _dateTimePickerController;
@@ -52,15 +53,16 @@ class SearchFormModel extends ChangeNotifier {
 
   GlobalKey<FormState> get formKey => _formKey;
 
-  List<Item> get busRouteItems => _busRouteItems; //
-  // List<Item> get items => _items;
+  List<Item>? get busRouteItems => _busRouteItems;
 
-  List<BusRoute> get busRoutes => _busRoutes;
+  List<BusRoute>? get busRoutes => _busRoutes;
 
   Future<void> fetchBusRoute(BusRouteSearchFilter searchFilter) async {
     // start loading, hide route options
     visibilityRouteOptions = false;
     visibilityLoadingIcon = true;
+    _busRoutes?.clear();
+    _busRouteItems?.clear();
     // notify immediately because the below code will block execution until api returned
     notifyListeners();
 
@@ -73,6 +75,11 @@ class SearchFormModel extends ChangeNotifier {
         "Accept": "application/json",
       },
     );
+
+    // stop loading, show route options
+    visibilityRouteOptions = true;
+    visibilityLoadingIcon = false;
+    notifyListeners();
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response, then parse the JSON.
@@ -89,9 +96,6 @@ class SearchFormModel extends ChangeNotifier {
         _busRouteItems = [];
       }
 
-      // stop loading, show route options
-      visibilityRouteOptions = true;
-      visibilityLoadingIcon = false;
       notifyListeners();
       // return busRouteList;
     } else {

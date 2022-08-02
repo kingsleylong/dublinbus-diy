@@ -1,5 +1,8 @@
 # Uncomment this line to define a global platform for your project
-platform :ios, '11.0'
+# To get the latest version of the Google Maps SDK on iOS requires a
+#  platform minimum version of iOS 13.
+# https://codelabs.developers.google.com/codelabs/google-maps-in-flutter#2
+platform :ios, '13.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'

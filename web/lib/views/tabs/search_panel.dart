@@ -111,7 +111,8 @@ class _SearchFormState extends State<SearchForm> {
 
                         // Date format: https://api.flutter.dev/flutter/intl/DateFormat-class.html
                         print(
-                            'parseTime: $parseTime  ${DateFormat('MM-dd-yyyy HH:mm:ss').format(parseTime)}');
+                            'parseTime: $parseTime  ${DateFormat('yyyy-MM-dd HH:mm:ss').format
+                              (parseTime)}');
 
                         BusRouteSearchFilter searchFilter = BusRouteSearchFilter(
                             searchFormModel
@@ -119,7 +120,7 @@ class _SearchFormState extends State<SearchForm> {
                             searchFormModel
                                 .destinationSelectionKey.currentState?.getSelectedItem?.stopNumber,
                             searchFormModel.timeTypes[searchFormModel.timeTypeToggleIndex ?? 0],
-                            DateFormat('MM-dd-yyyy HH:mm:ss').format(parseTime));
+                            DateFormat('yyyy-MM-dd HH:mm:ss').format(parseTime));
 
                         // futureBusRoutes = fetchBusRoutes(searchFilter);
                         Provider.of<SearchFormModel>(context, listen: false)
