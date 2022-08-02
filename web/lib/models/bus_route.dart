@@ -6,7 +6,7 @@ class BusRoute {
   List<BusStop> stops;
   List<Shape> shapes;
   Fares fares;
-  TravelTimes? travelTimes;
+  TravelTimes travelTimes;
 
   BusRoute(this.routeNumber, this.stops, this.shapes, this.fares, this.travelTimes);
 
@@ -46,17 +46,21 @@ class Fares {
 }
 
 class TravelTimes {
+  TravelTimeSources source;
   int? transitTime;
   int? transitTimeMin;
   int? transitTimeMax;
 
-  TravelTimes(this.transitTime, this.transitTimeMin, this.transitTimeMax);
+  TravelTimes(this.source, this.transitTime, this.transitTimeMin, this.transitTimeMax);
 
   factory TravelTimes.fromJson(Map<String, dynamic> json) {
     return TravelTimes(
+      TravelTimeSources.values.byName(json['source']),
       json['transit_time'],
       json['transit_time_plus_mae'],
       json['transit_time_minus_mae'],
     );
   }
 }
+
+enum TravelTimeSources { static, prediction }

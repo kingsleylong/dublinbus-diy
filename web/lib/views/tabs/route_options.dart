@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_model.dart';
+import '../../models/bus_route.dart';
 import '../../models/map_polylines.dart';
 import '../../models/search_form.dart';
 import '../googlemap_mobile.dart';
@@ -48,7 +49,8 @@ class _RouteOptionsState extends State<RouteOptions> {
       },
       children: items.map<ExpansionPanel>((Item item) {
         var busRoute = item.busRoute;
-        var fares = item.busRoute.fares;
+        var fares = busRoute.fares;
+        var travelTimes = busRoute.travelTimes;
         return ExpansionPanel(
           canTapOnHeader: true,
           headerBuilder: (BuildContext context, bool isExpanded) {
@@ -76,19 +78,20 @@ class _RouteOptionsState extends State<RouteOptions> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.only(right: 4),
-                        child: Icon(Icons.timer_outlined),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: travelTimes.source == TravelTimeSources.static
+                            // travel time from static table
+                            ? const Icon(Icons.timer_outlined)
+                            // travel time from prediction
+                            : const Icon(Icons.update),
                       ),
-                      Icon(Icons.update),
-                      Icon(Icons.watch_later_outlined),
-
                       // sized box sets a fixed width of the text and align them vertically
                       SizedBox(
                         width: 60,
                         child: Text(
                           // '${busRoute.travelTimes?.transitTimeMin} - ${busRoute.travelTimes?.transitTimeMax} min',
-                          '${busRoute.travelTimes?.transitTime} min',
+                          '${travelTimes.transitTime} min',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
