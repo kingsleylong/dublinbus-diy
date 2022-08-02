@@ -79,13 +79,19 @@ class _RouteOptionsState extends State<RouteOptions> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: travelTimes.source == TravelTimeSources.static
-                            // travel time from static table
-                            ? const Icon(Icons.timer_outlined)
-                            // travel time from prediction
-                            : const Icon(Icons.update),
-                      ),
+                          padding: const EdgeInsets.only(right: 4),
+                          child: travelTimes.source == TravelTimeSources.static
+                              // travel time from static table
+                              ? const Tooltip(
+                                  message: 'Travel time from static time table',
+                                  child: Icon(Icons.timer_outlined),
+                                )
+                              // travel time from prediction
+                              : Tooltip(
+                                  message: 'Predicted travel time: ${travelTimes?.transitTimeMin}'
+                                      ' - ${travelTimes?.transitTimeMax} min',
+                                  child: const Icon(Icons.update),
+                                )),
                       // sized box sets a fixed width of the text and align them vertically
                       SizedBox(
                         width: 60,
