@@ -203,6 +203,20 @@ func FindMatchingRouteForDeparture(destination string,
 
 		route.TravelTime = journeyTravelTime
 
+		var originStopIndex int
+		var destinationStopIndex int
+
+		for index, stopToAdd := range route.Stops {
+			if stopToAdd.StopNumber == origin {
+				originStopIndex = index
+			}
+			if stopToAdd.StopNumber == destination {
+				destinationStopIndex = index
+			}
+		}
+
+		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
+
 		resultJSON = append(resultJSON, route)
 	}
 
@@ -396,7 +410,27 @@ func FindMatchingRouteForArrival(origin string,
 		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
 			destinationStopArrivalTime, firstStopArrivalTime, finalStopArrivalTime)
 
+		if journeyTravelTime.Source == "static" {
+			staticTravelTime := GetStaticTime(originStopArrivalTime, destinationStopArrivalTime)
+			journeyTravelTime.TransitTime = staticTravelTime
+			journeyTravelTime.TransitTimeMinusMAE = staticTravelTime
+			journeyTravelTime.TransitTimePlusMAE = staticTravelTime
+		}
 		route.TravelTime = journeyTravelTime
+
+		var originStopIndex int
+		var destinationStopIndex int
+
+		for index, stopToAdd := range route.Stops {
+			if stopToAdd.StopNumber == origin {
+				originStopIndex = index
+			}
+			if stopToAdd.StopNumber == destination {
+				destinationStopIndex = index
+			}
+		}
+
+		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
 
 		resultJSON = append(resultJSON, route)
 	}

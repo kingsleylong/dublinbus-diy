@@ -25,6 +25,18 @@ app = Flask(__name__)
 def get_prediction(line, dir_, day,hour, month,departure_time,date_txt): #full_date_hour
 # allow prediction model on analytics page to take user inputs as prediction model parameters
 
+# print url parameters 
+    print('line:', line, ', direction:',dir_, ', day:',day,', hour:', hour, ', month:', month, ',      departure_time:', departure_time, ', date_txt:', date_txt)
+
+# change date_txt to ensure it matches the hour in mongo
+    date_split = date_txt.split(" ")
+    time = date_split[1]
+    time_split = time.split(":")
+    time_split[1] = "00"
+    time_split[2] = "00"
+    format_time = time_split[0]+":"+time_split[1]+":"+time_split[2]
+    format_date = date_split[0]+" "+format_time
+
 # open pickle file and load into variable clf
     with open("/usr/local/dublinbus/data/ml/Pickles/" + f'RF_{line}_Model_dir{dir_}.pkl', 'rb') as pickle_file:
         clf = pickle.load(pickle_file)
@@ -52,7 +64,7 @@ def get_prediction(line, dir_, day,hour, month,departure_time,date_txt): #full_d
         }},
         {
             "$match" :{
-                "list.dt_txt" : date_txt
+                "list.dt_txt" : format_date
             }
 
         },

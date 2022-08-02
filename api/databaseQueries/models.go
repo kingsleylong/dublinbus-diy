@@ -142,7 +142,8 @@ type TravelTimePredictionFloat struct {
 }
 
 type TravelTimePrediction struct {
-	TransitTime         int `bson:"transit_time" json:"transit_time"`
-	TransitTimePlusMAE  int `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
-	TransitTimeMinusMAE int `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
+	Source              string `bson:"source" json:"source"`
+	TransitTime         int    `bson:"transit_time" json:"transit_time"`
+	TransitTimePlusMAE  int    `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
+	TransitTimeMinusMAE int    `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
 }
