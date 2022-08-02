@@ -46,9 +46,14 @@ func GetTravelTimePrediction(routeNum string,
 
 	features := FeatureExtraction(date)
 
+	log.Println("Url for request:")
+	log.Println(fmt.
+		Sprintf("http://3.250.172.35/prediction/%s/%s/%s/%s/%s/%s/%s",
+			strings.ToUpper(routeNum), direction, features[0], features[1], features[2], features[3], date))
+	log.Println("--- --- --- --- --- ---")
 	resp, err := http.
 		Get(fmt.
-			Sprintf("http://ec2-34-239-115-43.compute-1.amazonaws.com/prediction/%s/%s/%s/%s/%s/%s/%s",
+			Sprintf("http://3.250.172.35/prediction/%s/%s/%s/%s/%s/%s/%s",
 				strings.ToUpper(routeNum), direction, features[0], features[1], features[2], features[3], date))
 	if err != nil {
 		log.Println("Error in the GET request")
@@ -64,6 +69,8 @@ func GetTravelTimePrediction(routeNum string,
 	}
 
 	bodyString := string(body)
+	log.Println("bodyString:")
+	log.Println(bodyString)
 	bodyStringAdjusted := strings.Replace(bodyString, "[", "", 1)
 	bodyStringAdjusted = strings.Replace(bodyStringAdjusted, "]\n", "", 1)
 	bodyStrings := strings.Split(bodyStringAdjusted, ",")
