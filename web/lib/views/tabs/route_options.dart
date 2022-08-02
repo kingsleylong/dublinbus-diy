@@ -59,7 +59,10 @@ class _RouteOptionsState extends State<RouteOptions> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Icon(Icons.directions_bus),
+                      const Padding(
+                        padding: EdgeInsets.only(right: 4),
+                        child: Icon(Icons.directions_bus),
+                      ),
                       Text(
                         busRoute.routeNumber,
                         textAlign: TextAlign.center,
@@ -71,13 +74,25 @@ class _RouteOptionsState extends State<RouteOptions> {
                     ],
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Icon(Icons.timer_outlined),
-                      Text(
-                        '${busRoute.travelTimes?.transitTimeMin} - ${busRoute.travelTimes?.transitTimeMax} min',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      const Padding(
+                        padding: EdgeInsets.only(right: 4),
+                        child: Icon(Icons.timer_outlined),
+                      ),
+                      Icon(Icons.update),
+                      Icon(Icons.watch_later_outlined),
+
+                      // sized box sets a fixed width of the text and align them vertically
+                      SizedBox(
+                        width: 60,
+                        child: Text(
+                          // '${busRoute.travelTimes?.transitTimeMin} - ${busRoute.travelTimes?.transitTimeMax} min',
+                          '${busRoute.travelTimes?.transitTime} min',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
