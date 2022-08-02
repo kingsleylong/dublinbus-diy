@@ -96,7 +96,7 @@ paths:
           required: true
           type: "string"
           format: "date-time"
-          default: "07-22-2022 13:22:22"
+          default: "2022-08-03 13:22:22"
       responses:
         "200":
           description: "successful operation"
@@ -188,6 +188,8 @@ definitions:
   TravelTime:
     type: "object"
     properties:
+      source:
+        type: "string"
       transit_time:
         type: "number"
         format: "int32"
