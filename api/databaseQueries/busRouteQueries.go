@@ -117,6 +117,8 @@ func FindMatchingRouteForDeparture(destination string,
 	var firstStopArrivalTime string
 	var originStopSequence int64
 	var destinationStopSequence int64
+	var originDistTravelled float64
+	var destinationDistTravelled float64
 
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
@@ -149,6 +151,7 @@ func FindMatchingRouteForDeparture(destination string,
 			if currentStop.StopNumber == origin {
 				originStopSequence, _ = strconv.ParseInt(currentStop.StopSequence, 10, 64)
 				originStopArrivalTime = currentStop.ArrivalTime
+				originDistTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 				log.Println("Found the origin stop: " + currentStop.StopNumber)
 				log.Println("Origin stop was in the sequence at stop " + currentStop.StopSequence)
 				log.Println("Bus Arrived here at " + originStopArrivalTime)
@@ -157,6 +160,7 @@ func FindMatchingRouteForDeparture(destination string,
 			if currentStop.StopNumber == destination {
 				destinationStopSequence, _ = strconv.ParseInt(currentStop.StopSequence, 10, 64)
 				destinationStopArrivalTime = currentStop.ArrivalTime
+				destinationDistTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 				log.Println("Found the destination stop: " + currentStop.StopNumber)
 				log.Println("Destination stop was in the sequence at stop " + currentStop.StopSequence)
 				log.Println("Bus Arrived here at " + destinationStopArrivalTime)
@@ -171,11 +175,14 @@ func FindMatchingRouteForDeparture(destination string,
 		// the same reason as the empty slice for the stops above
 		shapes = []ShapeJSON{}
 		for _, currentShape := range currentRoute.Shapes {
-			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
-			shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
-			shape.ShapePtSequence = currentShape.ShapePtSequence
-			shape.ShapeDistTravel = currentShape.ShapeDistTravel
-			shapes = append(shapes, shape)
+			currentDistTravelled, _ := strconv.ParseFloat(currentShape.ShapeDistTravel, 64)
+			if currentDistTravelled >= originDistTravelled && currentDistTravelled <= destinationDistTravelled {
+				shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
+				shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
+				shape.ShapePtSequence = currentShape.ShapePtSequence
+				shape.ShapeDistTravel = currentShape.ShapeDistTravel
+				shapes = append(shapes, shape)
+			}
 		}
 		route.Shapes = shapes
 
@@ -200,7 +207,12 @@ func FindMatchingRouteForDeparture(destination string,
 
 		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
 			destinationStopArrivalTime, firstStopArrivalTime, finalStopArrivalTime)
-
+		if journeyTravelTime.Source == "static" {
+			staticTravelTime := GetStaticTime(originStopArrivalTime, destinationStopArrivalTime)
+			journeyTravelTime.TransitTime = staticTravelTime
+			journeyTravelTime.TransitTimeMinusMAE = staticTravelTime
+			journeyTravelTime.TransitTimePlusMAE = staticTravelTime
+		}
 		route.TravelTime = journeyTravelTime
 
 		var originStopIndex int
@@ -325,6 +337,8 @@ func FindMatchingRouteForArrival(origin string,
 	var firstStopArrivalTime string
 	var originStopSequence int64
 	var destinationStopSequence int64
+	var originDistTravelled float64
+	var destinationDistTravelled float64
 
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
@@ -358,6 +372,7 @@ func FindMatchingRouteForArrival(origin string,
 			if currentStop.StopNumber == origin {
 				originStopSequence, _ = strconv.ParseInt(currentStop.StopSequence, 10, 64)
 				originStopArrivalTime = currentStop.ArrivalTime
+				originDistTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 				log.Println("Found the origin stop: " + currentStop.StopNumber)
 				log.Println("Origin stop was in the sequence at stop " + currentStop.StopSequence)
 				log.Println("Bus Arrived here at " + originStopArrivalTime)
@@ -366,6 +381,7 @@ func FindMatchingRouteForArrival(origin string,
 			if currentStop.StopNumber == destination {
 				destinationStopSequence, _ = strconv.ParseInt(currentStop.StopSequence, 10, 64)
 				destinationStopArrivalTime = currentStop.ArrivalTime
+				destinationDistTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
 				log.Println("Found the destination stop: " + currentStop.StopNumber)
 				log.Println("Destination stop was in the sequence at stop " + currentStop.StopSequence)
 				log.Println("Bus Arrived here at " + destinationStopArrivalTime)
@@ -380,17 +396,20 @@ func FindMatchingRouteForArrival(origin string,
 		// the same reason as the empty slice for the stops above
 		shapes = []ShapeJSON{}
 		for _, currentShape := range currentRoute.Shapes {
-			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
-			shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
-			shape.ShapePtSequence = currentShape.ShapePtSequence
-			shape.ShapeDistTravel = currentShape.ShapeDistTravel
-			shapes = append(shapes, shape)
+			currentDistTravelled, _ := strconv.ParseFloat(currentShape.ShapeDistTravel, 64)
+			if currentDistTravelled >= originDistTravelled && currentDistTravelled <= destinationDistTravelled {
+				shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
+				shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
+				shape.ShapePtSequence = currentShape.ShapePtSequence
+				shape.ShapeDistTravel = currentShape.ShapeDistTravel
+				shapes = append(shapes, shape)
+			}
 		}
+		route.Shapes = shapes
 
 		if originStopSequence > destinationStopSequence {
 			continue
 		}
-		route.Shapes = shapes
 
 		// Use the CalculateFare function from fareCalculation.go to get the fares
 		// object for each route
