@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_model.dart';
+import '../../models/bus_route.dart';
 import '../../models/map_polylines.dart';
 import '../../models/search_form.dart';
 import '../googlemap_mobile.dart';
@@ -48,7 +49,8 @@ class _RouteOptionsState extends State<RouteOptions> {
       },
       children: items.map<ExpansionPanel>((Item item) {
         var busRoute = item.busRoute;
-        var fares = item.busRoute.fares;
+        var fares = busRoute.fares;
+        var travelTimes = busRoute.travelTimes;
         return ExpansionPanel(
           canTapOnHeader: true,
           headerBuilder: (BuildContext context, bool isExpanded) {
@@ -59,7 +61,10 @@ class _RouteOptionsState extends State<RouteOptions> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Icon(Icons.directions_bus),
+                      const Padding(
+                        padding: EdgeInsets.only(right: 4),
+                        child: Icon(Icons.directions_bus),
+                      ),
                       Text(
                         busRoute.routeNumber,
                         textAlign: TextAlign.center,
@@ -71,13 +76,32 @@ class _RouteOptionsState extends State<RouteOptions> {
                     ],
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Icon(Icons.timer_outlined),
-                      Text(
-                        '${busRoute.travelTimes?.transitTimeMin} - ${busRoute.travelTimes?.transitTimeMax} min',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: travelTimes.source == TravelTimeSources.static
+                              // travel time from static table
+                              ? const Tooltip(
+                                  message: 'Travel time from static time table',
+                                  child: Icon(Icons.timer_outlined),
+                                )
+                              // travel time from prediction
+                              : Tooltip(
+                                  message: 'Predicted travel time: ${travelTimes?.transitTimeMin}'
+                                      ' - ${travelTimes?.transitTimeMax} min',
+                                  child: const Icon(Icons.update),
+                                )),
+                      // sized box sets a fixed width of the text and align them vertically
+                      SizedBox(
+                        width: 60,
+                        child: Text(
+                          // '${busRoute.travelTimes?.transitTimeMin} - ${busRoute.travelTimes?.transitTimeMax} min',
+                          '${travelTimes.transitTime} min',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
