@@ -5319,8 +5319,8 @@
           "travel_time": {
             "source": "prediction",
             "transit_time": 15,
-            "transit_time_plus_mae": 13,
-            "transit_time_minus_mae": 17
+            "transit_time_plus_mae": 17,
+            "transit_time_minus_mae": 14
           },
           "fares": {
             "adult_leap": 1.8,

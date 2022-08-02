@@ -55,10 +55,12 @@ class TravelTimes {
 
   factory TravelTimes.fromJson(Map<String, dynamic> json) {
     return TravelTimes(
+      // lookup enum by name:
+      // https://medium.com/dartlang/dart-2-15-7e7a598e508a
       TravelTimeSources.values.byName(json['source']),
       json['transit_time'],
-      json['transit_time_plus_mae'],
       json['transit_time_minus_mae'],
+      json['transit_time_plus_mae'],
     );
   }
 }
