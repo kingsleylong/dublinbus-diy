@@ -81,6 +81,7 @@ class _RouteOptionsState extends State<RouteOptions> {
                       Padding(
                           padding: const EdgeInsets.only(right: 4),
                           child: travelTimes.source == TravelTimeSources.static
+                          // tooltip: https://api.flutter.dev/flutter/material/Tooltip-class.html
                               // travel time from static table
                               ? const Tooltip(
                                   message: 'Travel time from static time table',
@@ -88,8 +89,8 @@ class _RouteOptionsState extends State<RouteOptions> {
                                 )
                               // travel time from prediction
                               : Tooltip(
-                                  message: 'Predicted travel time: ${travelTimes?.transitTimeMin}'
-                                      ' - ${travelTimes?.transitTimeMax} min',
+                                  message: 'Predicted travel time: ${travelTimes.transitTimeMin}'
+                                      ' - ${travelTimes.transitTimeMax} min',
                                   child: const Icon(Icons.update),
                                 )),
                       // sized box sets a fixed width of the text and align them vertically
