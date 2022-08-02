@@ -2,12 +2,12 @@ package databaseQueries
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -46,15 +46,19 @@ func GetTravelTimePrediction(routeNum string,
 
 	features := FeatureExtraction(date)
 
-	log.Println("Url for request:")
-	log.Println(fmt.
-		Sprintf("http://3.250.172.35/prediction/%s/%s/%s/%s/%s/%s/%s",
-			strings.ToUpper(routeNum), direction, features[0], features[1], features[2], features[3], date))
-	log.Println("--- --- --- --- --- ---")
+	baseUrl, err := url.Parse("http://3.250.172.35/prediction/")
+	if err != nil {
+		log.Println("Url Issue: ")
+		log.Println(err.Error())
+	}
+	baseUrl.Path += strings.ToUpper(routeNum) + "/" + direction + "/" + features[0] + "/" +
+		features[1] + "/" + features[2] + "/" + features[3] + "/" + date
+	log.Println("Url encoded version using net/url:")
+	log.Println(baseUrl.String())
+	log.Println("**** **** **** **** **** **** **** ****")
+
 	resp, err := http.
-		Get(fmt.
-			Sprintf("http://3.250.172.35/prediction/%s/%s/%s/%s/%s/%s/%s",
-				strings.ToUpper(routeNum), direction, features[0], features[1], features[2], features[3], date))
+		Get(baseUrl.String())
 	if err != nil {
 		log.Println("Error in the GET request")
 		log.Print(err)
