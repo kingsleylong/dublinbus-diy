@@ -410,6 +410,12 @@ func FindMatchingRouteForArrival(origin string,
 		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
 			destinationStopArrivalTime, firstStopArrivalTime, finalStopArrivalTime)
 
+		if journeyTravelTime.Source == "static" {
+			staticTravelTime := GetStaticTime(originStopArrivalTime, destinationStopArrivalTime)
+			journeyTravelTime.TransitTime = staticTravelTime
+			journeyTravelTime.TransitTimeMinusMAE = staticTravelTime
+			journeyTravelTime.TransitTimePlusMAE = staticTravelTime
+		}
 		route.TravelTime = journeyTravelTime
 
 		var originStopIndex int
@@ -425,7 +431,7 @@ func FindMatchingRouteForArrival(origin string,
 		}
 
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
-		
+
 		resultJSON = append(resultJSON, route)
 	}
 
