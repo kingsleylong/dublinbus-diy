@@ -190,6 +190,9 @@ definitions:
     properties:
       source:
         type: "string"
+        enum:
+          - "static"
+          - "prediction"
       transit_time:
         type: "number"
         format: "int32"

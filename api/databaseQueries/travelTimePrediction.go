@@ -265,5 +265,41 @@ func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 	transitTimePredictions.TransitTimePlusMAE = journeyHighPredictionInMins
 	transitTimePredictions.TransitTimeMinusMAE = journeyLowPredictionInMins
 
+	if transitTimePredictions.TransitTime == 0 && transitTimePredictions.TransitTimePlusMAE == 0 &&
+		transitTimePredictions.TransitTimeMinusMAE == 0 {
+		transitTimePredictions.Source = "static"
+	} else {
+		transitTimePredictions.Source = "prediction"
+	}
+
 	return transitTimePredictions
+}
+
+func GetStaticTime(originStopArrivalTime string, destinationStopArrivalTime string) int {
+
+	originArrivalStringArray := strings.Split(originStopArrivalTime, ":")
+	destinationArrivalStringArray := strings.Split(destinationStopArrivalTime, ":")
+
+	originArrivalHoursAsFloat, _ := strconv.ParseFloat(originArrivalStringArray[0], 64)
+	originArrivalMinutesAsFloat, _ := strconv.ParseFloat(originArrivalStringArray[1], 64)
+	originArrivalSecondsAsFloat, _ := strconv.ParseFloat(originArrivalStringArray[2], 64)
+
+	destinationArrivalHoursAsFloat, _ := strconv.ParseFloat(destinationArrivalStringArray[0], 64)
+	destinationArrivalMinutesAsFloat, _ := strconv.ParseFloat(destinationArrivalStringArray[1], 64)
+	destinationArrivalSecondsAsFloat, _ := strconv.ParseFloat(destinationArrivalStringArray[2], 64)
+
+	originHoursAsSeconds := originArrivalHoursAsFloat * 3600
+	originMinutesAsSeconds := originArrivalMinutesAsFloat * 60
+	originTotalSeconds := originHoursAsSeconds + originMinutesAsSeconds + originArrivalSecondsAsFloat
+
+	destinationHoursAsSeconds := destinationArrivalHoursAsFloat * 3600
+	destinationMinutesAsSeconds := destinationArrivalMinutesAsFloat * 60
+	destinationTotalSeconds := destinationHoursAsSeconds +
+		destinationMinutesAsSeconds + destinationArrivalSecondsAsFloat
+
+	originToDestinationSeconds := float64(destinationTotalSeconds - originTotalSeconds)
+
+	originToDestinationMinutes := int(math.Round(originToDestinationSeconds / 60))
+
+	return originToDestinationMinutes
 }
