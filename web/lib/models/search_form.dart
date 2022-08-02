@@ -17,17 +17,8 @@ class SearchFormModel extends ChangeNotifier {
   // https://stackoverflow.com/a/46126667
   bool visibilityRouteOptions = false;
 
-  bool visibilitySearchForm = true;
-
-  hideSearchForm() {
-    visibilitySearchForm = false;
-    notifyListeners();
-  }
-
-  showSearchForm() {
-    visibilitySearchForm = true;
-    notifyListeners();
-  }
+  // Use a flag to control the visibility of the loading icon
+  bool visibilityLoadingIcon = false;
 
   // The instance field that holds the state of origin dropdown list
   final _originSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
@@ -67,6 +58,12 @@ class SearchFormModel extends ChangeNotifier {
   List<BusRoute> get busRoutes => _busRoutes;
 
   Future<void> fetchBusRoute(BusRouteSearchFilter searchFilter) async {
+    // start loading, hide route options
+    visibilityRouteOptions = false;
+    visibilityLoadingIcon = true;
+    // notify immediately because the below code will block execution until api returned
+    notifyListeners();
+
     String url = '$apiHost/api/route/matchingRoute';
     url += '/${searchFilter.originStopNumber}/${searchFilter.destinationStopNumber}'
         '/${searchFilter.timeType.name}/${searchFilter.time}';
@@ -91,7 +88,10 @@ class SearchFormModel extends ChangeNotifier {
         _busRoutes = [];
         _busRouteItems = [];
       }
+
+      // stop loading, show route options
       visibilityRouteOptions = true;
+      visibilityLoadingIcon = false;
       notifyListeners();
       // return busRouteList;
     } else {
