@@ -146,6 +146,9 @@ func FindMatchingRouteForDeparture(destination string,
 			journeyTravelTime.TransitTime = staticTravelTime
 			journeyTravelTime.TransitTimeMinusMAE = staticTravelTime
 			journeyTravelTime.TransitTimePlusMAE = staticTravelTime
+			journeyTravelTime.Time = destinationStopArrivalTime
+			journeyTravelTime.HighTime = destinationStopArrivalTime
+			journeyTravelTime.LowTime = destinationStopArrivalTime
 		}
 		route.TravelTime = journeyTravelTime
 
@@ -273,6 +276,9 @@ func FindMatchingRouteForArrival(origin string,
 			journeyTravelTime.TransitTime = staticTravelTime
 			journeyTravelTime.TransitTimeMinusMAE = staticTravelTime
 			journeyTravelTime.TransitTimePlusMAE = staticTravelTime
+			journeyTravelTime.Time = destinationStopArrivalTime
+			journeyTravelTime.HighTime = destinationStopArrivalTime
+			journeyTravelTime.LowTime = destinationStopArrivalTime
 		}
 		route.TravelTime = journeyTravelTime
 
