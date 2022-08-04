@@ -112,45 +112,7 @@ func FindMatchingRouteForDeparture(destination string,
 	for _, currentRoute := range result {
 		route.RouteNum = currentRoute.Id
 
-		// An empty slice of stops is created with each new outer iteration so
-		// that duplicates aren't added to later routes in their stop arrays
-		stops = []RouteStop{}
-		for _, currentStop := range currentRoute.Stops {
-			stop.StopId = currentStop.StopId
-			stop.StopName = currentStop.StopName
-			stop.StopNumber = currentStop.StopNumber
-			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
-			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
-			stop.StopSequence = currentStop.StopSequence
-			stop.ArrivalTime = currentStop.ArrivalTime
-			stop.DepartureTime = currentStop.DepartureTime
-			stop.DistanceTravelled, _ =
-				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
-			if currentStop.StopSequence == "1" {
-				firstStopArrivalTime = currentStop.ArrivalTime
-			}
-			if currentStop.StopNumber == origin {
-				originStopSequence, _ = strconv.ParseInt(currentStop.StopSequence, 10, 64)
-				originStopArrivalTime = currentStop.ArrivalTime
-				originDistTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
-				log.Println("Found the origin stop: " + currentStop.StopNumber)
-				log.Println("Origin stop was in the sequence at stop " + currentStop.StopSequence)
-				log.Println("Bus Arrived here at " + originStopArrivalTime)
-				log.Println("- - - - - - - - - - - - - - - - - - - - - - -")
-			}
-			if currentStop.StopNumber == destination {
-				destinationStopSequence, _ = strconv.ParseInt(currentStop.StopSequence, 10, 64)
-				destinationStopArrivalTime = currentStop.ArrivalTime
-				destinationDistTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
-				log.Println("Found the destination stop: " + currentStop.StopNumber)
-				log.Println("Destination stop was in the sequence at stop " + currentStop.StopSequence)
-				log.Println("Bus Arrived here at " + destinationStopArrivalTime)
-				log.Println("- - - - - - - - - - - - - - - - - - - - - - -")
-			}
-			finalStopArrivalTime = currentStop.ArrivalTime
-			stops = append(stops, stop)
-		}
-		route.Stops = stops
+		route.Stops = CreateStopsSlice(origin, destination, currentRoute, stop)
 
 		// An empty slice of shapes is created here for each outer iteration for
 		// the same reason as the empty slice for the stops above
@@ -297,43 +259,7 @@ func FindMatchingRouteForArrival(origin string,
 
 		// An empty slice of stops is created with each new outer iteration so
 		// that duplicates aren't added to later routes in their stop arrays
-		stops = []RouteStop{}
-		for _, currentStop := range currentRoute.Stops {
-			stop.StopId = currentStop.StopId
-			stop.StopName = currentStop.StopName
-			stop.StopNumber = currentStop.StopNumber
-			stop.StopLat, _ = strconv.ParseFloat(currentStop.StopLat, 64)
-			stop.StopLon, _ = strconv.ParseFloat(currentStop.StopLon, 64)
-			stop.StopSequence = currentStop.StopSequence
-			stop.ArrivalTime = currentStop.ArrivalTime
-			stop.DepartureTime = currentStop.DepartureTime
-			stop.DistanceTravelled, _ =
-				strconv.ParseFloat(currentStop.DistanceTravelled, 64)
-			if currentStop.StopSequence == "1" {
-				firstStopArrivalTime = currentStop.ArrivalTime
-			}
-			if currentStop.StopNumber == origin {
-				originStopSequence, _ = strconv.ParseInt(currentStop.StopSequence, 10, 64)
-				originStopArrivalTime = currentStop.ArrivalTime
-				originDistTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
-				log.Println("Found the origin stop: " + currentStop.StopNumber)
-				log.Println("Origin stop was in the sequence at stop " + currentStop.StopSequence)
-				log.Println("Bus Arrived here at " + originStopArrivalTime)
-				log.Println("- - - - - - - - - - - - - - - - - - - - - - -")
-			}
-			if currentStop.StopNumber == destination {
-				destinationStopSequence, _ = strconv.ParseInt(currentStop.StopSequence, 10, 64)
-				destinationStopArrivalTime = currentStop.ArrivalTime
-				destinationDistTravelled, _ = strconv.ParseFloat(currentStop.DistanceTravelled, 64)
-				log.Println("Found the destination stop: " + currentStop.StopNumber)
-				log.Println("Destination stop was in the sequence at stop " + currentStop.StopSequence)
-				log.Println("Bus Arrived here at " + destinationStopArrivalTime)
-				log.Println("- - - - - - - - - - - - - - - - - - - - - - -")
-			}
-			finalStopArrivalTime = currentStop.ArrivalTime
-			stops = append(stops, stop)
-		}
-		route.Stops = stops
+		route.Stops = CreateStopsSlice(origin, destination, currentRoute, stop)
 
 		// An empty slice of shapes is created here for each outer iteration for
 		// the same reason as the empty slice for the stops above
@@ -429,4 +355,40 @@ func GetTimeString(date string) string {
 	timeString := dateStringSplit[1]
 
 	return timeString
+}
+
+func CreateStopsSlice(origin string, destination string,
+	route busRoute, stop RouteStop) []RouteStop {
+
+	transformedStops := []RouteStop{}
+
+	for _, initialStopDescription := range route.Stops {
+		stop.StopId = initialStopDescription.StopId
+		stop.StopName = initialStopDescription.StopName
+		stop.StopNumber = initialStopDescription.StopNumber
+		stop.StopLat, _ = strconv.ParseFloat(initialStopDescription.StopLat, 64)
+		stop.StopLon, _ = strconv.ParseFloat(initialStopDescription.StopLon, 64)
+		stop.StopSequence = initialStopDescription.StopSequence
+		stop.ArrivalTime = initialStopDescription.ArrivalTime
+		stop.DepartureTime = initialStopDescription.DepartureTime
+		stop.DistanceTravelled, _ =
+			strconv.ParseFloat(initialStopDescription.DistanceTravelled, 64)
+		if initialStopDescription.StopSequence == "1" {
+			firstStopArrivalTime = initialStopDescription.ArrivalTime
+		}
+		if initialStopDescription.StopNumber == origin {
+			originStopSequence, _ = strconv.ParseInt(initialStopDescription.StopSequence, 10, 64)
+			originStopArrivalTime = initialStopDescription.ArrivalTime
+			originDistTravelled, _ = strconv.ParseFloat(initialStopDescription.DistanceTravelled, 64)
+		}
+		if initialStopDescription.StopNumber == destination {
+			destinationStopSequence, _ = strconv.ParseInt(initialStopDescription.StopSequence, 10, 64)
+			destinationStopArrivalTime = initialStopDescription.ArrivalTime
+			destinationDistTravelled, _ = strconv.ParseFloat(initialStopDescription.DistanceTravelled, 64)
+		}
+		finalStopArrivalTime = initialStopDescription.ArrivalTime
+		transformedStops = append(transformedStops, stop)
+	}
+
+	return transformedStops
 }

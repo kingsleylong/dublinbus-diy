@@ -225,19 +225,43 @@ func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 	log.Println("")
 
 	destinationTimeInSeconds := int(math.Round(originTotalSeconds)) + journeyPrediction
-	destinationHours := strconv.Itoa(destinationTimeInSeconds / 3600)
-	destinationMinutes := strconv.Itoa((destinationTimeInSeconds % 3600) / 60)
-	destinationTime := destinationHours + ":" + destinationMinutes
+	destinationHours := destinationTimeInSeconds / 3600
+	destinationMinutes := (destinationTimeInSeconds % 3600) / 60
+	destinationHoursString := strconv.Itoa(destinationHours)
+	destinationMinutesString := strconv.Itoa(destinationMinutes)
+	if destinationHours < 10 {
+		destinationHoursString = "0" + destinationHoursString
+	}
+	if destinationMinutes < 10 {
+		destinationMinutesString = "0" + destinationMinutesString
+	}
+	destinationTime := destinationHoursString + ":" + destinationMinutesString
 
 	destinationHighTimeInSeconds := int(math.Round(originTotalSeconds)) + journeyHighPrediction
-	destinationHighHours := strconv.Itoa(destinationHighTimeInSeconds / 3600)
-	destinationHighMinutes := strconv.Itoa((destinationHighTimeInSeconds % 3600) / 60)
-	destinationHighTime := destinationHighHours + ":" + destinationHighMinutes
+	destinationHighHours := destinationHighTimeInSeconds / 3600
+	destinationHighMinutes := (destinationHighTimeInSeconds % 3600) / 60
+	destinationHighHoursString := strconv.Itoa(destinationHighHours)
+	destinationHighMinutesString := strconv.Itoa(destinationHighMinutes)
+	if destinationHighHours < 10 {
+		destinationHighHoursString = "0" + destinationHighHoursString
+	}
+	if destinationHighMinutes < 10 {
+		destinationHighMinutesString = "0" + destinationHighMinutesString
+	}
+	destinationHighTime := destinationHighHoursString + ":" + destinationHighMinutesString
 
 	destinationLowTimeInSeconds := int(math.Round(originTotalSeconds)) + journeyLowPrediction
-	destinationLowHours := strconv.Itoa(destinationLowTimeInSeconds / 3600)
-	destinationLowMinutes := strconv.Itoa((destinationLowTimeInSeconds % 3600) / 60)
-	destinationLowTime := destinationLowHours + ":" + destinationLowMinutes
+	destinationLowHours := destinationLowTimeInSeconds / 3600
+	destinationLowMinutes := (destinationLowTimeInSeconds % 3600) / 60
+	destinationLowHoursString := strconv.Itoa(destinationLowHours)
+	destinationLowMinutesString := strconv.Itoa(destinationLowMinutes)
+	if destinationLowHours < 10 {
+		destinationLowHoursString = "0" + destinationLowHoursString
+	}
+	if destinationLowMinutes < 10 {
+		destinationLowMinutesString = "0" + destinationLowMinutesString
+	}
+	destinationLowTime := destinationLowHoursString + ":" + destinationLowMinutesString
 
 	var transitTimePredictions TravelTimePrediction
 
