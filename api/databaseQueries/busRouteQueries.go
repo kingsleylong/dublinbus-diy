@@ -147,17 +147,7 @@ func FindMatchingRouteForDeparture(destination string,
 		}
 		route.TravelTime = journeyTravelTime
 
-		var originStopIndex int
-		var destinationStopIndex int
-
-		for index, stopToAdd := range route.Stops {
-			if stopToAdd.StopNumber == origin {
-				originStopIndex = index
-			}
-			if stopToAdd.StopNumber == destination {
-				destinationStopIndex = index
-			}
-		}
+		originStopIndex, destinationStopIndex := CurateStopsSlice(origin, destination)
 
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
 
@@ -284,18 +274,7 @@ func FindMatchingRouteForArrival(origin string,
 		}
 		route.TravelTime = journeyTravelTime
 
-		var originStopIndex int
-		var destinationStopIndex int
-
-		for index, stopToAdd := range route.Stops {
-			if stopToAdd.StopNumber == origin {
-				originStopIndex = index
-			}
-			if stopToAdd.StopNumber == destination {
-				destinationStopIndex = index
-			}
-		}
-
+		originStopIndex, destinationStopIndex := CurateStopsSlice(origin, destination)
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
 
 		resultJSON = append(resultJSON, route)
@@ -386,4 +365,21 @@ func CreateShapesSlice(route busRoute) []ShapeJSON {
 	}
 
 	return shapes
+}
+
+func CurateStopsSlice(origin string, destination string) (int, int) {
+
+	var originStopIndex int
+	var destinationStopIndex int
+
+	for index, stopToAdd := range route.Stops {
+		if stopToAdd.StopNumber == origin {
+			originStopIndex = index
+		}
+		if stopToAdd.StopNumber == destination {
+			destinationStopIndex = index
+		}
+	}
+
+	return originStopIndex, destinationStopIndex
 }
