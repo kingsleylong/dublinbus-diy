@@ -22,24 +22,7 @@ func FindMatchingRouteForDeparture(destination string,
 	origin string,
 	date string) []busRouteJSON {
 
-	// Assign values to connection string variables
-	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
-	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
-	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	// Create connection to mongo server and log any resulting error
-	client, err := mongo.NewClient(options.Client().
-		ApplyURI(
-			fmt.Sprintf(
-				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
-				mongoUsername,
-				mongoPassword,
-				mongoHost,
-				mongoPort)))
-	if err != nil {
-		log.Print(err)
-	}
+	client, err := ConnectToMongo()
 
 	// Create context variable and assign time for timeout
 	// Log any resulting error here also
@@ -241,24 +224,7 @@ func FindMatchingRouteForArrival(origin string,
 	destination string,
 	date string) []busRouteJSON {
 
-	// Assign values to connection string variables
-	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
-	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
-	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	// Create connection to mongo server and log any resulting error
-	client, err := mongo.NewClient(options.Client().
-		ApplyURI(
-			fmt.Sprintf(
-				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
-				mongoUsername,
-				mongoPassword,
-				mongoHost,
-				mongoPort)))
-	if err != nil {
-		log.Print(err)
-	}
+	client, err := ConnectToMongo()
 
 	dateStringSplit := strings.Split(date, " ")
 	//dateString := dateStringSplit[0]
@@ -452,4 +418,27 @@ func FindMatchingRouteForArrival(origin string,
 	}
 
 	return resultJSON
+}
+
+func ConnectToMongo() (*mongo.Client, error) {
+
+	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
+	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
+	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
+
+	// Create connection to mongo server and log any resulting error
+	client, err := mongo.NewClient(options.Client().
+		ApplyURI(
+			fmt.Sprintf(
+				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
+				mongoUsername,
+				mongoPassword,
+				mongoHost,
+				mongoPort)))
+	if err != nil {
+		log.Print(err)
+	}
+
+	return client, err
 }

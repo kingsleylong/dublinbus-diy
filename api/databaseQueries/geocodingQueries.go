@@ -2,10 +2,7 @@ package databaseQueries
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"googlemaps.github.io/maps"
 	"log"
 	"os"
@@ -86,23 +83,7 @@ func FindNearbyStops(stopSearch string) []StopWithCoordinates {
 	minLon := queryLon - halfMileAdjustment
 	maxLon := queryLon + halfMileAdjustment
 
-	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
-	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
-	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	// Create connection to mongo server and log any resulting error
-	client, err := mongo.NewClient(options.Client().
-		ApplyURI(
-			fmt.Sprintf(
-				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
-				mongoUsername,
-				mongoPassword,
-				mongoHost,
-				mongoPort)))
-	if err != nil {
-		log.Print(err)
-	}
+	client, err := ConnectToMongo()
 
 	// Create context variable and assign time for timeout
 	// Log any resulting error here also
