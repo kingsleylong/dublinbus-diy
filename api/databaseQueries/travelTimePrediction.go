@@ -25,9 +25,6 @@ func GetTravelTimePrediction(routeNum string,
 	}
 	baseUrl.Path += strings.ToUpper(routeNum) + "/" + direction + "/" + features[0] + "/" +
 		features[1] + "/" + features[2] + "/" + features[3] + "/" + date
-	log.Println("Url encoded version using net/url:")
-	log.Println(baseUrl.String())
-	log.Println("**** **** **** **** **** **** **** ****")
 
 	resp, err := http.
 		Get(baseUrl.String())
@@ -45,8 +42,7 @@ func GetTravelTimePrediction(routeNum string,
 	}
 
 	bodyString := string(body)
-	log.Println("bodyString:")
-	log.Println(bodyString)
+
 	bodyStringAdjusted := strings.Replace(bodyString, "[", "", 1)
 	bodyStringAdjusted = strings.Replace(bodyStringAdjusted, "]\n", "", 1)
 	bodyStrings := strings.Split(bodyStringAdjusted, ",")
@@ -56,8 +52,6 @@ func GetTravelTimePrediction(routeNum string,
 			New("travel time prediction could not be generated")
 	}
 	var travelTime TravelTimePredictionFloat
-
-	log.Println(bodyStrings)
 
 	travelTime.TransitTime, _ = strconv.ParseFloat(bodyStrings[0], 64)
 	travelTime.TransitTimePlusMAE, _ = strconv.ParseFloat(bodyStrings[1], 64)
@@ -145,9 +139,6 @@ func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 	initialPredictionAsSeconds := initialTime.TransitTime * 60
 	initialHighPredictionAsSeconds := initialTime.TransitTimePlusMAE * 60
 	initialLowPredictionAsSeconds := initialTime.TransitTimeMinusMAE * 60
-	log.Println("Initial Predictions as seconds:")
-	log.Println(initialPredictionAsSeconds, initialHighPredictionAsSeconds, initialLowPredictionAsSeconds)
-	log.Println("")
 
 	originArrivalStringArray := strings.Split(originArrivalTime, ":")
 	destinationArrivalStringArray := strings.Split(destinationArrivalTime, ":")
@@ -173,18 +164,11 @@ func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 	originHoursAsSeconds := originArrivalHoursAsFloat * 3600
 	originMinutesAsSeconds := originArrivalMinutesAsFloat * 60
 	originTotalSeconds := originHoursAsSeconds + originMinutesAsSeconds + originArrivalSecondsAsFloat
-	log.Println("Origin times as seconds with total:")
-	log.Println(originHoursAsSeconds, originMinutesAsSeconds, originArrivalSecondsAsFloat, originTotalSeconds)
-	log.Println("")
 
 	destinationHoursAsSeconds := destinationArrivalHoursAsFloat * 3600
 	destinationMinutesAsSeconds := destinationArrivalMinutesAsFloat * 60
 	destinationTotalSeconds := destinationHoursAsSeconds +
 		destinationMinutesAsSeconds + destinationArrivalSecondsAsFloat
-	log.Println("Destination times as seconds with total:")
-	log.Println(destinationHoursAsSeconds, destinationMinutesAsSeconds,
-		destinationArrivalSecondsAsFloat, destinationTotalSeconds)
-	log.Println("")
 
 	firstStopHoursAsSeconds := firstStopArrivalHoursAsFloat * 3600
 	firstStopMinutesAsSeconds := firstStopArrivalMinutesAsFloat * 60
@@ -197,32 +181,17 @@ func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 		finalStopMinutesAsSeconds + finalStopArrivalSecondsAsFloat
 
 	originToDestinationSeconds := float64(destinationTotalSeconds - originTotalSeconds)
-	log.Println("Origin to destination seconds:")
-	log.Println(originToDestinationSeconds)
-	log.Println("")
 
 	fullTripSeconds := float64(finalStopTotalSeconds - firstStopTotalSeconds)
-	log.Println("Full trip seconds:")
-	log.Println(fullTripSeconds)
-	log.Println("")
 	staticTripPercentageAsDecimal := originToDestinationSeconds / fullTripSeconds
-	log.Println("Percentage of trip covered in specified origin - destination:")
-	log.Println(staticTripPercentageAsDecimal)
-	log.Println("")
 
 	journeyPrediction := int(math.Round(initialPredictionAsSeconds * staticTripPercentageAsDecimal))
 	journeyHighPrediction := int(math.Round(initialHighPredictionAsSeconds * staticTripPercentageAsDecimal))
 	journeyLowPrediction := int(math.Round(initialLowPredictionAsSeconds * staticTripPercentageAsDecimal))
-	log.Println("Journey prediction in seconds:")
-	log.Println(journeyPrediction, journeyHighPrediction, journeyLowPrediction)
-	log.Println("")
 
 	journeyPredictionInMins := journeyPrediction / 60
 	journeyHighPredictionInMins := journeyHighPrediction / 60
 	journeyLowPredictionInMins := journeyLowPrediction / 60
-	log.Println("Journey prediction in minutes:")
-	log.Println(journeyPredictionInMins, journeyHighPredictionInMins, journeyLowPredictionInMins)
-	log.Println("")
 
 	destinationTimeInSeconds := int(math.Round(originTotalSeconds)) + journeyPrediction
 	destinationHours := destinationTimeInSeconds / 3600
