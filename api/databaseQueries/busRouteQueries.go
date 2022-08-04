@@ -116,18 +116,7 @@ func FindMatchingRouteForDeparture(destination string,
 
 		// An empty slice of shapes is created here for each outer iteration for
 		// the same reason as the empty slice for the stops above
-		shapes = []ShapeJSON{}
-		for _, currentShape := range currentRoute.Shapes {
-			currentDistTravelled, _ := strconv.ParseFloat(currentShape.ShapeDistTravel, 64)
-			if currentDistTravelled >= originDistTravelled && currentDistTravelled <= destinationDistTravelled {
-				shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
-				shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
-				shape.ShapePtSequence = currentShape.ShapePtSequence
-				shape.ShapeDistTravel = currentShape.ShapeDistTravel
-				shapes = append(shapes, shape)
-			}
-		}
-		route.Shapes = shapes
+		route.Shapes = CreateShapesSlice(currentRoute)
 
 		if originStopSequence > destinationStopSequence {
 			continue
@@ -263,18 +252,7 @@ func FindMatchingRouteForArrival(origin string,
 
 		// An empty slice of shapes is created here for each outer iteration for
 		// the same reason as the empty slice for the stops above
-		shapes = []ShapeJSON{}
-		for _, currentShape := range currentRoute.Shapes {
-			currentDistTravelled, _ := strconv.ParseFloat(currentShape.ShapeDistTravel, 64)
-			if currentDistTravelled >= originDistTravelled && currentDistTravelled <= destinationDistTravelled {
-				shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
-				shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
-				shape.ShapePtSequence = currentShape.ShapePtSequence
-				shape.ShapeDistTravel = currentShape.ShapeDistTravel
-				shapes = append(shapes, shape)
-			}
-		}
-		route.Shapes = shapes
+		route.Shapes = CreateShapesSlice(currentRoute)
 
 		if originStopSequence > destinationStopSequence {
 			continue
@@ -391,4 +369,21 @@ func CreateStopsSlice(origin string, destination string,
 	}
 
 	return transformedStops
+}
+
+func CreateShapesSlice(route busRoute) []ShapeJSON {
+
+	shapes = []ShapeJSON{}
+	for _, currentShape := range route.Shapes {
+		currentDistTravelled, _ := strconv.ParseFloat(currentShape.ShapeDistTravel, 64)
+		if currentDistTravelled >= originDistTravelled && currentDistTravelled <= destinationDistTravelled {
+			shape.ShapePtLat, _ = strconv.ParseFloat(currentShape.ShapePtLat, 64)
+			shape.ShapePtLon, _ = strconv.ParseFloat(currentShape.ShapePtLon, 64)
+			shape.ShapePtSequence = currentShape.ShapePtSequence
+			shape.ShapeDistTravel = currentShape.ShapeDistTravel
+			shapes = append(shapes, shape)
+		}
+	}
+
+	return shapes
 }
