@@ -31,10 +31,9 @@ func FindMatchingRouteForDeparture(destination string,
 	if err != nil {
 		log.Print(err)
 	}
-	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
+	defer client.Disconnect(ctx) // defer has rest of function complete before disconnect
 
-	dateStringSplit := strings.Split(date, " ")
-	timeString := dateStringSplit[1]
+	timeString := GetTimeString(date)
 
 	// Aggregation pipeline created in Mongo Compass and then transformed to suit
 	// the mongo driver in Go
@@ -226,10 +225,6 @@ func FindMatchingRouteForArrival(origin string,
 
 	client, err := ConnectToMongo()
 
-	dateStringSplit := strings.Split(date, " ")
-	//dateString := dateStringSplit[0]
-	timeString := dateStringSplit[1]
-
 	// Create context variable and assign time for timeout
 	// Log any resulting error here also
 	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
@@ -237,7 +232,9 @@ func FindMatchingRouteForArrival(origin string,
 	if err != nil {
 		log.Print(err)
 	}
-	defer client.Disconnect(ctx) // defer has rest of function done before disconnect
+	defer client.Disconnect(ctx) // defer has rest of function complete before disconnect
+
+	timeString := GetTimeString(date)
 
 	// Aggregation pipeline created in Mongo Compass and then transformed to suit
 	// the mongo driver in Go
@@ -441,4 +438,12 @@ func ConnectToMongo() (*mongo.Client, error) {
 	}
 
 	return client, err
+}
+
+func GetTimeString(date string) string {
+
+	dateStringSplit := strings.Split(date, " ")
+	timeString := dateStringSplit[1]
+
+	return timeString
 }
