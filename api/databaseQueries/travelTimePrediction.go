@@ -2,7 +2,6 @@ package databaseQueries
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"log"
 	"math"
@@ -12,33 +11,6 @@ import (
 	"strings"
 	"time"
 )
-
-func GetTravelTimePredictionTest(c *gin.Context) {
-
-	resp, err := http.
-		Get("http://ec2-34-239-115-43.compute-1.amazonaws.com/prediction/116/1/3/12/4/64800/2022-07-30 14:00:00")
-	if err != nil {
-		log.Print(err)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Print(err)
-	}
-
-	bodyString := string(body)
-	bodyStringAdjusted := strings.Replace(bodyString, "[", "", 1)
-	bodyStringAdjusted = strings.Replace(bodyStringAdjusted, "]\n", "", 1)
-	bodyStrings := strings.Split(bodyStringAdjusted, ",")
-
-	var result TravelTimePredictionFloat
-
-	result.TransitTime, _ = strconv.ParseFloat(bodyStrings[0], 64)
-	result.TransitTimePlusMAE, _ = strconv.ParseFloat(bodyStrings[1], 64)
-	result.TransitTimeMinusMAE, _ = strconv.ParseFloat(bodyStrings[2], 64)
-
-	c.IndentedJSON(http.StatusOK, result)
-}
 
 func GetTravelTimePrediction(routeNum string,
 	date string,
@@ -238,13 +210,6 @@ func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 	log.Println(staticTripPercentageAsDecimal)
 	log.Println("")
 
-	//predictedTimeComplement := initialPredictionAsSeconds - originToDestinationSeconds
-	//predictedHighTimeComplement := initialHighPredictionAsSeconds - originToDestinationSeconds
-	//predictedLowTimeComplement := initialLowPredictionAsSeconds - originToDestinationSeconds
-	//log.Println("Prediction complements:")
-	//log.Println(predictedTimeComplement, predictedHighTimeComplement, predictedLowTimeComplement)
-	//log.Println("")
-
 	journeyPrediction := int(math.Round(initialPredictionAsSeconds * staticTripPercentageAsDecimal))
 	journeyHighPrediction := int(math.Round(initialHighPredictionAsSeconds * staticTripPercentageAsDecimal))
 	journeyLowPrediction := int(math.Round(initialLowPredictionAsSeconds * staticTripPercentageAsDecimal))
@@ -259,11 +224,29 @@ func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 	log.Println(journeyPredictionInMins, journeyHighPredictionInMins, journeyLowPredictionInMins)
 	log.Println("")
 
+	destinationTimeInSeconds := int(math.Round(originTotalSeconds)) + journeyPrediction
+	destinationHours := strconv.Itoa(destinationTimeInSeconds / 3600)
+	destinationMinutes := strconv.Itoa((destinationTimeInSeconds % 3600) / 60)
+	destinationTime := destinationHours + ":" + destinationMinutes
+
+	destinationHighTimeInSeconds := int(math.Round(originTotalSeconds)) + journeyHighPrediction
+	destinationHighHours := strconv.Itoa(destinationHighTimeInSeconds / 3600)
+	destinationHighMinutes := strconv.Itoa((destinationHighTimeInSeconds % 3600) / 60)
+	destinationHighTime := destinationHighHours + ":" + destinationHighMinutes
+
+	destinationLowTimeInSeconds := int(math.Round(originTotalSeconds)) + journeyLowPrediction
+	destinationLowHours := strconv.Itoa(destinationLowTimeInSeconds / 3600)
+	destinationLowMinutes := strconv.Itoa((destinationLowTimeInSeconds % 3600) / 60)
+	destinationLowTime := destinationLowHours + ":" + destinationLowMinutes
+
 	var transitTimePredictions TravelTimePrediction
 
 	transitTimePredictions.TransitTime = journeyPredictionInMins
 	transitTimePredictions.TransitTimePlusMAE = journeyHighPredictionInMins
 	transitTimePredictions.TransitTimeMinusMAE = journeyLowPredictionInMins
+	transitTimePredictions.DestinationTime = destinationTime
+	transitTimePredictions.DestinationHighTime = destinationHighTime
+	transitTimePredictions.DestinationLowTime = destinationLowTime
 
 	if transitTimePredictions.TransitTime == 0 && transitTimePredictions.TransitTimePlusMAE == 0 &&
 		transitTimePredictions.TransitTimeMinusMAE == 0 {

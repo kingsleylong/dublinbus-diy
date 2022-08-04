@@ -146,4 +146,7 @@ type TravelTimePrediction struct {
 	TransitTime         int    `bson:"transit_time" json:"transit_time"`
 	TransitTimePlusMAE  int    `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
 	TransitTimeMinusMAE int    `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
+	DestinationTime     string `bson:"destination_time" json:"destination_time"`
+	DestinationHighTime string `bson:"destination_high_time" json:"destination_high_time"`
+	DestinationLowTime  string `bson:"destination_low_time" json:"destination_low_time"`
 }
