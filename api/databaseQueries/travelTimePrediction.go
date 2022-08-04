@@ -158,44 +158,9 @@ func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 	journeyHighPredictionInMins := journeyHighPrediction / 60
 	journeyLowPredictionInMins := journeyLowPrediction / 60
 
-	destinationTimeInSeconds := int(math.Round(originSeconds)) + journeyPrediction
-	destinationHours := destinationTimeInSeconds / 3600
-	destinationMinutes := (destinationTimeInSeconds % 3600) / 60
-	destinationHoursString := strconv.Itoa(destinationHours)
-	destinationMinutesString := strconv.Itoa(destinationMinutes)
-	if destinationHours < 10 {
-		destinationHoursString = "0" + destinationHoursString
-	}
-	if destinationMinutes < 10 {
-		destinationMinutesString = "0" + destinationMinutesString
-	}
-	destinationTime := destinationHoursString + ":" + destinationMinutesString
-
-	destinationHighTimeInSeconds := int(math.Round(originSeconds)) + journeyHighPrediction
-	destinationHighHours := destinationHighTimeInSeconds / 3600
-	destinationHighMinutes := (destinationHighTimeInSeconds % 3600) / 60
-	destinationHighHoursString := strconv.Itoa(destinationHighHours)
-	destinationHighMinutesString := strconv.Itoa(destinationHighMinutes)
-	if destinationHighHours < 10 {
-		destinationHighHoursString = "0" + destinationHighHoursString
-	}
-	if destinationHighMinutes < 10 {
-		destinationHighMinutesString = "0" + destinationHighMinutesString
-	}
-	destinationHighTime := destinationHighHoursString + ":" + destinationHighMinutesString
-
-	destinationLowTimeInSeconds := int(math.Round(originSeconds)) + journeyLowPrediction
-	destinationLowHours := destinationLowTimeInSeconds / 3600
-	destinationLowMinutes := (destinationLowTimeInSeconds % 3600) / 60
-	destinationLowHoursString := strconv.Itoa(destinationLowHours)
-	destinationLowMinutesString := strconv.Itoa(destinationLowMinutes)
-	if destinationLowHours < 10 {
-		destinationLowHoursString = "0" + destinationLowHoursString
-	}
-	if destinationLowMinutes < 10 {
-		destinationLowMinutesString = "0" + destinationLowMinutesString
-	}
-	destinationLowTime := destinationLowHoursString + ":" + destinationLowMinutesString
+	destinationTime := createTimePredictionString(originSeconds, journeyPrediction)
+	destinationHighTime := createTimePredictionString(originSeconds, journeyHighPrediction)
+	destinationLowTime := createTimePredictionString(originSeconds, journeyLowPrediction)
 
 	var transitTimePredictions TravelTimePrediction
 
@@ -240,4 +205,22 @@ func convertStringTimeToTotalSeconds(time string) float64 {
 	totalSeconds := hoursAsSeconds + minutesAsSeconds + secondsAsFloat
 
 	return totalSeconds
+}
+
+func createTimePredictionString(seconds float64, journeyPrediction int) string {
+
+	timeInSeconds := int(math.Round(seconds)) + journeyPrediction
+	hours := timeInSeconds / 3600
+	minutes := (timeInSeconds % 3600) / 60
+	hoursString := strconv.Itoa(hours)
+	minutesString := strconv.Itoa(minutes)
+	if hours < 10 {
+		hoursString = "0" + hoursString
+	}
+	if minutes < 10 {
+		minutesString = "0" + minutesString
+	}
+	destinationTime := hoursString + ":" + minutesString
+
+	return destinationTime
 }
