@@ -49,14 +49,6 @@ type RouteStop struct {
 	DistanceTravelled float64 `bson:"shape_dist_traveled" json:"shape_dist_traveled"`
 }
 
-// route is a struct that contains a means of matching the route number (referred to
-// as RouteShortName in this object) to the route id (i.e. the RouteId). All
-// fields map to type string from the database
-type route struct {
-	RouteId        string `bson:"route_id" json:"route_id"`
-	RouteShortName string `bson:"route_short_name" json:"route_short_name"`
-}
-
 // Shape is struct that contains the coordinates for each turn in a bus
 // line as it travels its designated route that combined together allow
 // the bus route to be drawn on a map matching the road network of Dublin.

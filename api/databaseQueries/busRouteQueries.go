@@ -13,6 +13,27 @@ import (
 	"time"
 )
 
+// Global variables
+
+// Variables of both busRoute and busRouteJSON need to be initialised as
+// some unmarshalling from Mongo cannot be done automatically and
+// so must be done manually from one structure to another in the backend
+var result []busRoute
+var resultJSON []busRouteJSON
+var route busRouteJSON
+var stop RouteStop
+var shape ShapeJSON
+var stops []RouteStop
+var shapes []ShapeJSON
+var originStopArrivalTime string
+var destinationStopArrivalTime string
+var finalStopArrivalTime string
+var firstStopArrivalTime string
+var originStopSequence int64
+var destinationStopSequence int64
+var originDistTravelled float64
+var destinationDistTravelled float64
+
 // FindMatchingRouteForDeparture takes in three parameters - the destination
 // bus stop, the origin bus stop and then the departure time all as strings.
 // This function then queries the mongo collection for trips documents that
@@ -79,25 +100,6 @@ func FindMatchingRouteForDeparture(destination string,
 	if err != nil {
 		log.Print(err)
 	}
-
-	// Variables of both busRoute and busRouteJSON need to be initialised as
-	// some unmarshalling from Mongo cannot be done automatically and
-	// so must be done manually from one structure to another in the backend
-	var result []busRoute
-	var resultJSON []busRouteJSON
-	var route busRouteJSON
-	var stop RouteStop
-	var shape ShapeJSON
-	var stops []RouteStop
-	var shapes []ShapeJSON
-	var originStopArrivalTime string
-	var destinationStopArrivalTime string
-	var finalStopArrivalTime string
-	var firstStopArrivalTime string
-	var originStopSequence int64
-	var destinationStopSequence int64
-	var originDistTravelled float64
-	var destinationDistTravelled float64
 
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
@@ -280,25 +282,6 @@ func FindMatchingRouteForArrival(origin string,
 	if err != nil {
 		log.Print(err)
 	}
-
-	// Variables of both busRoute and busRouteJSON need to be initialised as
-	// some unmarshalling from Mongo cannot be done automatically and
-	// so must be done manually from one structure to another in the backend
-	var result []busRoute
-	var resultJSON []busRouteJSON
-	var route busRouteJSON
-	var stop RouteStop
-	var shape ShapeJSON
-	var stops []RouteStop
-	var shapes []ShapeJSON
-	var originStopArrivalTime string
-	var destinationStopArrivalTime string
-	var finalStopArrivalTime string
-	var firstStopArrivalTime string
-	var originStopSequence int64
-	var destinationStopSequence int64
-	var originDistTravelled float64
-	var destinationDistTravelled float64
 
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Print(err)
