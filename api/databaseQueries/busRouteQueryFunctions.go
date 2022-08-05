@@ -131,3 +131,23 @@ func CurateStopsSlice(origin string, destination string) (int, int) {
 
 	return originStopIndex, destinationStopIndex
 }
+
+func CurateReturnedArrivalRoutes(arrivalQueryTime string, routes []busRouteJSON) []busRouteJSON {
+
+	returnedRoutes := []busRouteJSON{}
+	dateTimeSplit := strings.Split(arrivalQueryTime, " ")
+	querySeconds := convertStringTimeToTotalSeconds(dateTimeSplit[1])
+	var arrivalSeconds float64
+	var stopsLength int
+
+	for _, route := range routes {
+		stopsLength = len(route.Stops)
+		arrivalSeconds = convertStringTimeToTotalSeconds(route.Stops[stopsLength-1].ArrivalTime)
+		if querySeconds > arrivalSeconds+float64(60*60) {
+			continue
+		}
+		returnedRoutes = append(returnedRoutes, route)
+	}
+
+	return returnedRoutes
+}

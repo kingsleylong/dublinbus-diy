@@ -288,5 +288,7 @@ func FindMatchingRouteForArrival(origin string,
 		resultJSON = append(resultJSON, route)
 	}
 
+	resultJSON = CurateReturnedArrivalRoutes(date, resultJSON)
+
 	return resultJSON
 }
