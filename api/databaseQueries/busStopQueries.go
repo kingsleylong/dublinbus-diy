@@ -2,18 +2,14 @@ package databaseQueries
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"strconv"
 
 	//"encoding/json"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -27,24 +23,7 @@ var mongoPort string
 // Useful as a debugging query.
 func GetDatabases(c *gin.Context) {
 
-	// Assign values to connection string variables
-	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
-	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
-	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	// Create connection to mongo server and log any resulting error
-	client, err := mongo.NewClient(options.Client().
-		ApplyURI(
-			fmt.Sprintf(
-				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
-				mongoUsername,
-				mongoPassword,
-				mongoHost,
-				mongoPort)))
-	if err != nil {
-		log.Print(err)
-	}
+	client, err := ConnectToMongo()
 
 	// Create context variable and assign time for timeout
 	// Log any resulting error here also
@@ -67,23 +46,7 @@ func GetDatabases(c *gin.Context) {
 // returned as JSON objects from the stops collection in MongoDB.
 func GetStopByName(stopName string) []StopWithCoordinates {
 
-	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
-	mongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
-	mongoUsername = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	mongoPort = os.Getenv("MONGO_INITDB_ROOT_PORT")
-
-	// Create connection to mongo server and log any resulting error
-	client, err := mongo.NewClient(options.Client().
-		ApplyURI(
-			fmt.Sprintf(
-				"mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority",
-				mongoUsername,
-				mongoPassword,
-				mongoHost,
-				mongoPort)))
-	if err != nil {
-		log.Print(err)
-	}
+	client, err := ConnectToMongo()
 
 	// Create context variable and assign time for timeout
 	// Log any resulting error here also

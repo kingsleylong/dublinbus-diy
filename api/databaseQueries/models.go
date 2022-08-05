@@ -49,14 +49,6 @@ type RouteStop struct {
 	DistanceTravelled float64 `bson:"shape_dist_traveled" json:"shape_dist_traveled"`
 }
 
-// route is a struct that contains a means of matching the route number (referred to
-// as RouteShortName in this object) to the route id (i.e. the RouteId). All
-// fields map to type string from the database
-type route struct {
-	RouteId        string `bson:"route_id" json:"route_id"`
-	RouteShortName string `bson:"route_short_name" json:"route_short_name"`
-}
-
 // Shape is struct that contains the coordinates for each turn in a bus
 // line as it travels its designated route that combined together allow
 // the bus route to be drawn on a map matching the road network of Dublin.
@@ -142,8 +134,12 @@ type TravelTimePredictionFloat struct {
 }
 
 type TravelTimePrediction struct {
-	Source              string `bson:"source" json:"source"`
-	TransitTime         int    `bson:"transit_time" json:"transit_time"`
-	TransitTimePlusMAE  int    `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
-	TransitTimeMinusMAE int    `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
+	Source                   string `bson:"source" json:"source"`
+	TransitTime              int    `bson:"transit_time" json:"transit_time"`
+	TransitTimePlusMAE       int    `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
+	TransitTimeMinusMAE      int    `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
+	EstimatedArrivalTime     string `bson:"estimated_arrival_time" json:"estimated_arrival_time"`
+	EstimatedArrivalHighTime string `bson:"estimated_arrival_high_time" json:"estimated_arrival_high_time"`
+	EstimatedArrivalLowTime  string `bson:"estimated_arrival_low_time" json:"estimated_arrival_low_time"`
+	ScheduledDepartureTime   string `bson:"scheduled_departure_time" json:"scheduled_departure_time"`
 }

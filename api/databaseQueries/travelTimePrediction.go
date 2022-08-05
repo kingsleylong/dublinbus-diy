@@ -2,7 +2,6 @@ package databaseQueries
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"log"
 	"math"
@@ -12,33 +11,6 @@ import (
 	"strings"
 	"time"
 )
-
-func GetTravelTimePredictionTest(c *gin.Context) {
-
-	resp, err := http.
-		Get("http://ec2-34-239-115-43.compute-1.amazonaws.com/prediction/116/1/3/12/4/64800/2022-07-30 14:00:00")
-	if err != nil {
-		log.Print(err)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Print(err)
-	}
-
-	bodyString := string(body)
-	bodyStringAdjusted := strings.Replace(bodyString, "[", "", 1)
-	bodyStringAdjusted = strings.Replace(bodyStringAdjusted, "]\n", "", 1)
-	bodyStrings := strings.Split(bodyStringAdjusted, ",")
-
-	var result TravelTimePredictionFloat
-
-	result.TransitTime, _ = strconv.ParseFloat(bodyStrings[0], 64)
-	result.TransitTimePlusMAE, _ = strconv.ParseFloat(bodyStrings[1], 64)
-	result.TransitTimeMinusMAE, _ = strconv.ParseFloat(bodyStrings[2], 64)
-
-	c.IndentedJSON(http.StatusOK, result)
-}
 
 func GetTravelTimePrediction(routeNum string,
 	date string,
@@ -53,9 +25,6 @@ func GetTravelTimePrediction(routeNum string,
 	}
 	baseUrl.Path += strings.ToUpper(routeNum) + "/" + direction + "/" + features[0] + "/" +
 		features[1] + "/" + features[2] + "/" + features[3] + "/" + date
-	log.Println("Url encoded version using net/url:")
-	log.Println(baseUrl.String())
-	log.Println("**** **** **** **** **** **** **** ****")
 
 	resp, err := http.
 		Get(baseUrl.String())
@@ -73,8 +42,7 @@ func GetTravelTimePrediction(routeNum string,
 	}
 
 	bodyString := string(body)
-	log.Println("bodyString:")
-	log.Println(bodyString)
+
 	bodyStringAdjusted := strings.Replace(bodyString, "[", "", 1)
 	bodyStringAdjusted = strings.Replace(bodyStringAdjusted, "]\n", "", 1)
 	bodyStrings := strings.Split(bodyStringAdjusted, ",")
@@ -84,8 +52,6 @@ func GetTravelTimePrediction(routeNum string,
 			New("travel time prediction could not be generated")
 	}
 	var travelTime TravelTimePredictionFloat
-
-	log.Println(bodyStrings)
 
 	travelTime.TransitTime, _ = strconv.ParseFloat(bodyStrings[0], 64)
 	travelTime.TransitTimePlusMAE, _ = strconv.ParseFloat(bodyStrings[1], 64)
@@ -173,97 +139,37 @@ func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 	initialPredictionAsSeconds := initialTime.TransitTime * 60
 	initialHighPredictionAsSeconds := initialTime.TransitTimePlusMAE * 60
 	initialLowPredictionAsSeconds := initialTime.TransitTimeMinusMAE * 60
-	log.Println("Initial Predictions as seconds:")
-	log.Println(initialPredictionAsSeconds, initialHighPredictionAsSeconds, initialLowPredictionAsSeconds)
-	log.Println("")
 
-	originArrivalStringArray := strings.Split(originArrivalTime, ":")
-	destinationArrivalStringArray := strings.Split(destinationArrivalTime, ":")
-	firstStopArrivalStringArray := strings.Split(firstStopArrivalTime, ":")
-	finalStopArrivalStringArray := strings.Split(finalStopArrivalTime, ":")
+	originSeconds := convertStringTimeToTotalSeconds(originArrivalTime)
+	destinationSeconds := convertStringTimeToTotalSeconds(destinationArrivalTime)
+	firstStopSeconds := convertStringTimeToTotalSeconds(firstStopArrivalTime)
+	finalStopSeconds := convertStringTimeToTotalSeconds(finalStopArrivalTime)
 
-	originArrivalHoursAsFloat, _ := strconv.ParseFloat(originArrivalStringArray[0], 64)
-	originArrivalMinutesAsFloat, _ := strconv.ParseFloat(originArrivalStringArray[1], 64)
-	originArrivalSecondsAsFloat, _ := strconv.ParseFloat(originArrivalStringArray[2], 64)
+	originToDestinationSeconds := destinationSeconds - originSeconds
 
-	destinationArrivalHoursAsFloat, _ := strconv.ParseFloat(destinationArrivalStringArray[0], 64)
-	destinationArrivalMinutesAsFloat, _ := strconv.ParseFloat(destinationArrivalStringArray[1], 64)
-	destinationArrivalSecondsAsFloat, _ := strconv.ParseFloat(destinationArrivalStringArray[2], 64)
-
-	firstStopArrivalHoursAsFloat, _ := strconv.ParseFloat(firstStopArrivalStringArray[0], 64)
-	firstStopArrivalMinutesAsFloat, _ := strconv.ParseFloat(firstStopArrivalStringArray[1], 64)
-	firstStopArrivalSecondsAsFloat, _ := strconv.ParseFloat(firstStopArrivalStringArray[2], 64)
-
-	finalStopArrivalHoursAsFloat, _ := strconv.ParseFloat(finalStopArrivalStringArray[0], 64)
-	finalStopArrivalMinutesAsFloat, _ := strconv.ParseFloat(finalStopArrivalStringArray[1], 64)
-	finalStopArrivalSecondsAsFloat, _ := strconv.ParseFloat(finalStopArrivalStringArray[2], 64)
-
-	originHoursAsSeconds := originArrivalHoursAsFloat * 3600
-	originMinutesAsSeconds := originArrivalMinutesAsFloat * 60
-	originTotalSeconds := originHoursAsSeconds + originMinutesAsSeconds + originArrivalSecondsAsFloat
-	log.Println("Origin times as seconds with total:")
-	log.Println(originHoursAsSeconds, originMinutesAsSeconds, originArrivalSecondsAsFloat, originTotalSeconds)
-	log.Println("")
-
-	destinationHoursAsSeconds := destinationArrivalHoursAsFloat * 3600
-	destinationMinutesAsSeconds := destinationArrivalMinutesAsFloat * 60
-	destinationTotalSeconds := destinationHoursAsSeconds +
-		destinationMinutesAsSeconds + destinationArrivalSecondsAsFloat
-	log.Println("Destination times as seconds with total:")
-	log.Println(destinationHoursAsSeconds, destinationMinutesAsSeconds,
-		destinationArrivalSecondsAsFloat, destinationTotalSeconds)
-	log.Println("")
-
-	firstStopHoursAsSeconds := firstStopArrivalHoursAsFloat * 3600
-	firstStopMinutesAsSeconds := firstStopArrivalMinutesAsFloat * 60
-	firstStopTotalSeconds := firstStopHoursAsSeconds +
-		firstStopMinutesAsSeconds + firstStopArrivalSecondsAsFloat
-
-	finalStopHoursAsSeconds := finalStopArrivalHoursAsFloat * 3600
-	finalStopMinutesAsSeconds := finalStopArrivalMinutesAsFloat * 60
-	finalStopTotalSeconds := finalStopHoursAsSeconds +
-		finalStopMinutesAsSeconds + finalStopArrivalSecondsAsFloat
-
-	originToDestinationSeconds := float64(destinationTotalSeconds - originTotalSeconds)
-	log.Println("Origin to destination seconds:")
-	log.Println(originToDestinationSeconds)
-	log.Println("")
-
-	fullTripSeconds := float64(finalStopTotalSeconds - firstStopTotalSeconds)
-	log.Println("Full trip seconds:")
-	log.Println(fullTripSeconds)
-	log.Println("")
+	fullTripSeconds := finalStopSeconds - firstStopSeconds
 	staticTripPercentageAsDecimal := originToDestinationSeconds / fullTripSeconds
-	log.Println("Percentage of trip covered in specified origin - destination:")
-	log.Println(staticTripPercentageAsDecimal)
-	log.Println("")
-
-	//predictedTimeComplement := initialPredictionAsSeconds - originToDestinationSeconds
-	//predictedHighTimeComplement := initialHighPredictionAsSeconds - originToDestinationSeconds
-	//predictedLowTimeComplement := initialLowPredictionAsSeconds - originToDestinationSeconds
-	//log.Println("Prediction complements:")
-	//log.Println(predictedTimeComplement, predictedHighTimeComplement, predictedLowTimeComplement)
-	//log.Println("")
 
 	journeyPrediction := int(math.Round(initialPredictionAsSeconds * staticTripPercentageAsDecimal))
 	journeyHighPrediction := int(math.Round(initialHighPredictionAsSeconds * staticTripPercentageAsDecimal))
 	journeyLowPrediction := int(math.Round(initialLowPredictionAsSeconds * staticTripPercentageAsDecimal))
-	log.Println("Journey prediction in seconds:")
-	log.Println(journeyPrediction, journeyHighPrediction, journeyLowPrediction)
-	log.Println("")
 
 	journeyPredictionInMins := journeyPrediction / 60
 	journeyHighPredictionInMins := journeyHighPrediction / 60
 	journeyLowPredictionInMins := journeyLowPrediction / 60
-	log.Println("Journey prediction in minutes:")
-	log.Println(journeyPredictionInMins, journeyHighPredictionInMins, journeyLowPredictionInMins)
-	log.Println("")
+
+	destinationTime := createTimePredictionString(originSeconds, journeyPrediction)
+	destinationHighTime := createTimePredictionString(originSeconds, journeyHighPrediction)
+	destinationLowTime := createTimePredictionString(originSeconds, journeyLowPrediction)
 
 	var transitTimePredictions TravelTimePrediction
 
 	transitTimePredictions.TransitTime = journeyPredictionInMins
 	transitTimePredictions.TransitTimePlusMAE = journeyHighPredictionInMins
 	transitTimePredictions.TransitTimeMinusMAE = journeyLowPredictionInMins
+	transitTimePredictions.EstimatedArrivalTime = destinationTime
+	transitTimePredictions.EstimatedArrivalHighTime = destinationHighTime
+	transitTimePredictions.EstimatedArrivalLowTime = destinationLowTime
 
 	if transitTimePredictions.TransitTime == 0 && transitTimePredictions.TransitTimePlusMAE == 0 &&
 		transitTimePredictions.TransitTimeMinusMAE == 0 {
@@ -277,29 +183,44 @@ func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 
 func GetStaticTime(originStopArrivalTime string, destinationStopArrivalTime string) int {
 
-	originArrivalStringArray := strings.Split(originStopArrivalTime, ":")
-	destinationArrivalStringArray := strings.Split(destinationStopArrivalTime, ":")
+	originSeconds := convertStringTimeToTotalSeconds(originStopArrivalTime)
+	destinationSeconds := convertStringTimeToTotalSeconds(destinationStopArrivalTime)
 
-	originArrivalHoursAsFloat, _ := strconv.ParseFloat(originArrivalStringArray[0], 64)
-	originArrivalMinutesAsFloat, _ := strconv.ParseFloat(originArrivalStringArray[1], 64)
-	originArrivalSecondsAsFloat, _ := strconv.ParseFloat(originArrivalStringArray[2], 64)
-
-	destinationArrivalHoursAsFloat, _ := strconv.ParseFloat(destinationArrivalStringArray[0], 64)
-	destinationArrivalMinutesAsFloat, _ := strconv.ParseFloat(destinationArrivalStringArray[1], 64)
-	destinationArrivalSecondsAsFloat, _ := strconv.ParseFloat(destinationArrivalStringArray[2], 64)
-
-	originHoursAsSeconds := originArrivalHoursAsFloat * 3600
-	originMinutesAsSeconds := originArrivalMinutesAsFloat * 60
-	originTotalSeconds := originHoursAsSeconds + originMinutesAsSeconds + originArrivalSecondsAsFloat
-
-	destinationHoursAsSeconds := destinationArrivalHoursAsFloat * 3600
-	destinationMinutesAsSeconds := destinationArrivalMinutesAsFloat * 60
-	destinationTotalSeconds := destinationHoursAsSeconds +
-		destinationMinutesAsSeconds + destinationArrivalSecondsAsFloat
-
-	originToDestinationSeconds := float64(destinationTotalSeconds - originTotalSeconds)
+	originToDestinationSeconds := destinationSeconds - originSeconds
 
 	originToDestinationMinutes := int(math.Round(originToDestinationSeconds / 60))
 
 	return originToDestinationMinutes
+}
+
+func convertStringTimeToTotalSeconds(time string) float64 {
+
+	dateAndTimeSlice := strings.Split(time, ":")
+	hoursAsFloat, _ := strconv.ParseFloat(dateAndTimeSlice[0], 64)
+	minutesAsFloat, _ := strconv.ParseFloat(dateAndTimeSlice[1], 64)
+	secondsAsFloat, _ := strconv.ParseFloat(dateAndTimeSlice[2], 64)
+
+	hoursAsSeconds := hoursAsFloat * 3600
+	minutesAsSeconds := minutesAsFloat * 60
+	totalSeconds := hoursAsSeconds + minutesAsSeconds + secondsAsFloat
+
+	return totalSeconds
+}
+
+func createTimePredictionString(seconds float64, journeyPrediction int) string {
+
+	timeInSeconds := int(math.Round(seconds)) + journeyPrediction
+	hours := timeInSeconds / 3600
+	minutes := (timeInSeconds % 3600) / 60
+	hoursString := strconv.Itoa(hours)
+	minutesString := strconv.Itoa(minutes)
+	if hours < 10 {
+		hoursString = "0" + hoursString
+	}
+	if minutes < 10 {
+		minutesString = "0" + minutesString
+	}
+	destinationTime := hoursString + ":" + minutesString
+
+	return destinationTime
 }
