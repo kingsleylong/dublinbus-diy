@@ -2,6 +2,7 @@ import 'package:date_time_picker/date_time_picker.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -26,13 +27,49 @@ class SearchForm extends StatefulWidget {
 class _SearchFormState extends State<SearchForm> {
   late Future<List<BusRoute>> futureBusRoutes;
 
+  // get user location https://docs.page/Lyokone/flutterlocation
+  Location location = Location();
+  late bool _serviceEnabled;
+  late PermissionStatus _permissionGranted;
+  late LocationData _locationData;
+
+  @override
+  void initState() {
+    super.initState();
+    checkState();
+  }
+
+  checkState() async {
+    try {
+      _serviceEnabled = await location.serviceEnabled();
+      if (!_serviceEnabled) {
+        _serviceEnabled = await location.requestService();
+        if (!_serviceEnabled) {
+          return;
+        }
+      }
+      _permissionGranted = await location.hasPermission();
+      if (_permissionGranted == PermissionStatus.denied) {
+        _permissionGranted = await location.requestPermission();
+        if (_permissionGranted != PermissionStatus.granted) {
+          return;
+        }
+      }
+      _locationData = await location.getLocation();
+      print('${_locationData.latitude},${_locationData.longitude},${_locationData.accuracy}, '
+          '${_locationData.headingAccuracy},${_locationData.provider}');
+    } catch (e) {
+      print('error getting location: ${e.toString()}');
+    }
+  }
+
   // late List<Item> items;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       // padding settings https://api.flutter.dev/flutter/material/InputDecoration/contentPadding.html
-      padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
       // Listen to the SearchFormModel and share the state of the form between multiple views
       child: Consumer<SearchFormModel>(
         builder: (context, searchFormModel, child) => Form(
@@ -44,8 +81,23 @@ class _SearchFormState extends State<SearchForm> {
                 // The form fields should be wrapped by Padding otherwise they would overlap each other
                 // https://docs.flutter.dev/cookbook/forms/text-input
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  child: buildSearchableOriginDropdownList(searchFormModel),
+                  padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
+                  child: Row(
+                    children: [
+                      Expanded(child: buildSearchableOriginDropdownList(searchFormModel)),
+                      IconButton(
+                        icon: const Icon(Icons.location_searching),
+                        tooltip: 'Increase volume by 10',
+                        onPressed: () {
+                          setState(() {
+                            print('click location search');
+                            checkState();
+                          });
+                        },
+                      ),
+                      // Text('Volume')
+                    ],
+                  ),
                 ),
                 // Destination dropdown list
                 Padding(
@@ -111,8 +163,7 @@ class _SearchFormState extends State<SearchForm> {
 
                         // Date format: https://api.flutter.dev/flutter/intl/DateFormat-class.html
                         print(
-                            'parseTime: $parseTime  ${DateFormat('yyyy-MM-dd HH:mm:ss').format
-                              (parseTime)}');
+                            'parseTime: $parseTime  ${DateFormat('yyyy-MM-dd HH:mm:ss').format(parseTime)}');
 
                         BusRouteSearchFilter searchFilter = BusRouteSearchFilter(
                             searchFormModel
