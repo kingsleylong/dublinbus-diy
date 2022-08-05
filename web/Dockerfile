@@ -30,6 +30,7 @@ RUN chown -R flutter:flutter .
 USER flutter
 # permission needs to be in accordance with flutter user
 COPY --chown=flutter:flutter . .
+RUN rm -r android ios
 # copy the compiling time config file to the source folder.
 # the web/index.html can't be loaded using volume as it is required by flutter
 # when building the release packages.
