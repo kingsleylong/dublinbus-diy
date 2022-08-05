@@ -69,16 +69,18 @@ paths:
       parameters:
         - name: "origin"
           in: "path"
-          description: "The origin bus stop number"
+          description: "The coordinates of the origin address, in the format of
+           latitude,longitude, i.e: 53.3081571,-6.2295381"
           required: true
           type: "string"
-          default: "759" # Donnybrook Stadium
+          default: "53.3081571,-6.2295381" # UCD Sport Center
         - name: "destination"
           in: "path"
-          description: "The destination bus stop number"
+          description: "The coordinates of the destination address, in the format of
+           latitude,longitude, i.e: 53.33821020547234, -6.259107868580934"
           required: true
           type: "string"
-          default: "2007" # UCD
+          default: "53.33821020547234, -6.259107868580934" # St Stephen's Green
         - name: "timeType"
           in: "path"
           description: "The type of time used to find the route"
