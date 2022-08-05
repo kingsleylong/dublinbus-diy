@@ -167,9 +167,9 @@ func AdjustTravelTime(initialTime TravelTimePredictionFloat,
 	transitTimePredictions.TransitTime = journeyPredictionInMins
 	transitTimePredictions.TransitTimePlusMAE = journeyHighPredictionInMins
 	transitTimePredictions.TransitTimeMinusMAE = journeyLowPredictionInMins
-	transitTimePredictions.Time = destinationTime
-	transitTimePredictions.HighTime = destinationHighTime
-	transitTimePredictions.LowTime = destinationLowTime
+	transitTimePredictions.EstimatedArrivalTime = destinationTime
+	transitTimePredictions.EstimatedArrivalHighTime = destinationHighTime
+	transitTimePredictions.EstimatedArrivalLowTime = destinationLowTime
 
 	if transitTimePredictions.TransitTime == 0 && transitTimePredictions.TransitTimePlusMAE == 0 &&
 		transitTimePredictions.TransitTimeMinusMAE == 0 {

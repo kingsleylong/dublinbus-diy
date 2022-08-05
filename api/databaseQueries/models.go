@@ -134,11 +134,12 @@ type TravelTimePredictionFloat struct {
 }
 
 type TravelTimePrediction struct {
-	Source              string `bson:"source" json:"source"`
-	TransitTime         int    `bson:"transit_time" json:"transit_time"`
-	TransitTimePlusMAE  int    `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
-	TransitTimeMinusMAE int    `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
-	Time                string `bson:"destination_time" json:"destination_time"`
-	HighTime            string `bson:"destination_high_time" json:"destination_high_time"`
-	LowTime             string `bson:"destination_low_time" json:"destination_low_time"`
+	Source                   string `bson:"source" json:"source"`
+	TransitTime              int    `bson:"transit_time" json:"transit_time"`
+	TransitTimePlusMAE       int    `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
+	TransitTimeMinusMAE      int    `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
+	EstimatedArrivalTime     string `bson:"estimated_arrival_time" json:"estimated_arrival_time"`
+	EstimatedArrivalHighTime string `bson:"estimated_arrival_high_time" json:"estimated_arrival_high_time"`
+	EstimatedArrivalLowTime  string `bson:"estimated_arrival_low_time" json:"estimated_arrival_low_time"`
+	ScheduledDepartureTime   string `bson:"scheduled_departure_time" json:"scheduled_departure_time"`
 }

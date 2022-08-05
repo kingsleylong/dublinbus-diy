@@ -146,15 +146,16 @@ func FindMatchingRouteForDeparture(destination string,
 			journeyTravelTime.TransitTime = staticTravelTime
 			journeyTravelTime.TransitTimeMinusMAE = staticTravelTime
 			journeyTravelTime.TransitTimePlusMAE = staticTravelTime
-			journeyTravelTime.Time = destinationStopArrivalTime
-			journeyTravelTime.HighTime = destinationStopArrivalTime
-			journeyTravelTime.LowTime = destinationStopArrivalTime
+			journeyTravelTime.EstimatedArrivalTime = destinationStopArrivalTime
+			journeyTravelTime.EstimatedArrivalTime = destinationStopArrivalTime
+			journeyTravelTime.EstimatedArrivalTime = destinationStopArrivalTime
 		}
 		route.TravelTime = journeyTravelTime
 
 		originStopIndex, destinationStopIndex := CurateStopsSlice(origin, destination)
 
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
+		route.TravelTime.ScheduledDepartureTime = GetScheduledDepartureTime(route.Stops[0].ArrivalTime)
 
 		resultJSON = append(resultJSON, route)
 	}
@@ -276,14 +277,15 @@ func FindMatchingRouteForArrival(origin string,
 			journeyTravelTime.TransitTime = staticTravelTime
 			journeyTravelTime.TransitTimeMinusMAE = staticTravelTime
 			journeyTravelTime.TransitTimePlusMAE = staticTravelTime
-			journeyTravelTime.Time = destinationStopArrivalTime
-			journeyTravelTime.HighTime = destinationStopArrivalTime
-			journeyTravelTime.LowTime = destinationStopArrivalTime
+			journeyTravelTime.EstimatedArrivalTime = destinationStopArrivalTime
+			journeyTravelTime.EstimatedArrivalTime = destinationStopArrivalTime
+			journeyTravelTime.EstimatedArrivalTime = destinationStopArrivalTime
 		}
 		route.TravelTime = journeyTravelTime
 
 		originStopIndex, destinationStopIndex := CurateStopsSlice(origin, destination)
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
+		route.TravelTime.ScheduledDepartureTime = GetScheduledDepartureTime(route.Stops[0].ArrivalTime)
 
 		resultJSON = append(resultJSON, route)
 	}

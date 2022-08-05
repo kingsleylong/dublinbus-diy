@@ -151,3 +151,11 @@ func CurateReturnedArrivalRoutes(arrivalQueryTime string, routes []busRouteJSON)
 
 	return returnedRoutes
 }
+
+func GetScheduledDepartureTime(departureTime string) string {
+
+	departureTimeSplit := strings.Split(departureTime, ":")
+	departureTimeAdjusted := departureTimeSplit[0] + ":" + departureTimeSplit[1]
+
+	return departureTimeAdjusted
+}
