@@ -1,8 +1,10 @@
 import 'package:dublin_bus_diy/models/app_model.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../api/location_service.dart';
 import '../models/map_polylines.dart';
 
 // Adding Google Maps to a Flutter app
@@ -24,19 +26,29 @@ class GoogleMapComponent extends StatelessWidget {
           // Use SomeExpensiveWidget here, without rebuilding every time.
           if (child != null) child,
           GoogleMap(
-            onMapCreated: (controller) =>
-                Provider.of<AppModel>(context, listen: false).mapController = controller,
+            onMapCreated: (controller) {
+              Provider.of<AppModel>(context, listen: false).mapController = controller;
+            },
             initialCameraPosition: CameraPosition(
               target: _center,
               zoom: 11.0,
             ),
             polylines: Set<Polyline>.of(polylinesModel.itemsOfPolylines),
             markers: Set<Marker>.of(polylinesModel.itemsOfMarkers),
+            myLocationEnabled: true,
           ),
         ],
       ),
       // Build the expensive widget here.
       // child: const SomeExpensiveWidget(),
     );
+  }
+
+  updateMapLocation(GoogleMapController mapController, PolylinesModel polylinesModel) async {
+    print('updating map location');
+    Position here = await determinePosition();
+    mapController.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: LatLng(here.latitude, here.longitude), zoom: 14)));
+    polylinesModel.showSingleMarkerPosition(here.latitude, here.longitude);
   }
 }
