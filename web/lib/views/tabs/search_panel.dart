@@ -60,6 +60,7 @@ class _SearchFormState extends State<SearchForm> {
           '${_locationData.headingAccuracy},${_locationData.provider}');
     } catch (e) {
       print('error getting location: ${e.toString()}');
+      rethrow;
     }
   }
 
