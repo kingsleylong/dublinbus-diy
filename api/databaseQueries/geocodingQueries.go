@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -188,4 +189,14 @@ func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
 	}
 
 	return matchingStops
+}
+
+func TurnParameterToCoordinates(coordinates string) maps.LatLng {
+
+	coordinatesSplit := strings.Split(coordinates, ",")
+	coordinatesLatitude, _ := strconv.ParseFloat(coordinatesSplit[0], 64)
+	coordinatesLongitude, _ := strconv.ParseFloat(coordinatesSplit[1], 64)
+
+	coordinatesLatLng := maps.LatLng{Lng: coordinatesLongitude, Lat: coordinatesLatitude}
+	return coordinatesLatLng
 }

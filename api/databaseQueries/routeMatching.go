@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
-	"googlemaps.github.io/maps"
 	"log"
 	"net/http"
 	"time"
@@ -296,16 +295,19 @@ func FindMatchingRouteForArrival(origin string,
 	return resultJSON
 }
 
-func FindMatchingRouteForDepartureV2(destination maps.LatLng,
-	origin maps.LatLng,
+func FindMatchingRouteForDepartureV2(destination string,
+	origin string,
 	date string) []busRouteJSON {
+
+	originCoordinates := TurnParameterToCoordinates(origin)
+	destinationCoordinates := TurnParameterToCoordinates(destination)
 
 	var routesFoundByStop []RouteByStop
 	routesForOrigin := make(map[string][]RouteByStop)
 	routesForDestination := make(map[string][]RouteByStop)
 
-	stopsNearDestination := FindNearbyStopsV2(destination)
-	stopsNearOrigin := FindNearbyStopsV2(origin)
+	stopsNearDestination := FindNearbyStopsV2(destinationCoordinates)
+	stopsNearOrigin := FindNearbyStopsV2(originCoordinates)
 
 	client, err := ConnectToMongo()
 
