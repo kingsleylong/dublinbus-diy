@@ -1,5 +1,8 @@
 import 'package:geolocator/geolocator.dart';
 
+// use geolocator package to get platform specific location
+// https://pub.dev/packages/geolocator
+
 /// Determine the current position of the device.
 ///
 /// When the location services are not enabled or permissions

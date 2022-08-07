@@ -44,6 +44,9 @@ class GoogleMapComponent extends StatelessWidget {
     );
   }
 
+  // animate camera refer to
+  // https://github.com/flutter/plugins/blob/main/packages/google_maps_flutter/google_maps_flutter/example/lib/animate_camera.dart
+  // https://levelup.gitconnected.com/how-to-add-google-maps-in-a-flutter-app-and-get-the-current-location-of-the-user-dynamically-2172f0be53f6
   updateMapLocation(GoogleMapController mapController, PolylinesModel polylinesModel) async {
     print('updating map location');
     Position here = await determinePosition();
