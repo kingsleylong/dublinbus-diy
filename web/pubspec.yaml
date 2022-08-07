@@ -43,6 +43,7 @@ dependencies:
   expandable: ^5.0.1
   toggle_switch: ^2.0.1
   geolocator: ^9.0.1
+  uuid: ^3.0.6
 
 dev_dependencies:
   flutter_test:

@@ -8,6 +8,7 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../api/fetch_bus_stop.dart';
 import '../../api/location_service.dart';
+import '../../api/place_autocomplete.dart';
 import '../../models/bus_route.dart';
 import '../../models/bus_route_filter.dart';
 import '../../models/bus_stop.dart';
@@ -176,10 +177,10 @@ class _SearchFormState extends State<SearchForm> {
   Widget buildSearchableOriginDropdownList(SearchFormModel searchFormModel) {
     // DropdownSearch widget plugin: https://pub.dev/packages/dropdown_search
     // Check the examples code for usage: https://github.com/salim-lachdhaf/searchable_dropdown
-    return DropdownSearch<BusStop>(
+    return DropdownSearch<String>(
       key: searchFormModel.originSelectionKey,
-      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'ucd belfield' : filter),
-      compareFn: (i, s) => i.isEqual(s),
+      asyncItems: (filter) => autocompleteAddress(filter),
+      compareFn: (i, s) => i == s,
       dropdownDecoratorProps: const DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
           labelText: 'Origin',
@@ -189,7 +190,7 @@ class _SearchFormState extends State<SearchForm> {
       ),
       popupProps: PopupProps.menu(
         showSearchBox: true,
-        title: const Text('Search origin bus stop'),
+        title: const Text('Search origin address'),
         isFilterOnline: true,
         showSelectedItems: true,
         itemBuilder: _dropdownPopupItemBuilder,
@@ -206,7 +207,7 @@ class _SearchFormState extends State<SearchForm> {
       ),
       validator: (value) {
         if (value == null) {
-          return "Please select the origin stop";
+          return "Please search the origin address";
         }
       },
     );
@@ -226,10 +227,10 @@ class _SearchFormState extends State<SearchForm> {
       ),
       popupProps: PopupProps.menu(
         showSearchBox: true,
-        title: const Text('Search destination bus stop'),
+        title: const Text('Search destination address'),
         isFilterOnline: true,
         showSelectedItems: true,
-        itemBuilder: _dropdownPopupItemBuilder,
+        // itemBuilder: _dropdownPopupItemBuilder,
         // favoriteItemProps: FavoriteItemProps(
         //   showFavoriteItems: true,
         //   favoriteItems: (us) {
@@ -241,13 +242,13 @@ class _SearchFormState extends State<SearchForm> {
       ),
       validator: (value) {
         if (value == null) {
-          return "Please select the destination stop";
+          return "Please search the destination address";
         }
       },
     );
   }
 
-  Widget _dropdownPopupItemBuilder(BuildContext context, BusStop item, bool isSelected) {
+  Widget _dropdownPopupItemBuilder(BuildContext context, String item, bool isSelected) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       decoration: !isSelected
@@ -259,21 +260,13 @@ class _SearchFormState extends State<SearchForm> {
             ),
       child: ListTile(
         selected: isSelected,
-        title: Text(item.stopName),
-        subtitle: Text(item.stopNumber.toString()),
-        leading: CircleAvatar(
-          child: buildBusStopAvatarByType(item),
+        // title: Text(item.terms.map((e) => e.value).reduce((value, element) => '$value, $element')),
+        title: Text(item),
+        // subtitle: Text(item.stopNumber.toString()),
+        leading: const CircleAvatar(
+          child: Icon(Icons.location_searching),
         ),
       ),
     );
-  }
-
-  // use icon to distinguish the bus stop type
-  buildBusStopAvatarByType(BusStop item) {
-    if (item.type == BusStopType.matched) {
-      return const Icon(Icons.search);
-    } else {
-      return const Icon(Icons.location_searching);
-    }
   }
 }
