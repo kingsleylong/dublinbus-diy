@@ -7,9 +7,10 @@ package databaseQueries
 // The Stops array is made of type BusStop while the Shapes array is made of type
 // Shape.
 type busRoute struct {
-	Id     string    `bson:"_id" json:"_id"`
-	Stops  []BusStop `bson:"stops" json:"stops"`
-	Shapes []Shape   `bson:"shapes" json:"shapes"`
+	Id        string    `bson:"_id" json:"_id"`
+	Direction string    `bson:"direction_id" json:"direction_id"`
+	Stops     []BusStop `bson:"stops" json:"stops"`
+	Shapes    []Shape   `bson:"shapes" json:"shapes"`
 }
 
 // busRouteJSON is designed in a very similar fashion to the busRoute structure.
@@ -18,9 +19,12 @@ type busRoute struct {
 // In the busRouteJSON this array is made of type RouteStop which as a key difference
 // returns the coordinates of each bus stop as type float as opposed to strings.
 type busRouteJSON struct {
-	RouteNum string      `bson:"route_num" json:"route_num"`
-	Stops    []RouteStop `bson:"stops" json:"stops"`
-	Shapes   []ShapeJSON `bson:"shapes" json:"shapes"`
+	RouteNum   string               `bson:"route_num" json:"route_num"`
+	Stops      []RouteStop          `bson:"stops" json:"stops"`
+	Shapes     []ShapeJSON          `bson:"shapes" json:"shapes"`
+	Fares      busFares             `bson:"fares" json:"fares"`
+	TravelTime TravelTimePrediction `bson:"travel_time,omitempty" json:"travel_time,omitempty"`
+	Direction  string               `bson:"direction" json:"direction"`
 }
 
 // RouteStop represents the stop information contained within the trips_n_stops
@@ -43,14 +47,6 @@ type RouteStop struct {
 	ArrivalTime       string  `bson:"arrival_time" json:"arrival_time"`
 	DepartureTime     string  `bson:"departure_time" json:"departure_time"`
 	DistanceTravelled float64 `bson:"shape_dist_traveled" json:"shape_dist_traveled"`
-}
-
-// route is a struct that contains a means of matching the route number (referred to
-// as RouteShortName in this object) to the route id (i.e. the RouteId). All
-// fields map to type string from the database
-type route struct {
-	RouteId        string `bson:"route_id" json:"route_id"`
-	RouteShortName string `bson:"route_short_name" json:"route_short_name"`
 }
 
 // Shape is struct that contains the coordinates for each turn in a bus
@@ -112,4 +108,38 @@ type StopWithCoordinates struct {
 type findByAddressResponse struct {
 	Matched []StopWithCoordinates `bson:"matched" json:"matched"`
 	Nearby  []StopWithCoordinates `bson:"nearby" json:"nearby"`
+}
+
+// busFares is an object that is used to map the fares for a respective
+// route for each given demographic. These fare values are all floating
+// point numbers and are calculated using the CalculateFare function
+type busFares struct {
+	AdultLeap   float64 `bson:"adult_leap" json:"adult_leap"`
+	AdultCash   float64 `bson:"adult_cash" json:"adult_cash"`
+	StudentLeap float64 `bson:"student_leap" json:"student_leap"`
+	ChildLeap   float64 `bson:"child_leap" json:"child_leap"`
+	ChildCash   float64 `bson:"child_cash" json:"child_cash"`
+}
+
+type TravelTimePredictionString struct {
+	TransitTime         string `bson:"transit_time" json:"transit_time"`
+	TransitTimePlusMAE  string `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
+	TransitTimeMinusMAE string `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
+}
+
+type TravelTimePredictionFloat struct {
+	TransitTime         float64 `bson:"transit_time" json:"transit_time"`
+	TransitTimePlusMAE  float64 `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
+	TransitTimeMinusMAE float64 `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
+}
+
+type TravelTimePrediction struct {
+	Source                   string `bson:"source" json:"source"`
+	TransitTime              int    `bson:"transit_time" json:"transit_time"`
+	TransitTimePlusMAE       int    `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
+	TransitTimeMinusMAE      int    `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
+	EstimatedArrivalTime     string `bson:"estimated_arrival_time" json:"estimated_arrival_time"`
+	EstimatedArrivalHighTime string `bson:"estimated_arrival_high_time" json:"estimated_arrival_high_time"`
+	EstimatedArrivalLowTime  string `bson:"estimated_arrival_low_time" json:"estimated_arrival_low_time"`
+	ScheduledDepartureTime   string `bson:"scheduled_departure_time" json:"scheduled_departure_time"`
 }

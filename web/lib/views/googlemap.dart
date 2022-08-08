@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:web/models/map_polylines.dart';
 
+import '../models/map_polylines.dart';
+
+// Adding Google Maps to a Flutter app
+// https://codelabs.developers.google.com/codelabs/google-maps-in-flutter#0
 class GoogleMapComponent extends StatefulWidget {
   const GoogleMapComponent({Key? key}) : super(key: key);
   @override

@@ -69,16 +69,18 @@ paths:
       parameters:
         - name: "origin"
           in: "path"
-          description: "The origin bus stop number"
+          description: "The coordinates of the origin address, in the format of
+           latitude,longitude, i.e: 53.3081571,-6.2295381"
           required: true
           type: "string"
-          default: "2007" # Woodbine Road / UCD
+          default: "53.3081571,-6.2295381" # UCD Sport Center
         - name: "destination"
           in: "path"
-          description: "The destination bus stop number"
+          description: "The coordinates of the destination address, in the format of
+           latitude,longitude, i.e: 53.33821020547234, -6.259107868580934"
           required: true
           type: "string"
-          default: "6059" # The Spire of Dublin
+          default: "53.33821020547234, -6.259107868580934" # St Stephen's Green
         - name: "timeType"
           in: "path"
           description: "The type of time used to find the route"
@@ -96,7 +98,7 @@ paths:
           required: true
           type: "string"
           format: "date-time"
-          default: "07-22-2022 13:22:22"
+          default: "2022-08-03 13:22:22"
       responses:
         "200":
           description: "successful operation"
@@ -137,9 +139,12 @@ definitions:
         items:
           $ref: "#/definitions/Shape"
       travel_time:
-        type: "integer"
-        format: "int32"
+        type: "object"
+        $ref: "#/definitions/TravelTime"
         description: "The predicted travel time in minutes."
+      fares:
+        type: "object"
+        $ref: "#/definitions/Fares"
   Shape:
     type: "object"
     properties:
@@ -164,6 +169,54 @@ definitions:
         type: "string"
       message:
         type: "string"
+  Fares:
+    type: "object"
+    properties:
+      adult_leap:
+        type: "number"
+        format: "double"
+      adult_cash:
+        type: "number"
+        format: "double"
+      student_leap:
+        type: "number"
+        format: "double"
+      child_leap:
+        type: "number"
+        format: "double"
+      child_cash:
+        type: "number"
+        format: "double"
+  TravelTime:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+        enum:
+          - "static"
+          - "prediction"
+      transit_time:
+        type: "number"
+        format: "int32"
+      transit_time_plus_mae:
+        type: "number"
+        format: "int32"
+      transit_time_minus_mae:
+        type: "number"
+        format: "int32"
+      estimated_arrival_time:
+        type: "string"
+        description: "Estimated time of day to arrive at destination stop"
+      estimated_arrival_high_time:
+        type: "string"
+        description: "Estimated latest time of day to arrive at destination stop"
+      estimated_arrival_low_time:
+        type: "string"
+        description: "Estimated earliest time of day to arrive at destination stop"
+      scheduled_departure_time:
+        type: "string"
+        description: "Departure time from origin stop as per scheduled trips"
+
 externalDocs:
   description: "Find out more about Swagger"
   url: "http://swagger.io"
