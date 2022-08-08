@@ -131,10 +131,8 @@ class _SearchFormState extends State<SearchForm> {
                             'parseTime: $parseTime  ${DateFormat('yyyy-MM-dd HH:mm:ss').format(parseTime)}');
 
                         BusRouteSearchFilter searchFilter = BusRouteSearchFilter(
-                            searchFormModel
-                                .originSelectionKey.currentState?.getSelectedItem.placeId,
-                            searchFormModel
-                                .destinationSelectionKey.currentState?.getSelectedItem.placeId,
+                            searchFormModel.originPlaceDetail.toString(),
+                            searchFormModel.destinationPlaceDetail.toString(),
                             searchFormModel.timeTypes[searchFormModel.timeTypeToggleIndex ?? 0],
                             DateFormat('yyyy-MM-dd HH:mm:ss').format(parseTime));
 

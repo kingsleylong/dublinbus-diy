@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:uuid/uuid.dart';
 
+import '../api/location_service.dart';
 import '../env.dart';
 import 'bus_route.dart';
 import 'bus_route_filter.dart';
@@ -107,7 +109,26 @@ class SearchFormModel extends ChangeNotifier {
   fetchPlaceDetails(Prediction? prediction, String type) async {
     print('Places autocomplete API sessionToken: $sessionToken');
 
+    if (type == 'origin') {
+      originPlaceDetail = null;
+    } else if (type == 'destination') {
+      destinationPlaceDetail = null;
+    }
+
     if (prediction == null) return;
+
+    // TODO delay the logic to when the submit button is clicked??
+    if (prediction.placeId == 'here') {
+      Position position = await determinePosition();
+      print('get position: $position');
+      var placeDetail = PlaceDetail(position.latitude, position.longitude);
+      if (type == 'origin') {
+        originPlaceDetail = placeDetail;
+      } else if (type == 'destination') {
+        destinationPlaceDetail = placeDetail;
+      }
+      return;
+    }
     var placeId = prediction.placeId;
     String googlemapApiHost = googleMapApiHost;
     Uri request = Uri.http(
