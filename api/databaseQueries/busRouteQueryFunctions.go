@@ -158,13 +158,23 @@ func FindRoutesByStop(stopNum string) []RouteByStop {
 	coll := client.Database("BusData").Collection("trips_n_stops")
 
 	cursor, err := coll.Aggregate(ctx, bson.A{
-		bson.D{{"$match", bson.D{{"stops.stop_number", stopNum}}}},
-		bson.D{{"$sort", bson.D{{"stops.arrival_time", -1}}}},
+		bson.D{
+			{"$match",
+				bson.D{
+					{"$or",
+						bson.A{
+							bson.D{{"stops.stop_number", "2955"}},
+							bson.D{{"stops.stop_number", "7698"}},
+						},
+					},
+				},
+			},
+		},
 		bson.D{
 			{"$group",
 				bson.D{
 					{"_id", "$route.route_short_name"},
-					{"stops", bson.D{{"$first", "$stops"}}},
+					{"stops", bson.D{{"$first", "stops"}}},
 				},
 			},
 		},

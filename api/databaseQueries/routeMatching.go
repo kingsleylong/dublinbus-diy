@@ -323,13 +323,28 @@ func FindMatchingRouteForDepartureV2(destination string,
 
 	originCoordinates := TurnParameterToCoordinates(origin)
 	destinationCoordinates := TurnParameterToCoordinates(destination)
+	log.Println("Origin Coordinates:")
+	log.Print(originCoordinates)
+	log.Println("Destination Coordinates:")
+	log.Println(destinationCoordinates)
+	log.Println("---- ---- ---- ---- ---- ---- ----")
 
 	var routesFoundByStop []RouteByStop
 	routesForOrigin := make(map[string][]RouteByStop)
 	routesForDestination := make(map[string][]RouteByStop)
+	log.Println("routesForOrigin:")
+	log.Println(routesForOrigin)
+	log.Println("routesForDestination:")
+	log.Println(routesForDestination)
+	log.Println("---- ---- ---- ---- ---- ---- ----")
 
 	stopsNearDestination := FindNearbyStopsV2(destinationCoordinates)
 	stopsNearOrigin := FindNearbyStopsV2(originCoordinates)
+	log.Println("stopsNearDestination:")
+	log.Println(stopsNearDestination)
+	log.Println("stopsNearOrigin")
+	log.Println(stopsNearOrigin)
+	log.Println("---- ---- ---- ---- ---- ---- ----")
 
 	client, err := ConnectToMongo()
 
@@ -350,11 +365,18 @@ func FindMatchingRouteForDepartureV2(destination string,
 		routesFoundByStop = FindRoutesByStop(originStop.StopNumber)
 		routesForOrigin[originStop.StopNumber] = routesFoundByStop
 	}
+	log.Println("routesForOrigin:")
+	log.Println(routesForOrigin)
+	log.Println("")
 
 	for _, destinationStop := range stopsNearDestination {
 		routesFoundByStop = FindRoutesByStop(destinationStop.StopNumber)
 		routesForDestination[destinationStop.StopNumber] = routesFoundByStop
 	}
+	log.Println("routesForDestination:")
+	log.Println(routesForDestination)
+	log.Println("")
+	log.Println("---- ---- ---- ---- ---- ---- ----")
 
 	var matchedRoutes []MatchedRoute
 	var matchedRoute MatchedRoute
@@ -373,7 +395,28 @@ func FindMatchingRouteForDepartureV2(destination string,
 			}
 		}
 	}
+	log.Println("Matched Routes:")
+	log.Println(matchedRoutes)
+	log.Println("---- ---- ---- ---- ---- ---- ----")
 
+	var matchedRouteAlreadyPresent bool
+	matchedRoutesWithoutDuplicates := []MatchedRoute{matchedRoutes[0]}
+	for _, matchedRouteCheck := range matchedRoutes {
+		matchedRouteAlreadyPresent = false
+		for _, routesWithoutDuplicates := range matchedRoutesWithoutDuplicates {
+			if matchedRouteCheck.RouteNumber == routesWithoutDuplicates.RouteNumber {
+				matchedRouteAlreadyPresent = true
+			}
+		}
+		if matchedRouteAlreadyPresent {
+			continue
+		} else {
+			matchedRoutesWithoutDuplicates = append(matchedRoutesWithoutDuplicates, matchedRouteCheck)
+		}
+	}
+	log.Println("Matched Routes sans duplicates:")
+	log.Println(matchedRoutesWithoutDuplicates)
+	log.Println("---- ---- ---- ---- ---- ---- ----")
 	routes := GetRouteObjectsForDeparture(matchedRoutes, timeString)
 
 	for _, currentRoute := range routes {
