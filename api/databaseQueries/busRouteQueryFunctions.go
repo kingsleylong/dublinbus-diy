@@ -216,3 +216,10 @@ func FindRoutesByStop(stopNum string) []RouteByStop {
 
 	return routesWithoutDuplicates
 }
+
+func GetRouteObjectForDeparture(routesToSearch []MatchedRoute) []busRoute {
+
+	var routesFromDatabase []busRoute
+	
+	return routesFromDatabase
+}
