@@ -217,9 +217,67 @@ func FindRoutesByStop(stopNum string) []RouteByStop {
 	return routesWithoutDuplicates
 }
 
-func GetRouteObjectForDeparture(routesToSearch []MatchedRoute) []busRoute {
+func GetRouteObjectsForDeparture(routesToSearch []MatchedRoute, departureTime string) []busRoute {
 
 	var routesFromDatabase []busRoute
-	
+	var routeFromDatabase busRoute
+
+	client, err := ConnectToMongo()
+	if err != nil {
+		log.Println(err)
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Print(err)
+	}
+	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
+
+	collection := client.Database("BusData").Collection("trips_n_stops")
+
+	for _, route := range routesToSearch {
+		cursor, err := collection.Aggregate(ctx, bson.A{
+			bson.D{
+				{"$match",
+					bson.D{
+						{"route.route_short_name", route.RouteNumber},
+						{"stops",
+							bson.D{
+								{"$elemMatch",
+									bson.D{
+										{"stop_number", route.OriginStop},
+										{"arrival_time", bson.D{{"$gt", departureTime}}},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			bson.D{{"$sort", bson.D{{"stops.arrival_time", 1}}}},
+			bson.D{
+				{"$group",
+					bson.D{
+						{"_id", "$route.route_short_name"},
+						{"direction", bson.D{{"$first", "$direction_id"}}},
+						{"stops", bson.D{{"$first", "$stops"}}},
+						{"shapes", bson.D{{"$first", "$shapes"}}},
+					},
+				},
+			},
+		})
+		if err != nil {
+			log.Println(err)
+		}
+		for cursor.Next(ctx) {
+			err := cursor.Decode(&routeFromDatabase)
+			if err != nil {
+				log.Println(err)
+			}
+			routesFromDatabase = append(routesFromDatabase, routeFromDatabase)
+		}
+	}
+
 	return routesFromDatabase
 }

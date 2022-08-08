@@ -352,4 +352,6 @@ func FindMatchingRouteForDepartureV2(destination string,
 		}
 	}
 
+	routes := GetRouteObjectsForDeparture(matchedRoutes, timeString)
+
 }
