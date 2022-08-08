@@ -3,8 +3,8 @@ enum BusStopType {
 }
 
 class BusStop {
-  String? stopNumber;
-  String? stopName;
+  String stopNumber;
+  String stopName;
   double? latitude;
   double? longitude;
   Enum? type;
@@ -28,6 +28,6 @@ class BusStop {
   // This method is required by DropdownSearch widget to display the BusStop object.
   @override
   String toString() {
-    return '$stopName - $stopNumber';
+    return '$stopName, stop $stopNumber';
   }
 }

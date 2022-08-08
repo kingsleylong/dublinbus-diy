@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:web/models/map_polylines.dart';
-import 'package:web/views/responsive_layout.dart';
 
 import 'desktop_body.dart';
 import 'mobile_body.dart';
+import 'responsive_layout.dart';
+import 'tabs.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -21,25 +20,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: tabList.length, vsync: this);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Create a model by the provider so the child can listen to the model changes
-      // https://docs.flutter.dev/development/data-and-backend/state-mgmt/simple#changenotifierprovider
-      body: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (context) => PolylinesModel()),
-        ],
-        child: ResponsiveLayout(
-          mobileBody: MobileBody(
-              tabController: _tabController,
-          ),
-          desktopBody: DesktopBody(
+      body: ResponsiveLayout(
+        mobileBody: MobileBody(
             tabController: _tabController,
-          ),
+        ),
+        desktopBody: DesktopBody(
+          tabController: _tabController,
         ),
       ),
     );
