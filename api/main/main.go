@@ -20,6 +20,8 @@ func main() {
 	router.GET("route/matchingRoute/:origin/:destination/:timeType/:time",
 		databaseQueries.FindMatchingRoute)
 
+	router.GET("route/matchingRouteV2Test/:origin/:destination/:timeType/:time")
+
 	err := router.Run("0.0.0.0:8080")
 	if err != nil {
 		log.Fatal(err)

@@ -9,6 +9,28 @@ import (
 	"time"
 )
 
+// Global Package variables
+
+// Variables of both busRoute and busRouteJSON need to be initialised as
+// some unmarshalling from Mongo cannot be done automatically and
+// so must be done manually from one structure to another in the backend
+var result []busRoute
+var resultJSON []busRouteJSON
+var route busRouteJSON
+var stop RouteStop
+var shape ShapeJSON
+
+//var stops []RouteStop
+var shapes []ShapeJSON
+var originStopArrivalTime string
+var destinationStopArrivalTime string
+var finalStopArrivalTime string
+var firstStopArrivalTime string
+var originStopSequence int64
+var destinationStopSequence int64
+var originDistTravelled float64
+var destinationDistTravelled float64
+
 // FindMatchingRoute is a function that takes in four parameters for its
 // api call - the origin bus stop, the destination bus stop, the type of
 // time being passed in (either an arrival or departure time) and finally
@@ -28,7 +50,7 @@ func FindMatchingRoute(c *gin.Context) {
 		busRoutes := FindMatchingRouteForArrival(origin, destination, dateAndTime)
 		c.IndentedJSON(http.StatusOK, busRoutes)
 	} else if timeType == "departure" {
-		busRoutes := FindMatchingRouteForDeparture(destination, origin, dateAndTime)
+		busRoutes := FindMatchingRouteForDepartureV2(destination, origin, dateAndTime)
 		c.IndentedJSON(http.StatusOK, busRoutes)
 	} else {
 		c.IndentedJSON(http.StatusBadRequest, "Invalid time type parameter in request")
@@ -354,4 +376,67 @@ func FindMatchingRouteForDepartureV2(destination string,
 
 	routes := GetRouteObjectsForDeparture(matchedRoutes, timeString)
 
+	for _, currentRoute := range routes {
+
+		var routeCursor busRoute
+		routeCursor.Id = currentRoute.Id
+		routeCursor.Stops = currentRoute.Stops
+		routeCursor.Shapes = currentRoute.Shapes
+		routeCursor.Direction = currentRoute.Direction
+
+		route.RouteNum = currentRoute.Id
+
+		// An empty slice of stops is created with each new outer iteration so
+		// that duplicates aren't added to later routes in their stop arrays
+		route.Stops = CreateStopsSlice(currentRoute.OriginStopNumber,
+			currentRoute.DestinationStopNumber, routeCursor, stop)
+
+		// An empty slice of shapes is created here for each outer iteration for
+		// the same reason as the empty slice for the stops above
+		route.Shapes = CreateShapesSlice(routeCursor)
+
+		if originStopSequence > destinationStopSequence {
+			continue
+		}
+
+		// Use the CalculateFare function from fareCalculation.go to get the fares
+		// object for each route
+		route.Fares = CalculateFare(routeCursor,
+			currentRoute.OriginStopNumber, currentRoute.DestinationStopNumber)
+
+		if currentRoute.Direction == "1" {
+			route.Direction = "2"
+		} else {
+			route.Direction = "1"
+		}
+
+		initialTravelTime, err := GetTravelTimePrediction(route.RouteNum, date, route.Direction)
+		if err != nil {
+			log.Println(err)
+		}
+
+		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
+			destinationStopArrivalTime, firstStopArrivalTime, finalStopArrivalTime)
+
+		if journeyTravelTime.Source == "static" {
+			staticTravelTime := GetStaticTime(originStopArrivalTime, destinationStopArrivalTime)
+			journeyTravelTime.TransitTime = staticTravelTime
+			journeyTravelTime.TransitTimeMinusMAE = staticTravelTime
+			journeyTravelTime.TransitTimePlusMAE = staticTravelTime
+			journeyTravelTime.EstimatedArrivalTime = destinationStopArrivalTime
+			journeyTravelTime.EstimatedArrivalTime = destinationStopArrivalTime
+			journeyTravelTime.EstimatedArrivalTime = destinationStopArrivalTime
+		}
+		route.TravelTime = journeyTravelTime
+
+		originStopIndex, destinationStopIndex := CurateStopsSlice(origin, destination)
+		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
+		route.TravelTime.ScheduledDepartureTime = GetScheduledDepartureTime(route.Stops[0].ArrivalTime)
+
+		resultJSON = append(resultJSON, route)
+	}
+
+	resultJSON = CurateReturnedArrivalRoutes(date, resultJSON)
+
+	return resultJSON
 }

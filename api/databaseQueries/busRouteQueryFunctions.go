@@ -13,27 +13,6 @@ import (
 	"time"
 )
 
-// Global variables
-
-// Variables of both busRoute and busRouteJSON need to be initialised as
-// some unmarshalling from Mongo cannot be done automatically and
-// so must be done manually from one structure to another in the backend
-var result []busRoute
-var resultJSON []busRouteJSON
-var route busRouteJSON
-var stop RouteStop
-var shape ShapeJSON
-var stops []RouteStop
-var shapes []ShapeJSON
-var originStopArrivalTime string
-var destinationStopArrivalTime string
-var finalStopArrivalTime string
-var firstStopArrivalTime string
-var originStopSequence int64
-var destinationStopSequence int64
-var originDistTravelled float64
-var destinationDistTravelled float64
-
 func ConnectToMongo() (*mongo.Client, error) {
 
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
@@ -217,10 +196,11 @@ func FindRoutesByStop(stopNum string) []RouteByStop {
 	return routesWithoutDuplicates
 }
 
-func GetRouteObjectsForDeparture(routesToSearch []MatchedRoute, departureTime string) []busRoute {
+func GetRouteObjectsForDeparture(routesToSearch []MatchedRoute, departureTime string) []busRouteV2 {
 
-	var routesFromDatabase []busRoute
+	var routesFromDatabase []busRouteV2
 	var routeFromDatabase busRoute
+	var routeFromDatabaseWithOAndD busRouteV2
 
 	client, err := ConnectToMongo()
 	if err != nil {
@@ -275,7 +255,13 @@ func GetRouteObjectsForDeparture(routesToSearch []MatchedRoute, departureTime st
 			if err != nil {
 				log.Println(err)
 			}
-			routesFromDatabase = append(routesFromDatabase, routeFromDatabase)
+			routeFromDatabaseWithOAndD.Id = routeFromDatabase.Id
+			routeFromDatabaseWithOAndD.Stops = routeFromDatabase.Stops
+			routeFromDatabaseWithOAndD.Shapes = routeFromDatabase.Shapes
+			routeFromDatabaseWithOAndD.Direction = routeFromDatabase.Direction
+			routeFromDatabaseWithOAndD.OriginStopNumber = route.OriginStop
+			routeFromDatabaseWithOAndD.DestinationStopNumber = route.DestinationStop
+			routesFromDatabase = append(routesFromDatabase, routeFromDatabaseWithOAndD)
 		}
 	}
 
