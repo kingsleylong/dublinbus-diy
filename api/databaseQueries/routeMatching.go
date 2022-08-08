@@ -329,15 +329,6 @@ func FindMatchingRouteForDepartureV2(destination string,
 	log.Println(destinationCoordinates)
 	log.Println("---- ---- ---- ---- ---- ---- ----")
 
-	var routesFoundByStop []RouteByStop
-	routesForOrigin := make(map[string][]RouteByStop)
-	routesForDestination := make(map[string][]RouteByStop)
-	log.Println("routesForOrigin:")
-	log.Println(routesForOrigin)
-	log.Println("routesForDestination:")
-	log.Println(routesForDestination)
-	log.Println("---- ---- ---- ---- ---- ---- ----")
-
 	stopsNearDestination := FindNearbyStopsV2(destinationCoordinates)
 	stopsNearOrigin := FindNearbyStopsV2(originCoordinates)
 	log.Println("stopsNearDestination:")
@@ -346,6 +337,24 @@ func FindMatchingRouteForDepartureV2(destination string,
 	log.Println(stopsNearOrigin)
 	log.Println("---- ---- ---- ---- ---- ---- ----")
 
+	originStops := CurateNearbyStops(stopsNearOrigin, originCoordinates)
+	log.Println("Origin Stops:")
+	log.Println(originStops)
+	log.Println("")
+	destinationStops := CurateNearbyStops(stopsNearDestination, destinationCoordinates)
+	log.Println("Destination Stops:")
+	log.Println(destinationStops)
+	log.Println("")
+
+	originStopNums := []string{}
+	for _, originStop := range originStops {
+		originStopNums = append(originStopNums, originStop.StopNumber)
+	}
+
+	destinationStopNums := []string{}
+	for _, destinationStop := range destinationStops {
+		destinationStopNums = append(destinationStopNums, destinationStop.StopNumber)
+	}
 	client, err := ConnectToMongo()
 
 	// Create context variable and assign time for timeout
@@ -361,66 +370,71 @@ func FindMatchingRouteForDepartureV2(destination string,
 
 	// Aggregation pipeline created in Mongo Compass and then transformed to suit
 	// the mongo driver in Go
-	for _, originStop := range stopsNearOrigin {
-		routesFoundByStop = FindRoutesByStop(originStop.StopNumber)
-		routesForOrigin[originStop.StopNumber] = routesFoundByStop
+	collection := client.Database("BusData").Collection("trips_n_stops")
+
+	query, err := collection.Aggregate(ctx, bson.A{
+		bson.D{
+			{"$match",
+				bson.D{
+					{"stops",
+						bson.D{
+							{"$elemMatch",
+								bson.D{
+									{"stop_number",
+										bson.D{
+											{"$in",
+												originStopNums,
+											},
+										},
+									},
+									{"departure_time", bson.D{{"$gt", timeString}}},
+								},
+							},
+						},
+					},
+					{"stops.stop_number",
+						bson.D{
+							{"$in",
+								destinationStopNums,
+							},
+						},
+					},
+				},
+			},
+		},
+		bson.D{{"$sort", bson.D{{"stops.departure_time", 1}}}},
+		bson.D{
+			{"$group",
+				bson.D{
+					{"_id", "$route.route_short_name"},
+					{"stops", bson.D{{"$first", "$stops"}}},
+					{"shapes", bson.D{{"$first", "$shapes"}}},
+					{"direction", bson.D{{"$first", "$direction_id"}}},
+				},
+			},
+		},
+	})
+	if err != nil {
+		log.Println(err)
 	}
-	log.Println("routesForOrigin:")
-	log.Println(routesForOrigin)
-	log.Println("")
 
-	for _, destinationStop := range stopsNearDestination {
-		routesFoundByStop = FindRoutesByStop(destinationStop.StopNumber)
-		routesForDestination[destinationStop.StopNumber] = routesFoundByStop
+	var routes []busRoute
+
+	if err = query.All(ctx, &routes); err != nil {
+		log.Println(err)
 	}
-	log.Println("routesForDestination:")
-	log.Println(routesForDestination)
-	log.Println("")
-	log.Println("---- ---- ---- ---- ---- ---- ----")
 
-	var matchedRoutes []MatchedRoute
-	var matchedRoute MatchedRoute
+	var routesFound string
 
-	for originStop, originRoute := range routesForOrigin {
-		for _, currentOriginRoute := range originRoute {
-			for destinationStop, destinationRoute := range routesForDestination {
-				for _, currentDestinationRoute := range destinationRoute {
-					if currentDestinationRoute.Id == currentOriginRoute.Id {
-						matchedRoute.OriginStop = originStop
-						matchedRoute.DestinationStop = destinationStop
-						matchedRoute.RouteNumber = currentDestinationRoute.Id
-						matchedRoutes = append(matchedRoutes, matchedRoute)
-					}
-				}
-			}
-		}
+	for _, routeNum := range routes {
+		routesFound += routeNum.Id + " "
 	}
-	log.Println("Matched Routes:")
-	log.Println(matchedRoutes)
-	log.Println("---- ---- ---- ---- ---- ---- ----")
 
-	var matchedRouteAlreadyPresent bool
-	matchedRoutesWithoutDuplicates := []MatchedRoute{matchedRoutes[0]}
-	for _, matchedRouteCheck := range matchedRoutes {
-		matchedRouteAlreadyPresent = false
-		for _, routesWithoutDuplicates := range matchedRoutesWithoutDuplicates {
-			if matchedRouteCheck.RouteNumber == routesWithoutDuplicates.RouteNumber {
-				matchedRouteAlreadyPresent = true
-			}
-		}
-		if matchedRouteAlreadyPresent {
-			continue
-		} else {
-			matchedRoutesWithoutDuplicates = append(matchedRoutesWithoutDuplicates, matchedRouteCheck)
-		}
-	}
-	log.Println("Matched Routes sans duplicates:")
-	log.Println(matchedRoutesWithoutDuplicates)
-	log.Println("---- ---- ---- ---- ---- ---- ----")
-	routes := GetRouteObjectsForDeparture(matchedRoutes, timeString)
-
+	log.Println("Routes found: " + routesFound)
 	for _, currentRoute := range routes {
 
+		var originStopNumber string
+		var destinationStopNumber string
 		var routeCursor busRoute
 		routeCursor.Id = currentRoute.Id
 		routeCursor.Stops = currentRoute.Stops
@@ -429,10 +443,39 @@ func FindMatchingRouteForDepartureV2(destination string,
 
 		route.RouteNum = currentRoute.Id
 
+		originAndDestinationFound := false
+		for _, checkOriginStop := range route.Stops {
+			for _, originStop := range originStops {
+				if checkOriginStop.StopNumber == originStop.StopNumber {
+					log.Println("Found origin stop: " + originStop.StopNumber)
+					log.Println("")
+					for _, checkDestinationStop := range route.Stops {
+						for _, destinationStop := range destinationStops {
+							if checkDestinationStop.StopNumber == destinationStop.StopNumber {
+								log.Println("Found destination stop: " + destinationStop.StopNumber)
+								originStopNumber = originStop.StopNumber
+								destinationStopNumber = destinationStop.StopNumber
+								originAndDestinationFound = true
+								break
+							}
+						}
+						if originAndDestinationFound {
+							break
+						}
+					}
+				}
+				if originAndDestinationFound {
+					break
+				}
+			}
+			if originAndDestinationFound {
+				break
+			}
+		}
 		// An empty slice of stops is created with each new outer iteration so
 		// that duplicates aren't added to later routes in their stop arrays
-		route.Stops = CreateStopsSlice(currentRoute.OriginStopNumber,
-			currentRoute.DestinationStopNumber, routeCursor, stop)
+		route.Stops = CreateStopsSlice(originStopNumber,
+			destinationStopNumber, routeCursor, stop)
 
 		// An empty slice of shapes is created here for each outer iteration for
 		// the same reason as the empty slice for the stops above
@@ -445,7 +488,7 @@ func FindMatchingRouteForDepartureV2(destination string,
 		// Use the CalculateFare function from fareCalculation.go to get the fares
 		// object for each route
 		route.Fares = CalculateFare(routeCursor,
-			currentRoute.OriginStopNumber, currentRoute.DestinationStopNumber)
+			originStopNumber, destinationStopNumber)
 
 		if currentRoute.Direction == "1" {
 			route.Direction = "2"
@@ -478,8 +521,6 @@ func FindMatchingRouteForDepartureV2(destination string,
 
 		resultJSON = append(resultJSON, route)
 	}
-
-	resultJSON = CurateReturnedArrivalRoutes(date, resultJSON)
 
 	return resultJSON
 }
