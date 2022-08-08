@@ -12,7 +12,6 @@ class DesktopBody extends StatefulWidget {
 }
 
 class _DesktopBodyState extends State<DesktopBody> {
-  final GoogleMapComponent googleMapComponent = const GoogleMapComponent();
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +42,8 @@ class _DesktopBodyState extends State<DesktopBody> {
         // disable swiping from TabBarView
         // https://flutteragency.com/how-to-disable-swipe-tabbar-in-flutter/
         physics: const NeverScrollableScrollPhysics(),
-        children: <Widget>[
-          googleMapComponent,
+        children: const <Widget>[
+          GoogleMapComponent(),
         ]);
   }
 
