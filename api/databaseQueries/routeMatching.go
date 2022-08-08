@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"googlemaps.github.io/maps"
 	"log"
 	"net/http"
 	"time"
@@ -22,13 +23,13 @@ func FindMatchingRoute(c *gin.Context) {
 	origin := c.Param("origin")
 	destination := c.Param("destination")
 	timeType := c.Param("timeType")
-	time := c.Param("time")
+	dateAndTime := c.Param("time")
 
 	if timeType == "arrival" {
-		busRoutes := FindMatchingRouteForArrival(origin, destination, time)
+		busRoutes := FindMatchingRouteForArrival(origin, destination, dateAndTime)
 		c.IndentedJSON(http.StatusOK, busRoutes)
 	} else if timeType == "departure" {
-		busRoutes := FindMatchingRouteForDeparture(destination, origin, time)
+		busRoutes := FindMatchingRouteForDeparture(destination, origin, dateAndTime)
 		c.IndentedJSON(http.StatusOK, busRoutes)
 	} else {
 		c.IndentedJSON(http.StatusBadRequest, "Invalid time type parameter in request")
@@ -293,4 +294,60 @@ func FindMatchingRouteForArrival(origin string,
 	resultJSON = CurateReturnedArrivalRoutes(date, resultJSON)
 
 	return resultJSON
+}
+
+func FindMatchingRouteForDepartureV2(destination maps.LatLng,
+	origin maps.LatLng,
+	date string) []busRouteJSON {
+
+	var routesFoundByStop []RouteByStop
+	routesForOrigin := make(map[string][]RouteByStop)
+	routesForDestination := make(map[string][]RouteByStop)
+
+	stopsNearDestination := FindNearbyStopsV2(destination)
+	stopsNearOrigin := FindNearbyStopsV2(origin)
+
+	client, err := ConnectToMongo()
+
+	// Create context variable and assign time for timeout
+	// Log any resulting error here also
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Print(err)
+	}
+	defer client.Disconnect(ctx) // defer has rest of function complete before disconnect
+
+	timeString := GetTimeString(date)
+
+	// Aggregation pipeline created in Mongo Compass and then transformed to suit
+	// the mongo driver in Go
+	for _, originStop := range stopsNearOrigin {
+		routesFoundByStop = FindRoutesByStop(originStop.StopNumber)
+		routesForOrigin[originStop.StopNumber] = routesFoundByStop
+	}
+
+	for _, destinationStop := range stopsNearDestination {
+		routesFoundByStop = FindRoutesByStop(destinationStop.StopNumber)
+		routesForDestination[destinationStop.StopNumber] = routesFoundByStop
+	}
+
+	var matchedRoutes []MatchedRoute
+	var matchedRoute MatchedRoute
+
+	for originStop, originRoute := range routesForOrigin {
+		for _, currentOriginRoute := range originRoute {
+			for destinationStop, destinationRoute := range routesForDestination {
+				for _, currentDestinationRoute := range destinationRoute {
+					if currentDestinationRoute.Id == currentOriginRoute.Id {
+						matchedRoute.OriginStop = originStop
+						matchedRoute.DestinationStop = destinationStop
+						matchedRoute.RouteNumber = currentDestinationRoute.Id
+						matchedRoutes = append(matchedRoutes, matchedRoute)
+					}
+				}
+			}
+		}
+	}
+
 }

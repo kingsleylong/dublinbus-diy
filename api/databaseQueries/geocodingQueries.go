@@ -131,3 +131,61 @@ func FindNearbyStops(stopSearch string) []StopWithCoordinates {
 
 	return matchingStops
 }
+
+func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
+
+	halfMileAdjustment := 0.008
+
+	minLat := stopCoordinates.Lat - halfMileAdjustment
+	maxLat := stopCoordinates.Lat + halfMileAdjustment
+	minLon := stopCoordinates.Lng - halfMileAdjustment
+	maxLon := stopCoordinates.Lng + halfMileAdjustment
+
+	client, err := ConnectToMongo()
+
+	// Create context variable and assign time for timeout
+	// Log any resulting error here also
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Print(err)
+	}
+	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
+
+	var matchingStops []StopWithCoordinates
+	var currentStop BusStop
+	var currentStopWithCoordinates StopWithCoordinates
+
+	dbPointer := client.Database("BusData")
+	collectionPointer := dbPointer.Collection("stops")
+
+	stops, err := collectionPointer.Find(ctx, bson.D{{}})
+	if err != nil {
+		log.Print(err)
+	}
+
+	// The coordinates from the database are read in a string
+	// representation and so can't be automatically unmarshalled
+	// into floats, so they have to be read in as a BusStop before
+	// being read in as a StopWithCoordinates
+	for stops.Next(ctx) {
+		stops.Decode(&currentStop)
+		currentLat, _ := strconv.ParseFloat(currentStop.StopLat, 64)
+		currentLon, _ := strconv.ParseFloat(currentStop.StopLon, 64)
+		if currentLon > minLon && currentLat > minLat {
+			if currentLat < maxLat && currentLon < maxLon {
+				currentStopWithCoordinates.StopID = currentStop.StopId
+				currentStopWithCoordinates.StopNumber = currentStop.StopNumber
+				currentStopWithCoordinates.StopName = currentStop.StopName
+				currentStopWithCoordinates.StopLat = currentLat
+				currentStopWithCoordinates.StopLon = currentLon
+				matchingStops = append(matchingStops, currentStopWithCoordinates)
+			}
+		}
+		if len(matchingStops) >= 5 {
+			break
+		}
+	}
+
+	return matchingStops
+}
