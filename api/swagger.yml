@@ -70,17 +70,17 @@ paths:
         - name: "origin"
           in: "path"
           description: "The coordinates of the origin address, in the format of
-           latitude,longitude, i.e: 53.3081571,-6.2295381"
+           latitude,longitude, i.e: 53.3081571,-6.2295381 # UCD Sport Center"
           required: true
           type: "string"
-          default: "53.3081571,-6.2295381" # UCD Sport Center
+          default: "53.3081571,-6.2295381"
         - name: "destination"
           in: "path"
           description: "The coordinates of the destination address, in the format of
-           latitude,longitude, i.e: 53.33821020547234, -6.259107868580934"
+           latitude,longitude, i.e: 53.33821020547234,-6.259107868580934 # St Stephen's Green"
           required: true
           type: "string"
-          default: "53.33821020547234, -6.259107868580934" # St Stephen's Green
+          default: "53.33821020547234,-6.259107868580934"
         - name: "timeType"
           in: "path"
           description: "The type of time used to find the route"
