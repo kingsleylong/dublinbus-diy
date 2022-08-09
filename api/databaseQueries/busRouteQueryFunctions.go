@@ -13,27 +13,6 @@ import (
 	"time"
 )
 
-// Global variables
-
-// Variables of both busRoute and busRouteJSON need to be initialised as
-// some unmarshalling from Mongo cannot be done automatically and
-// so must be done manually from one structure to another in the backend
-var result []busRoute
-var resultJSON []busRouteJSON
-var route busRouteJSON
-var stop RouteStop
-var shape ShapeJSON
-var stops []RouteStop
-var shapes []ShapeJSON
-var originStopArrivalTime string
-var destinationStopArrivalTime string
-var finalStopArrivalTime string
-var firstStopArrivalTime string
-var originStopSequence int64
-var destinationStopSequence int64
-var originDistTravelled float64
-var destinationDistTravelled float64
-
 func ConnectToMongo() (*mongo.Client, error) {
 
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
@@ -179,13 +158,23 @@ func FindRoutesByStop(stopNum string) []RouteByStop {
 	coll := client.Database("BusData").Collection("trips_n_stops")
 
 	cursor, err := coll.Aggregate(ctx, bson.A{
-		bson.D{{"$match", bson.D{{"stops.stop_number", stopNum}}}},
-		bson.D{{"$sort", bson.D{{"stops.arrival_time", -1}}}},
+		bson.D{
+			{"$match",
+				bson.D{
+					{"$or",
+						bson.A{
+							bson.D{{"stops.stop_number", "2955"}},
+							bson.D{{"stops.stop_number", "7698"}},
+						},
+					},
+				},
+			},
+		},
 		bson.D{
 			{"$group",
 				bson.D{
 					{"_id", "$route.route_short_name"},
-					{"stops", bson.D{{"$first", "$stops"}}},
+					{"stops", bson.D{{"$first", "stops"}}},
 				},
 			},
 		},
@@ -215,4 +204,76 @@ func FindRoutesByStop(stopNum string) []RouteByStop {
 	}
 
 	return routesWithoutDuplicates
+}
+
+func GetRouteObjectsForDeparture(routesToSearch []MatchedRoute, departureTime string) []busRouteV2 {
+
+	var routesFromDatabase []busRouteV2
+	var routeFromDatabase busRoute
+	var routeFromDatabaseWithOAndD busRouteV2
+
+	client, err := ConnectToMongo()
+	if err != nil {
+		log.Println(err)
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Print(err)
+	}
+	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
+
+	collection := client.Database("BusData").Collection("trips_n_stops")
+
+	for _, route := range routesToSearch {
+		cursor, err := collection.Aggregate(ctx, bson.A{
+			bson.D{
+				{"$match",
+					bson.D{
+						{"route.route_short_name", route.RouteNumber},
+						{"stops",
+							bson.D{
+								{"$elemMatch",
+									bson.D{
+										{"stop_number", route.OriginStop},
+										{"arrival_time", bson.D{{"$gt", departureTime}}},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			bson.D{{"$sort", bson.D{{"stops.arrival_time", 1}}}},
+			bson.D{
+				{"$group",
+					bson.D{
+						{"_id", "$route.route_short_name"},
+						{"direction", bson.D{{"$first", "$direction_id"}}},
+						{"stops", bson.D{{"$first", "$stops"}}},
+						{"shapes", bson.D{{"$first", "$shapes"}}},
+					},
+				},
+			},
+		})
+		if err != nil {
+			log.Println(err)
+		}
+		for cursor.Next(ctx) {
+			err := cursor.Decode(&routeFromDatabase)
+			if err != nil {
+				log.Println(err)
+			}
+			routeFromDatabaseWithOAndD.Id = routeFromDatabase.Id
+			routeFromDatabaseWithOAndD.Stops = routeFromDatabase.Stops
+			routeFromDatabaseWithOAndD.Shapes = routeFromDatabase.Shapes
+			routeFromDatabaseWithOAndD.Direction = routeFromDatabase.Direction
+			routeFromDatabaseWithOAndD.OriginStopNumber = route.OriginStop
+			routeFromDatabaseWithOAndD.DestinationStopNumber = route.DestinationStop
+			routesFromDatabase = append(routesFromDatabase, routeFromDatabaseWithOAndD)
+		}
+	}
+
+	return routesFromDatabase
 }

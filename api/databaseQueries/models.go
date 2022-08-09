@@ -13,6 +13,15 @@ type busRoute struct {
 	Shapes    []Shape   `bson:"shapes" json:"shapes"`
 }
 
+type busRouteV2 struct {
+	Id                    string    `bson:"_id" json:"_id"`
+	Direction             string    `bson:"direction_id" json:"direction_id"`
+	Stops                 []BusStop `bson:"stops" json:"stops"`
+	Shapes                []Shape   `bson:"shapes" json:"shapes"`
+	OriginStopNumber      string    `bson:"origin_stop_number" json:"origin_stop_number"`
+	DestinationStopNumber string    `bson:"destination_stop_number" json:"destination_stop_number"`
+}
+
 // busRouteJSON is designed in a very similar fashion to the busRoute structure.
 // The ID field mirrors that of the busRoute struct and the Shapes array is exactly
 // the same also. The main difference between these structures is in the Stops array.
@@ -26,6 +35,15 @@ type busRouteJSON struct {
 	TravelTime TravelTimePrediction `bson:"travel_time,omitempty" json:"travel_time,omitempty"`
 	Direction  string               `bson:"direction" json:"direction"`
 }
+
+//type busRouteJSONV2 struct {
+//	RouteNum   string               `bson:"route_num" json:"route_num"`
+//	Stops      []RouteStop          `bson:"stops" json:"stops"`
+//	Shapes     []ShapeJSON          `bson:"shapes" json:"shapes"`
+//	Fares      busFares             `bson:"fares" json:"fares"`
+//	TravelTime TravelTimePrediction `bson:"travel_time,omitempty" json:"travel_time,omitempty"`
+//	Direction  string               `bson:"direction" json:"direction"`
+//}
 
 // RouteStop represents the stop information contained within the trips_n_stops
 // collection in MongoDB. The information contains the StopId that can be used
