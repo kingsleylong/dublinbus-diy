@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'googlemap.dart';
 import 'tab_views.dart';
 import 'about_us.dart';
+import 'fav_page.dart';
+import '../views/tabs/route_options.dart';
 
 class DesktopBody extends StatefulWidget {
   const DesktopBody({Key? key, required this.tabController}) : super(key: key);
@@ -28,16 +30,15 @@ class _DesktopBodyState extends State<DesktopBody> {
                 );
               },
             ),
-            // ElevatedButton(
-            //   child: const Text('Favourites'),
-            //   onPressed: () {
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(builder: (context) => FavoritePage()),
-            //     );
-            //   },
-            // ),
-            // IconButton(icon: Icon(Icons.favorite), onPressed: () {}),
+            ElevatedButton(
+              child: const Text('Favourites'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RouteFavOptions()),
+                );
+              },
+            ),
           ],
         ),
         body: Row(
@@ -125,17 +126,16 @@ void onItemPressed(BuildContext context, {required int index}) {
 }
 
 // change the homepage to the favourite routes page
-// void onItemPressed2(BuildContext context, {required int index}) {
-//   Navigator.pop(context);
+void onItemPressed2(BuildContext context, {required int index}) {
+  Navigator.pop(context);
 
-//   switch (index) {
-//     case 0:
-//       Navigator.push(
-//           context, MaterialPageRoute(builder: (context) => FavoritePage()));
-//       break;
-//     default:
-//       Navigator.pop(context);
-//       break;
-//   }
-// }
-// // }
+  switch (index) {
+    case 0:
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => RouteFavOptions()));
+      break;
+    default:
+      Navigator.pop(context);
+      break;
+  }
+}
