@@ -52,6 +52,8 @@ class FavoritePage extends State<RouteFavOptions> {
         ),
         body: Row(
           children: [
+            Expanded(child: createListItemFromLocalStorage()),
+            const Expanded(child: GoogleMapMobileComponent()),
             // Column(
             //   Container(
             // padding: EdgeInsets.all(100),
@@ -129,8 +131,7 @@ class FavoritePage extends State<RouteFavOptions> {
                                   ElevatedButton(
                                     onPressed: () {
                                       storage.ready;
-                                      print(
-                                          "deleting the route from favourite");
+                                      print("deleting the route from favourite");
                                       storage.deleteItem('1');
                                       // this deletes from the array - it doesn't save to localstorage
                                       // setState(() {
@@ -139,8 +140,7 @@ class FavoritePage extends State<RouteFavOptions> {
                                       // });
                                     },
                                     style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all<Color>(
+                                      backgroundColor: MaterialStateProperty.all<Color>(
                                         Colors.white,
                                       ),
                                     ),
@@ -162,6 +162,46 @@ class FavoritePage extends State<RouteFavOptions> {
     //     ],
     //   ),
     // );
+  }
+
+  createListItemFromLocalStorage() {
+    return FutureBuilder(
+        future: storage.ready,
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.data == null) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          if (!initialized) {
+            var items = storage.getItem('1');
+
+            if (items != null) {
+              // convert into list
+              favoriteRouteList.add(items);
+              // list.items = List<TodoItem>.from(
+              //   (items as List).map(
+              //         (item) =>
+              //         TodoItem(
+              //           title: item['title'],
+              //           done: item['done'],
+              //         ),
+              //   ),
+              // );
+            }
+            // favoriteRouteList = [];
+
+            initialized = true;
+          }
+
+          return ListView(
+            // favoriteRouteList
+            children: [
+              Text(favoriteRouteList[0]),
+            ],
+          );
+        });
   }
 }
 // ];

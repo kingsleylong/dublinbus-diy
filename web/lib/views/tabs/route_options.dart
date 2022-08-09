@@ -352,10 +352,10 @@ class _RouteOptionsState extends State<RouteOptions> {
     );
   }
 
-  // void addItemsToLocalStorage() {
-  //   final item = json.encode(RouteItem(route: , favourite: false));
-  //   storage.setItem('info', item);
-  // }
+// void addItemsToLocalStorage() {
+//   final item = json.encode(RouteItem(route: , favourite: false));
+//   storage.setItem('info', item);
+// }
 }
 
 // class RouteFavOptions extends StatefulWidget {
