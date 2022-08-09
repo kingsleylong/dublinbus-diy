@@ -172,3 +172,12 @@ type MatchedRoute struct {
 	DestinationStop string `bson:"destination_stop" json:"destination_stop"`
 	RouteNumber     string `bson:"route_number" json:"route_number"`
 }
+
+type GeolocatedStop struct {
+	ID         string `bson:"_id,omitempty" json:"_id,omitempty"`
+	StopId     string `bson:"stop_id" json:"stop_id"`
+	StopName   string `bson:"stop_name" json:"stop_name"`
+	StopNumber string `bson:"stop_number" json:"stop_number"`
+	StopLat    string `bson:"stop_lat" json:"stop_lat"`
+	StopLon    string `bson:"stop_lon" json:"stop_lon"`
+}
