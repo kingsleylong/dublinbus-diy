@@ -54,109 +54,67 @@ class FavoritePage extends State<RouteFavOptions> {
           children: [
             Expanded(child: createListItemFromLocalStorage()),
             const Expanded(child: GoogleMapMobileComponent()),
-            // Column(
-            //   Container(
-            // padding: EdgeInsets.all(100),
-            // constraints: BoxConstraints.expand(),
-
-            // child: FutureBuilder(
-            //   future: storage.ready,
-            //   builder: (BuildContext context, AsyncSnapshot snapshot) {
-            //     if (snapshot.data == null) {
-            //       return Center(
-            //         child: CircularProgressIndicator(),
-            //       );
-            //     }
-
-            // children:
-            // [
-            // if (!initialized) {
-            //   var items = storage.getItem('favourite');
-
-            //   if (items != null) {
-            //     list.favoriteRouteList = List<RouteItem>.from(
-            //       (items as List).map(
-            //         (item) => RouteItem(
-            //           route: item['Route'],
-            //           favourite: item['favourite_route'],
-            //         ),
-            //       ),
-            //     );
-            //   }
-
-            //   initialized = true;
-            // }
-            // List<Widget> widgets = list.favoriteRouteList.map((item) {
-            //   return CheckboxListTile(
-            //     value: item.favourite,
-            //     title: Text(item.route),
-            //     selected: item.favourite,
-            //     onChanged: (_) {
-            //       _toggleItem(item);
-            //     },
-            //   );
-            // }).toList();
-
-            // return Text("No fav route");
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.only(top: 50),
-                children: [
-                  favoriteRouteList.isEmpty
-                      ? const Center(
-                          child: Text(
-                            'There are no favorites routes!',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        )
-                      : ListView.builder(
-                          scrollDirection: Axis.vertical,
-                          shrinkWrap: true,
-                          itemCount: favoriteRouteList.length,
-                          itemBuilder: (context, index) {
-                            return Card(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(20.0),
-                                      child: Text(
-                                        // storage.ready;
-                                        // storage.getItem('1'),
-                                        favoriteRouteList[index],
-                                        style: const TextStyle(fontSize: 19.0),
-                                      ),
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      storage.ready;
-                                      print("deleting the route from favourite");
-                                      storage.deleteItem('1');
-                                      // this deletes from the array - it doesn't save to localstorage
-                                      // setState(() {
-                                      //   favoriteRouteList
-                                      //       .remove(favoriteRouteList[index]);
-                                      // });
-                                    },
-                                    style: ButtonStyle(
-                                      backgroundColor: MaterialStateProperty.all<Color>(
-                                        Colors.white,
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.remove_circle,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                ],
-              ),
-            ),
+            // Expanded(
+            //   child: ListView(
+            //     padding: EdgeInsets.only(top: 50),
+            //     children: [
+            //       favoriteRouteList.isEmpty
+            //           ? const Center(
+            //               child: Text(
+            //                 'There are no favorites routes!',
+            //                 style: TextStyle(color: Colors.black),
+            //               ),
+            //             )
+            //           : ListView.builder(
+            //               scrollDirection: Axis.vertical,
+            //               shrinkWrap: true,
+            //               itemCount: favoriteRouteList.length,
+            //               itemBuilder: (context, index) {
+            //                 return Card(
+            //                   child: Row(
+            //                     children: [
+            //                       Expanded(
+            //                         child: Padding(
+            //                           padding: const EdgeInsets.all(20.0),
+            //                           child: Text(
+            //                             // storage.ready;
+            //                             // storage.getItem('1'),
+            //                             favoriteRouteList[index],
+            //                             style: const TextStyle(fontSize: 19.0),
+            //                           ),
+            //                         ),
+            //                       ),
+            //                       ElevatedButton(
+            //                         onPressed: () {
+            //                           storage.ready;
+            //                           print(
+            //                               "deleting the route from favourite");
+            //                           storage.deleteItem('1');
+            //                           // this deletes from the array - it doesn't save to localstorage
+            //                           // setState(() {
+            //                           //   favoriteRouteList
+            //                           //       .remove(favoriteRouteList[index]);
+            //                           // });
+            //                         },
+            //                         style: ButtonStyle(
+            //                           backgroundColor:
+            //                               MaterialStateProperty.all<Color>(
+            //                             Colors.white,
+            //                           ),
+            //                         ),
+            //                         child: const Icon(
+            //                           Icons.remove_circle,
+            //                           color: Colors.red,
+            //                         ),
+            //                       ),
+            //                     ],
+            //                   ),
+            //                 );
+            //               },
+            //             ),
+            //     ],
+            //   ),
+            // ),
           ],
         ));
     //     ],
@@ -175,22 +133,14 @@ class FavoritePage extends State<RouteFavOptions> {
           }
 
           if (!initialized) {
-            var items = storage.getItem('1');
+            var items = storage.getItem('=');
+            items = storage.getItem('?');
+            items = storage.getItem('1');
 
             if (items != null) {
               // convert into list
               favoriteRouteList.add(items);
-              // list.items = List<TodoItem>.from(
-              //   (items as List).map(
-              //         (item) =>
-              //         TodoItem(
-              //           title: item['title'],
-              //           done: item['done'],
-              //         ),
-              //   ),
-              // );
             }
-            // favoriteRouteList = [];
 
             initialized = true;
           }
@@ -198,16 +148,9 @@ class FavoritePage extends State<RouteFavOptions> {
           return ListView(
             // favoriteRouteList
             children: [
-              Text(favoriteRouteList[0]),
+              Text("All favourite routes are" + favoriteRouteList[0]),
             ],
           );
         });
   }
 }
-// ];
-// },
-// );
-// ),
-// );
-// }
-// }
