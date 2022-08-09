@@ -143,3 +143,14 @@ type TravelTimePrediction struct {
 	EstimatedArrivalLowTime  string `bson:"estimated_arrival_low_time" json:"estimated_arrival_low_time"`
 	ScheduledDepartureTime   string `bson:"scheduled_departure_time" json:"scheduled_departure_time"`
 }
+
+type RouteByStop struct {
+	Id    string    `bson:"_id" json:"_id"`
+	Stops []BusStop `bson:"stops" json:"stops"`
+}
+
+type MatchedRoute struct {
+	OriginStop      string `bson:"origin_stop" json:"origin_stop"`
+	DestinationStop string `bson:"destination_stop" json:"destination_stop"`
+	RouteNumber     string `bson:"route_number" json:"route_number"`
+}
