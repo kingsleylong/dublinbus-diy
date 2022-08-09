@@ -47,26 +47,6 @@ class RouteOptions extends StatefulWidget {
 }
 
 class _RouteOptionsState extends State<RouteOptions> {
-  // Box box = Hive.box(favRoutes);
-  // bool _isFavorite = false;
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _isFavorite = box.get(0) ?? false;
-  // }
-
-  // trying to use the localstorage package
-  // void initState() {
-  //   super.initState();
-
-  //   storage.ready.then((_) => printStorage());
-  //   //storage.setItem("level", 0);
-  //   printStorage();
-  // }
-
-  // void printStorage() {
-  //   print("level stored: " + storage.getItem("level").toString());
-  // }
   final RouteList list = new RouteList();
   final LocalStorage storage = new LocalStorage('fav_routes');
   bool initialized = false;
@@ -112,44 +92,12 @@ class _RouteOptionsState extends State<RouteOptions> {
 
   @override
   Widget build(BuildContext context) {
-    // if (box == null) {
-    //   return CircularProgressIndicator();
-    // } else
-    //   Box box = Hive.box(favRoutes);
     if (Provider.of<SearchFormModel>(context).visibilityRouteOptions) {
       return Consumer<SearchFormModel>(
         builder: (context, model, child) => SingleChildScrollView(
           child: _buildRouteOptionPanels(model.busRouteItems),
         ),
       );
-      //   const Expanded(
-      //     child: Padding(
-      //       padding: EdgeInsets.all(8),
-      //       child: RouteOptions(),
-      //     ),
-      //   ),
-      // ConstrainedBox(
-      //   constraints: const BoxConstraints(
-      //     minHeight: 2.0,
-      //   ),
-      // ),
-
-      // return FutureBuilder<List<BusRoute>>(
-      //   future: Provider.of<SearchFormModel>(context).busRoutes,
-      //   builder: (context, snapshot) {
-      //     if (snapshot.hasData) {
-      //       return SingleChildScrollView(
-      //         child: _buildRouteOptionPanels(snapshot.data!),
-      //       );
-      //     } else if (snapshot.hasError) {
-      //       return Text('${snapshot.error}');
-      //     }
-      //     // By default, show a loading spinner.
-      //     return const Center(
-      //       child: CircularProgressIndicator(),
-      //     );
-      //   },
-      // );
     } else {
       return Container();
     }
@@ -205,12 +153,7 @@ class _RouteOptionsState extends State<RouteOptions> {
                           // this should save the route to localstorage
                           storage.ready;
                           print("setting the route as favourite");
-                          storage.setItem('1', busRoute.routeNumber);
-//                        this saves to the array - it doesn't save to localstorage
-                          // setState(() {
-                          //   favoriteRouteList.add(busRoute.routeNumber);
-                          //   print(favoriteRouteList);
-                          // });
+                          storage.setItem('=', busRoute.routeNumber);
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
@@ -222,89 +165,6 @@ class _RouteOptionsState extends State<RouteOptions> {
                           color: Colors.red,
                         ),
                       ),
-                      // elevated button to save fav route
-                      // ElevatedButton(
-
-                      //   onPressed: _addItem(busRoute.routeNumber),
-                      //   style: ButtonStyle(
-                      //     backgroundColor: MaterialStateProperty.all<Color>(
-                      //       Colors.white,
-                      //     ),
-                      //   ),
-                      //   child: const Icon(
-                      //     Icons.favorite,
-                      //     color: Colors.red,
-                      //   ),
-                      // ),
-                      // {
-                      //   // print(favoriteRouteList);
-                      //   setState(() {
-                      //     // favoriteRouteList.add(busRoute.routeNumber);
-                      //     if (!initialized) {
-                      //       var items = storage.getItem('favourite');
-
-                      //       if (items != null) {
-                      //         list.favoriteRouteList = List<RouteItem>.from(
-                      //           (items as List).map(
-                      //             (item) => RouteItem(
-                      //               route: item['Route'],
-                      //               favourite: item['favourite_route'],
-                      //             ),
-                      //           ),
-                      //         );
-                      //       }
-
-                      //       initialized = true;
-                      //     }
-                      //     List<Widget> widgets =
-                      //         list.favoriteRouteList.map((item) {
-                      //       return CheckboxListTile(
-                      //         value: item.favourite,
-                      //         title: Text(item.route),
-                      //         selected: item.favourite,
-                      //         onChanged: (_) {
-                      //           _toggleItem(item);
-                      //         },
-                      //       );
-                      //     }).toList();
-
-                      //     // print(favoriteRouteList);
-                      //   });
-                      // },
-
-                      // icon button to save fav
-                      // IconButton(
-                      //   icon: Icon(Icons.favorite_border),
-                      //   onPressed: printStorage,
-                      //   color: Colors.red,)
-                      //  () {
-                      //   // setState(() {
-                      //   //   _isFavorite = !_isFavorite;
-                      //   // });
-
-                      //   // box.put(0, _isFavorite);
-                      // },
-
-                      // ElevatedButton(
-                      //   onPressed: () {},
-                      //   child: Icon(Icons.favorite_border),
-                      // )
-                      // FavoriteButton(
-                      //   isFavorite: false,
-                      //   iconSize: 10,
-                      //   valueChanged: (_isFavorite) {
-                      //     print('Is Favorite : $_isFavorite');
-                      //   },
-                      // ),
-                      // ],
-                      // ),
-                      // Text(
-                      //   busRoute.stops[0].stopName,
-                      //   style: const TextStyle(
-                      //     fontSize: 16,
-                      //     fontWeight: FontWeight.bold,
-                      //   ),
-                      // ),
                       Row(
                         children: [
                           const Icon(Icons.timer_outlined),
@@ -351,116 +211,4 @@ class _RouteOptionsState extends State<RouteOptions> {
       }).toList(),
     );
   }
-
-// void addItemsToLocalStorage() {
-//   final item = json.encode(RouteItem(route: , favourite: false));
-//   storage.setItem('info', item);
-// }
 }
-
-// class RouteFavOptions extends StatefulWidget {
-//   const RouteFavOptions({Key? key}) : super(key: key);
-
-//   @override
-//   State<RouteFavOptions> createState() => FavoritePage();
-// }
-
-// // create the fav page
-// class FavoritePage extends State<RouteFavOptions> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//         appBar: AppBar(
-//           title: const Text("Favourites"),
-//           centerTitle: true,
-//           backgroundColor: Colors.blue,
-//         ),
-//         drawer: new Drawer(),
-//         body: TabBarView(
-//           children: [
-//             favoriteRouteList.isEmpty
-//                 ? const Center(
-//                     child: Text(
-//                       'There are no favorites yet!',
-//                       style: TextStyle(color: Colors.black),
-//                     ),
-//                   )
-//                 : ListView.builder(
-//                     itemCount: favoriteRouteList.length,
-//                     itemBuilder: (context, index) {
-//                       return Card(
-//                         child: Row(
-//                           children: [
-//                             Expanded(
-//                               child: Padding(
-//                                 padding: const EdgeInsets.all(20.0),
-//                                 child: Text(
-//                                   favoriteRouteList[index],
-//                                   style: const TextStyle(fontSize: 19.0),
-//                                 ),
-//                               ),
-//                             ),
-//                             ElevatedButton(
-//                               onPressed: () {
-//                                 setState(() {
-//                                   favoriteRouteList
-//                                       .remove(favoriteRouteList[index]);
-//                                 });
-//                               },
-//                               style: ButtonStyle(
-//                                 backgroundColor:
-//                                     MaterialStateProperty.all<Color>(
-//                                   Colors.deepPurple,
-//                                 ),
-//                               ),
-//                               child: const Icon(
-//                                 Icons.remove,
-//                                 color: Colors.white,
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                       );
-//                     },
-//                   ),
-//           ],
-//         ));
-//   }
-// }
-
-// this is for hivebox ,
-// drawer: new Drawer(),
-//       body: ValueListenableBuilder(
-//         valueListenable: Hive.box(favRoutes).listenable(),
-//         builder: (context, box, child) {
-//           List posts = List.from(box.values);
-//           return ListView(
-//             padding: const EdgeInsets.all(16.0),
-//             children: [
-//               Text("This is fav page"),
-//               ...posts.map(
-//                 (p) => ListTile(
-//                   title: Text(p['title']),
-//                   trailing: IconButton(
-//                     icon: Icon(
-//                       Hive.box(favRoutes).containsKey(p['id'])
-//                           ? Icons.favorite
-//                           : Icons.favorite_border,
-//                     ),
-//                     onPressed: () {
-//                       if (Hive.box(favRoutes).containsKey(p['id'])) {
-//                         Hive.box(favRoutes).delete(p['id']);
-//                       } else {
-//                         Hive.box(favRoutes).put(p['id'], p);
-//                       }
-//                     },
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
