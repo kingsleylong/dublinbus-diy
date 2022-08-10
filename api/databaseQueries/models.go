@@ -7,10 +7,19 @@ package databaseQueries
 // The Stops array is made of type BusStop while the Shapes array is made of type
 // Shape.
 type busRoute struct {
-	Id        string    `bson:"_id" json:"_id"`
+	Id        []string  `bson:"_id" json:"_id"`
 	Direction string    `bson:"direction_id" json:"direction_id"`
 	Stops     []BusStop `bson:"stops" json:"stops"`
 	Shapes    []Shape   `bson:"shapes" json:"shapes"`
+}
+
+type busRouteV2 struct {
+	Id                    string    `bson:"_id" json:"_id"`
+	Direction             string    `bson:"direction_id" json:"direction_id"`
+	Stops                 []BusStop `bson:"stops" json:"stops"`
+	Shapes                []Shape   `bson:"shapes" json:"shapes"`
+	OriginStopNumber      string    `bson:"origin_stop_number" json:"origin_stop_number"`
+	DestinationStopNumber string    `bson:"destination_stop_number" json:"destination_stop_number"`
 }
 
 // busRouteJSON is designed in a very similar fashion to the busRoute structure.
@@ -26,6 +35,15 @@ type busRouteJSON struct {
 	TravelTime TravelTimePrediction `bson:"travel_time,omitempty" json:"travel_time,omitempty"`
 	Direction  string               `bson:"direction" json:"direction"`
 }
+
+//type busRouteJSONV2 struct {
+//	RouteNum   string               `bson:"route_num" json:"route_num"`
+//	Stops      []RouteStop          `bson:"stops" json:"stops"`
+//	Shapes     []ShapeJSON          `bson:"shapes" json:"shapes"`
+//	Fares      busFares             `bson:"fares" json:"fares"`
+//	TravelTime TravelTimePrediction `bson:"travel_time,omitempty" json:"travel_time,omitempty"`
+//	Direction  string               `bson:"direction" json:"direction"`
+//}
 
 // RouteStop represents the stop information contained within the trips_n_stops
 // collection in MongoDB. The information contains the StopId that can be used
@@ -153,4 +171,13 @@ type MatchedRoute struct {
 	OriginStop      string `bson:"origin_stop" json:"origin_stop"`
 	DestinationStop string `bson:"destination_stop" json:"destination_stop"`
 	RouteNumber     string `bson:"route_number" json:"route_number"`
+}
+
+type GeolocatedStop struct {
+	ID         string `bson:"_id,omitempty" json:"_id,omitempty"`
+	StopId     string `bson:"stop_id" json:"stop_id"`
+	StopName   string `bson:"stop_name" json:"stop_name"`
+	StopNumber string `bson:"stop_number" json:"stop_number"`
+	StopLat    string `bson:"stop_lat" json:"stop_lat"`
+	StopLon    string `bson:"stop_lon" json:"stop_lon"`
 }

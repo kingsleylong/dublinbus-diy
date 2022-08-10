@@ -2,11 +2,14 @@ package databaseQueries
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"googlemaps.github.io/maps"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -141,8 +144,26 @@ func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
 	minLon := stopCoordinates.Lng - halfMileAdjustment
 	maxLon := stopCoordinates.Lng + halfMileAdjustment
 
+	SWLatString := strconv.FormatFloat(minLat, 'f', 6, 64)
+	SWLonString := strconv.FormatFloat(minLon, 'f', 6, 64)
+	NELatString := strconv.FormatFloat(maxLat, 'f', 6, 64)
+	NELonString := strconv.FormatFloat(maxLon, 'f', 6, 64)
+
+	log.Println("NE corner: " + NELatString + ", " + NELonString)
+	log.Println("SW corner: " + SWLatString + ", " + SWLonString)
+	log.Println()
 	client, err := ConnectToMongo()
 
+	stopsFilter := bson.D{
+		{"$and",
+			bson.A{
+				bson.D{{"stop_lat", bson.D{{"$lte", NELatString}}}},
+				bson.D{{"stop_lat", bson.D{{"$gte", SWLatString}}}},
+				bson.D{{"stop_lon", bson.D{{"$lte", SWLonString}}}},
+				bson.D{{"stop_lon", bson.D{{"$gte", NELonString}}}},
+			},
+		},
+	}
 	// Create context variable and assign time for timeout
 	// Log any resulting error here also
 	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
@@ -153,39 +174,127 @@ func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
 	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
 
 	var matchingStops []StopWithCoordinates
-	var currentStop BusStop
+	var currentStop GeolocatedStop
 	var currentStopWithCoordinates StopWithCoordinates
 
 	dbPointer := client.Database("BusData")
 	collectionPointer := dbPointer.Collection("stops")
 
-	stops, err := collectionPointer.Find(ctx, bson.D{{}})
+	stops, err := collectionPointer.Find(ctx, stopsFilter)
 	if err != nil {
 		log.Print(err)
 	}
+	log.Println(stops)
 
 	// The coordinates from the database are read in a string
 	// representation and so can't be automatically unmarshalled
 	// into floats, so they have to be read in as a BusStop before
 	// being read in as a StopWithCoordinates
 	for stops.Next(ctx) {
-		stops.Decode(&currentStop)
+		err = stops.Decode(&currentStop)
+		if err != nil {
+			log.Println(err)
+		}
+		log.Println("Looking at stop number " + currentStop.StopNumber)
 		currentLat, _ := strconv.ParseFloat(currentStop.StopLat, 64)
 		currentLon, _ := strconv.ParseFloat(currentStop.StopLon, 64)
-		if currentLon > minLon && currentLat > minLat {
-			if currentLat < maxLat && currentLon < maxLon {
-				currentStopWithCoordinates.StopID = currentStop.StopId
-				currentStopWithCoordinates.StopNumber = currentStop.StopNumber
-				currentStopWithCoordinates.StopName = currentStop.StopName
-				currentStopWithCoordinates.StopLat = currentLat
-				currentStopWithCoordinates.StopLon = currentLon
-				matchingStops = append(matchingStops, currentStopWithCoordinates)
-			}
-		}
-		if len(matchingStops) >= 5 {
-			break
-		}
+		currentStopWithCoordinates.StopID = currentStop.StopId
+		currentStopWithCoordinates.StopNumber = currentStop.StopNumber
+		currentStopWithCoordinates.StopName = currentStop.StopName
+		currentStopWithCoordinates.StopLat = currentLat
+		currentStopWithCoordinates.StopLon = currentLon
+		matchingStops = append(matchingStops, currentStopWithCoordinates)
 	}
 
 	return matchingStops
+}
+
+func TurnParameterToCoordinates(coordinates string) maps.LatLng {
+
+	coordinatesSplit := strings.Split(coordinates, ",")
+	coordinatesLatitude, _ := strconv.ParseFloat(coordinatesSplit[0], 64)
+	coordinatesLongitude, _ := strconv.ParseFloat(coordinatesSplit[1], 64)
+
+	coordinatesLatLng := maps.LatLng{Lng: coordinatesLongitude, Lat: coordinatesLatitude}
+	return coordinatesLatLng
+}
+
+func FindNearbyStopsAPI(c *gin.Context) {
+
+	coordinates := c.Param("coordinates")
+
+	coordinatesSplit := strings.Split(coordinates, ",")
+	queryLat, _ := strconv.ParseFloat(coordinatesSplit[0], 64)
+	queryLon, _ := strconv.ParseFloat(coordinatesSplit[1], 64)
+
+	halfMileAdjustment := 0.008
+
+	minLat := queryLat - halfMileAdjustment
+	maxLat := queryLat + halfMileAdjustment
+	minLon := queryLon - halfMileAdjustment
+	maxLon := queryLon + halfMileAdjustment
+
+	SWLatString := strconv.FormatFloat(minLat, 'f', 6, 64)
+	SWLonString := strconv.FormatFloat(minLon, 'f', 6, 64)
+	NELatString := strconv.FormatFloat(maxLat, 'f', 6, 64)
+	NELonString := strconv.FormatFloat(maxLon, 'f', 6, 64)
+
+	log.Println("NE corner: " + NELatString + ", " + NELonString)
+	log.Println("SW corner: " + SWLatString + ", " + SWLonString)
+	log.Println()
+	client, err := ConnectToMongo()
+
+	stopsFilter := bson.D{
+		{"$and",
+			bson.A{
+				bson.D{{"stop_lat", bson.D{{"$lte", NELatString}}}},
+				bson.D{{"stop_lat", bson.D{{"$gte", SWLatString}}}},
+				bson.D{{"stop_lon", bson.D{{"$lte", SWLonString}}}},
+				bson.D{{"stop_lon", bson.D{{"$gte", NELonString}}}},
+			},
+		},
+	}
+	// Create context variable and assign time for timeout
+	// Log any resulting error here also
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Print(err)
+	}
+	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
+
+	var matchingStops []StopWithCoordinates
+	var currentStop GeolocatedStop
+	var currentStopWithCoordinates StopWithCoordinates
+
+	dbPointer := client.Database("BusData")
+	collectionPointer := dbPointer.Collection("stops")
+
+	stops, err := collectionPointer.Find(ctx, stopsFilter)
+	if err != nil {
+		log.Print(err)
+	}
+	log.Println(stops)
+
+	// The coordinates from the database are read in a string
+	// representation and so can't be automatically unmarshalled
+	// into floats, so they have to be read in as a BusStop before
+	// being read in as a StopWithCoordinates
+	for stops.Next(ctx) {
+		err = stops.Decode(&currentStop)
+		if err != nil {
+			log.Println(err)
+		}
+		log.Println("Looking at stop number " + currentStop.StopNumber)
+		currentLat, _ := strconv.ParseFloat(currentStop.StopLat, 64)
+		currentLon, _ := strconv.ParseFloat(currentStop.StopLon, 64)
+		currentStopWithCoordinates.StopID = currentStop.StopId
+		currentStopWithCoordinates.StopNumber = currentStop.StopNumber
+		currentStopWithCoordinates.StopName = currentStop.StopName
+		currentStopWithCoordinates.StopLat = currentLat
+		currentStopWithCoordinates.StopLon = currentLon
+		matchingStops = append(matchingStops, currentStopWithCoordinates)
+	}
+
+	c.IndentedJSON(http.StatusOK, matchingStops)
 }

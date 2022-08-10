@@ -47,7 +47,7 @@ func CalculateFare(route busRoute,
 	// Boolean condition defaults to false unless determined otherwise
 	express = false
 	for _, routeNum := range XpressRoutes {
-		if route.Id == routeNum {
+		if route.Id[0] == routeNum {
 			express = true
 		}
 	}

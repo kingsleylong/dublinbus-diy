@@ -25,7 +25,7 @@ func GetTravelTimePrediction(routeNum string,
 	}
 	baseUrl.Path += strings.ToUpper(routeNum) + "/" + direction + "/" + features[0] + "/" +
 		features[1] + "/" + features[2] + "/" + features[3] + "/" + date
-
+	log.Println(baseUrl.String())
 	resp, err := http.
 		Get(baseUrl.String())
 	if err != nil {

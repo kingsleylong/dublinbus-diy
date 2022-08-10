@@ -3,6 +3,9 @@ package databaseQueries
 import (
 	"context"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"googlemaps.github.io/maps"
+	"math"
+	"sort"
 	"strconv"
 
 	//"encoding/json"
@@ -108,4 +111,25 @@ func GetStopsList(c *gin.Context) {
 	busStops.Nearby = stopsFromGeocoding
 
 	c.IndentedJSON(http.StatusOK, busStops)
+}
+
+func CurateNearbyStops(stopsList []StopWithCoordinates, location maps.LatLng) []StopWithCoordinates {
+
+	closestStops := []StopWithCoordinates{}
+
+	sort.Slice(stopsList, func(i, j int) bool {
+		distanceForPointI := math.Sqrt(math.Pow(stopsList[i].StopLon-location.Lng, 2) +
+			math.Pow(stopsList[i].StopLat-location.Lat, 2))
+		distanceForPointJ := math.Sqrt(math.Pow(stopsList[j].StopLon-location.Lng, 2) +
+			math.Pow(stopsList[j].StopLat-location.Lat, 2))
+		return distanceForPointI < distanceForPointJ
+	})
+
+	if len(stopsList) < 10 {
+		closestStops = stopsList
+	} else {
+		closestStops = append(closestStops, stopsList[:10]...)
+	}
+
+	return closestStops
 }
