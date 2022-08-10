@@ -21,7 +21,7 @@ class RouteItem {
   RouteItem({required this.route, required this.favourite});
 
   toJSONEncodable() {
-    Map<String, dynamic> m = new Map();
+    Map<dynamic, dynamic> m = new Map();
 
     m['route_num'] = route;
     m['favourite'] = favourite;
@@ -90,6 +90,8 @@ class _RouteOptionsState extends State<RouteOptions> {
     });
   }
 
+  bool isButtonPressed = false;
+
   @override
   Widget build(BuildContext context) {
     if (Provider.of<SearchFormModel>(context).visibilityRouteOptions) {
@@ -108,7 +110,6 @@ class _RouteOptionsState extends State<RouteOptions> {
       return const Center(child: Text('No routes found.'));
     }
     print("items size: ${items.length}, first ele: ${items[0].toString()}");
-
     // Use ExpansionPanel to display the route options for easy use.
     // https://api.flutter.dev/flutter/material/ExpansionPanel-class.html
     return ExpansionPanelList(
@@ -148,23 +149,10 @@ class _RouteOptionsState extends State<RouteOptions> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // this should save the route to localstorage
-                          storage.ready;
-                          print("setting the route as favourite");
-                          storage.setItem('=', busRoute.routeNumber);
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.favorite,
-                          color: Colors.red,
-                        ),
-                      ),
+                      // function call
+
+                      _buildButton(gettingNewKeyValue(), busRoute.routeNumber),
+
                       Row(
                         children: [
                           const Icon(Icons.timer_outlined),
@@ -209,6 +197,56 @@ class _RouteOptionsState extends State<RouteOptions> {
           isExpanded: item.isExpanded,
         );
       }).toList(),
+    );
+  }
+
+// tryinf to get a more dynamic key for the storage list - but this only saves one
+  gettingNewKeyValue() {
+//trying to set up values for keys
+    var keyValue = new List<int>.generate(20, (i) => i + 1);
+
+    // for (var keyValue_ in keyValue) {
+    // i'm need to have it as string beacuse otherwise it will not load the row with routes
+    // however this still doesn't create dynamic keys to save the routes
+    String stringValue = keyValue.toString();
+    for (int i = 0; i < stringValue.length; i++) {
+      // print(stringValue[i]);
+      return (stringValue[i]);
+    }
+  }
+
+// function to change the button when it's pressed
+// to either add or remove the route from favourites
+
+// todo: button doesn't work when it's pressed a second time to remove the fav route
+  _buildButton(String key_, String value_) {
+    bool _isPressed = false;
+    return Row(
+      children: <Widget>[
+        IconButton(
+            icon: Icon(Icons.favorite),
+            onPressed: () {
+              setState(() {
+                _isPressed = !_isPressed;
+              });
+              if (_isPressed) {
+                Colors.amber;
+                // This block should be executed when button is pressed odd number of times.
+                // this saves the route to localstorage
+                storage.ready;
+                print("setting the route as favourite");
+                storage.setItem('$key_', '$value_');
+              }
+              if (!_isPressed) {
+                Colors.red;
+                // This block should be executed when button is pressed even number of times;
+                // this deletes the route to localstorage
+                storage.ready;
+                print("deleting the route from favourite");
+                storage.deleteItem('$key_');
+              }
+            }),
+      ],
     );
   }
 }
