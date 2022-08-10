@@ -54,67 +54,6 @@ class FavoritePage extends State<RouteFavOptions> {
           children: [
             Expanded(child: createListItemFromLocalStorage()),
             const Expanded(child: GoogleMapMobileComponent()),
-            // Expanded(
-            //   child: ListView(
-            //     padding: EdgeInsets.only(top: 50),
-            //     children: [
-            //       favoriteRouteList.isEmpty
-            //           ? const Center(
-            //               child: Text(
-            //                 'There are no favorites routes!',
-            //                 style: TextStyle(color: Colors.black),
-            //               ),
-            //             )
-            //           : ListView.builder(
-            //               scrollDirection: Axis.vertical,
-            //               shrinkWrap: true,
-            //               itemCount: favoriteRouteList.length,
-            //               itemBuilder: (context, index) {
-            //                 return Card(
-            //                   child: Row(
-            //                     children: [
-            //                       Expanded(
-            //                         child: Padding(
-            //                           padding: const EdgeInsets.all(20.0),
-            //                           child: Text(
-            //                             // storage.ready;
-            //                             // storage.getItem('1'),
-            //                             favoriteRouteList[index],
-            //                             style: const TextStyle(fontSize: 19.0),
-            //                           ),
-            //                         ),
-            //                       ),
-            //                       ElevatedButton(
-            //                         onPressed: () {
-            //                           storage.ready;
-            //                           print(
-            //                               "deleting the route from favourite");
-            //                           storage.deleteItem('1');
-            //                           // this deletes from the array - it doesn't save to localstorage
-            //                           // setState(() {
-            //                           //   favoriteRouteList
-            //                           //       .remove(favoriteRouteList[index]);
-            //                           // });
-            //                         },
-            //                         style: ButtonStyle(
-            //                           backgroundColor:
-            //                               MaterialStateProperty.all<Color>(
-            //                             Colors.white,
-            //                           ),
-            //                         ),
-            //                         child: const Icon(
-            //                           Icons.remove_circle,
-            //                           color: Colors.red,
-            //                         ),
-            //                       ),
-            //                     ],
-            //                   ),
-            //                 );
-            //               },
-            //             ),
-            //     ],
-            //   ),
-            // ),
           ],
         ));
     //     ],
@@ -122,6 +61,8 @@ class FavoritePage extends State<RouteFavOptions> {
     // );
   }
 
+// function to get items from local storage
+//and to make each row display the route on map
   createListItemFromLocalStorage() {
     return FutureBuilder(
         future: storage.ready,
@@ -133,9 +74,9 @@ class FavoritePage extends State<RouteFavOptions> {
           }
 
           if (!initialized) {
-            var items = storage.getItem('=');
-            items = storage.getItem('?');
-            items = storage.getItem('1');
+            // TODO: need to get all documents from storage
+            // could do a for loop to iterate through all items in storage
+            var items = storage.getItem('9');
 
             if (items != null) {
               // convert into list
@@ -145,12 +86,35 @@ class FavoritePage extends State<RouteFavOptions> {
             initialized = true;
           }
 
-          return ListView(
-            // favoriteRouteList
-            children: [
-              Text("All favourite routes are" + favoriteRouteList[0]),
-            ],
-          );
+          return ListView.builder(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: favoriteRouteList.length,
+              itemBuilder: (context, index) {
+                return InkWell(
+                    child: Card(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Text(
+                                favoriteRouteList[index],
+                                style: const TextStyle(fontSize: 19.0),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      // TODO: error that says "String" can't  be assigned to the parameter
+                      // type 'BusRoute'.
+                      print("Click to show route on map");
+                      // Provider.of<PolylinesModel>(context, listen: false)
+                      //     .addBusRouteAsPolyline(favoriteRouteList[index]);
+                    });
+              });
         });
   }
 }
