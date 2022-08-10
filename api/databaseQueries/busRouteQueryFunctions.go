@@ -1,16 +1,13 @@
 package databaseQueries
 
 import (
-	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"os"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func ConnectToMongo() (*mongo.Client, error) {
@@ -140,140 +137,4 @@ func GetTimeStringAsHoursAndMinutes(timeString string) string {
 	timeAdjusted := timeSplit[0] + ":" + timeSplit[1]
 
 	return timeAdjusted
-}
-
-func FindRoutesByStop(stopNum string) []RouteByStop {
-
-	client, err := ConnectToMongo()
-
-	// Create context variable and assign time for timeout
-	// Log any resulting error here also
-	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Print(err)
-	}
-	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
-
-	coll := client.Database("BusData").Collection("trips_n_stops")
-
-	cursor, err := coll.Aggregate(ctx, bson.A{
-		bson.D{
-			{"$match",
-				bson.D{
-					{"$or",
-						bson.A{
-							bson.D{{"stops.stop_number", "2955"}},
-							bson.D{{"stops.stop_number", "7698"}},
-						},
-					},
-				},
-			},
-		},
-		bson.D{
-			{"$group",
-				bson.D{
-					{"_id", "$route.route_short_name"},
-					{"stops", bson.D{{"$first", "stops"}}},
-				},
-			},
-		},
-	})
-	if err != nil {
-		log.Print(err)
-	}
-
-	var routes []RouteByStop
-	var routesWithoutDuplicates []RouteByStop
-
-	if err = cursor.All(ctx, &routes); err != nil {
-		log.Println(err)
-	}
-	routesWithoutDuplicates = append(routesWithoutDuplicates, routes[0])
-	var alreadyPresent bool
-	for index, value := range routes {
-		alreadyPresent = false
-		for _, currentRoute := range routesWithoutDuplicates {
-			if value.Id == currentRoute.Id {
-				alreadyPresent = true
-			}
-		}
-		if !alreadyPresent {
-			routesWithoutDuplicates = append(routesWithoutDuplicates, routes[index])
-		}
-	}
-
-	return routesWithoutDuplicates
-}
-
-func GetRouteObjectsForDeparture(routesToSearch []MatchedRoute, departureTime string) []busRouteV2 {
-
-	var routesFromDatabase []busRouteV2
-	var routeFromDatabase busRoute
-	var routeFromDatabaseWithOAndD busRouteV2
-
-	client, err := ConnectToMongo()
-	if err != nil {
-		log.Println(err)
-	}
-
-	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Print(err)
-	}
-	defer client.Disconnect(ctx) // defer has rest of function complete before this disconnect
-
-	collection := client.Database("BusData").Collection("trips_n_stops")
-
-	for _, route := range routesToSearch {
-		cursor, err := collection.Aggregate(ctx, bson.A{
-			bson.D{
-				{"$match",
-					bson.D{
-						{"route.route_short_name", route.RouteNumber},
-						{"stops",
-							bson.D{
-								{"$elemMatch",
-									bson.D{
-										{"stop_number", route.OriginStop},
-										{"arrival_time", bson.D{{"$gt", departureTime}}},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			bson.D{{"$sort", bson.D{{"stops.arrival_time", 1}}}},
-			bson.D{
-				{"$group",
-					bson.D{
-						{"_id", "$route.route_short_name"},
-						{"direction", bson.D{{"$first", "$direction_id"}}},
-						{"stops", bson.D{{"$first", "$stops"}}},
-						{"shapes", bson.D{{"$first", "$shapes"}}},
-					},
-				},
-			},
-		})
-		if err != nil {
-			log.Println(err)
-		}
-		for cursor.Next(ctx) {
-			err := cursor.Decode(&routeFromDatabase)
-			if err != nil {
-				log.Println(err)
-			}
-			routeFromDatabaseWithOAndD.Id = routeFromDatabase.Id[0]
-			routeFromDatabaseWithOAndD.Stops = routeFromDatabase.Stops
-			routeFromDatabaseWithOAndD.Shapes = routeFromDatabase.Shapes
-			routeFromDatabaseWithOAndD.Direction = routeFromDatabase.Direction
-			routeFromDatabaseWithOAndD.OriginStopNumber = route.OriginStop
-			routeFromDatabaseWithOAndD.DestinationStopNumber = route.DestinationStop
-			routesFromDatabase = append(routesFromDatabase, routeFromDatabaseWithOAndD)
-		}
-	}
-
-	return routesFromDatabase
 }
