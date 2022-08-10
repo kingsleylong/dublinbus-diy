@@ -159,7 +159,7 @@ func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
 			bson.A{
 				bson.D{{"stop_lat", bson.D{{"$lte", NELatString}}}},
 				bson.D{{"stop_lat", bson.D{{"$gte", SWLatString}}}},
-				bson.D{{"stop_lon", bson.D{{"$lte", SWLatString}}}},
+				bson.D{{"stop_lon", bson.D{{"$lte", SWLonString}}}},
 				bson.D{{"stop_lon", bson.D{{"$gte", NELonString}}}},
 			},
 		},
@@ -249,7 +249,7 @@ func FindNearbyStopsAPI(c *gin.Context) {
 			bson.A{
 				bson.D{{"stop_lat", bson.D{{"$lte", NELatString}}}},
 				bson.D{{"stop_lat", bson.D{{"$gte", SWLatString}}}},
-				bson.D{{"stop_lon", bson.D{{"$lte", SWLatString}}}},
+				bson.D{{"stop_lon", bson.D{{"$lte", SWLonString}}}},
 				bson.D{{"stop_lon", bson.D{{"$gte", NELonString}}}},
 			},
 		},
