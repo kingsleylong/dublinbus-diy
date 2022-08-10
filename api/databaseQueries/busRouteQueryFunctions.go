@@ -265,7 +265,7 @@ func GetRouteObjectsForDeparture(routesToSearch []MatchedRoute, departureTime st
 			if err != nil {
 				log.Println(err)
 			}
-			routeFromDatabaseWithOAndD.Id = routeFromDatabase.Id
+			routeFromDatabaseWithOAndD.Id = routeFromDatabase.Id[0]
 			routeFromDatabaseWithOAndD.Stops = routeFromDatabase.Stops
 			routeFromDatabaseWithOAndD.Shapes = routeFromDatabase.Shapes
 			routeFromDatabaseWithOAndD.Direction = routeFromDatabase.Direction

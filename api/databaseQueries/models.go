@@ -7,7 +7,7 @@ package databaseQueries
 // The Stops array is made of type BusStop while the Shapes array is made of type
 // Shape.
 type busRoute struct {
-	Id        string    `bson:"_id" json:"_id"`
+	Id        []string  `bson:"_id" json:"_id"`
 	Direction string    `bson:"direction_id" json:"direction_id"`
 	Stops     []BusStop `bson:"stops" json:"stops"`
 	Shapes    []Shape   `bson:"shapes" json:"shapes"`
