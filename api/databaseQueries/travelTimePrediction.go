@@ -77,7 +77,6 @@ func FeatureExtraction(date string) []string {
 
 func DayOfTheWeek(dateSlice []string, timeSlice []string) string {
 
-	//2022-07-28 14:00:00
 	year, _ := strconv.ParseInt(dateSlice[0], 10, 64)
 	month, _ := strconv.ParseInt(dateSlice[1], 10, 64)
 	day, _ := strconv.ParseInt(dateSlice[2], 10, 64)

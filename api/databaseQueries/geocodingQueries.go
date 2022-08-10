@@ -149,9 +149,6 @@ func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
 	NELatString := strconv.FormatFloat(maxLat, 'f', 6, 64)
 	NELonString := strconv.FormatFloat(maxLon, 'f', 6, 64)
 
-	log.Println("NE corner: " + NELatString + ", " + NELonString)
-	log.Println("SW corner: " + SWLatString + ", " + SWLonString)
-	log.Println()
 	client, err := ConnectToMongo()
 
 	stopsFilter := bson.D{
@@ -184,7 +181,6 @@ func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
 	if err != nil {
 		log.Print(err)
 	}
-	log.Println(stops)
 
 	// The coordinates from the database are read in a string
 	// representation and so can't be automatically unmarshalled
@@ -195,7 +191,6 @@ func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
 		if err != nil {
 			log.Println(err)
 		}
-		log.Println("Looking at stop number " + currentStop.StopNumber)
 		currentLat, _ := strconv.ParseFloat(currentStop.StopLat, 64)
 		currentLon, _ := strconv.ParseFloat(currentStop.StopLon, 64)
 		currentStopWithCoordinates.StopID = currentStop.StopId
@@ -239,9 +234,6 @@ func FindNearbyStopsAPI(c *gin.Context) {
 	NELatString := strconv.FormatFloat(maxLat, 'f', 6, 64)
 	NELonString := strconv.FormatFloat(maxLon, 'f', 6, 64)
 
-	log.Println("NE corner: " + NELatString + ", " + NELonString)
-	log.Println("SW corner: " + SWLatString + ", " + SWLonString)
-	log.Println()
 	client, err := ConnectToMongo()
 
 	stopsFilter := bson.D{
@@ -274,7 +266,6 @@ func FindNearbyStopsAPI(c *gin.Context) {
 	if err != nil {
 		log.Print(err)
 	}
-	log.Println(stops)
 
 	// The coordinates from the database are read in a string
 	// representation and so can't be automatically unmarshalled
@@ -285,7 +276,6 @@ func FindNearbyStopsAPI(c *gin.Context) {
 		if err != nil {
 			log.Println(err)
 		}
-		log.Println("Looking at stop number " + currentStop.StopNumber)
 		currentLat, _ := strconv.ParseFloat(currentStop.StopLat, 64)
 		currentLon, _ := strconv.ParseFloat(currentStop.StopLon, 64)
 		currentStopWithCoordinates.StopID = currentStop.StopId
