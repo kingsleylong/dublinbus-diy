@@ -113,10 +113,18 @@ func GetStopsList(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, busStops)
 }
 
+// CurateNearbyStops is a function that is used to sort the stops that are
+// determined to be close to the coordinates provided in the variable 'location'
+// in order of distance from that point. Once this has been done, the ten
+// nearest stops are returned as a result of this function from using a subslice
+// of the then sorted input list of stops
 func CurateNearbyStops(stopsList []StopWithCoordinates, location maps.LatLng) []StopWithCoordinates {
 
 	closestStops := []StopWithCoordinates{}
 
+	// Distance from one point to another on a 2d plane is the root of
+	// (x2-x1)^2 + (y2-y1)^2. This is given to the sort function that is built
+	// in to then determine the order in which to sort the stops
 	sort.Slice(stopsList, func(i, j int) bool {
 		distanceForPointI := math.Sqrt(math.Pow(stopsList[i].StopLon-location.Lng, 2) +
 			math.Pow(stopsList[i].StopLat-location.Lat, 2))
