@@ -64,6 +64,8 @@ func CreateStopsSlice(origin string, destination string,
 
 	transformedStops := []RouteStop{}
 
+	// Loop used to manually move variables over to new model to facilitate
+	// switching lat and lon from strings to floats
 	for _, initialStopDescription := range route.Stops {
 		stop.StopId = initialStopDescription.StopId
 		stop.StopName = initialStopDescription.StopName
@@ -75,6 +77,9 @@ func CreateStopsSlice(origin string, destination string,
 		stop.DepartureTime = initialStopDescription.DepartureTime
 		stop.DistanceTravelled, _ =
 			strconv.ParseFloat(initialStopDescription.DistanceTravelled, 64)
+
+		// Stop sequences used to assign values to other variables needed for travel
+		// time prediction later
 		if initialStopDescription.StopSequence == "1" {
 			firstStopArrivalTime = initialStopDescription.ArrivalTime
 		}
