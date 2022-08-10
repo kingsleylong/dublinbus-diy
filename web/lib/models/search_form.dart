@@ -168,11 +168,10 @@ class SearchFormModel extends ChangeNotifier {
     // notify immediately because the below code will block execution until api returned
     notifyListeners();
 
-    String url = '$apiHost/api/route/matchingRoute';
-    url += '/${searchFilter.originStopNumber}/${searchFilter.destinationStopNumber}'
+    String pathParams = '/${searchFilter.originStopNumber}/${searchFilter.destinationStopNumber}'
         '/${searchFilter.timeType.name}/${searchFilter.time}';
     final response = await http.get(
-      Uri.parse(url),
+      Uri.http(apiHost, "/api/route/matchingRoute$pathParams"),
       headers: {
         "Accept": "application/json",
       },

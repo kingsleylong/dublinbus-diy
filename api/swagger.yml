@@ -98,7 +98,7 @@ paths:
           required: true
           type: "string"
           format: "date-time"
-          default: "2022-08-03 13:22:22"
+          default: "2022-08-10 13:00:00"
       responses:
         "200":
           description: "successful operation"
@@ -125,6 +125,18 @@ definitions:
       stop_lon:
         type: "number"
         format: "double"
+      stop_sequence:
+        type: "string"
+      arrival_time:
+        type: "string"
+        description: "Time of day for arrival to stop in format 'hh:mm'"
+      departure_time:
+        type: "string"
+        description: "Time of day for departure from stop in format 'hh:mm'"
+      shape_dist_traveled:
+        type: "number"
+        format: "double"
+        description: "Number of metres travelled by the bus up to that point on its journey"
   Route:
     type: "object"
     properties:
@@ -155,8 +167,7 @@ definitions:
         type: "number"
         format: "double"
       shape_pt_sequence:
-        type: "integer"
-        format: "int32"
+        type: "string"
       shape_dist_traveled:
         type: "string"
   ApiResponse:

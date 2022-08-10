@@ -134,12 +134,12 @@ func CurateReturnedArrivalRoutes(arrivalQueryTime string, routes []busRouteJSON)
 	return returnedRoutes
 }
 
-func GetScheduledDepartureTime(departureTime string) string {
+func GetTimeStringAsHoursAndMinutes(timeString string) string {
 
-	departureTimeSplit := strings.Split(departureTime, ":")
-	departureTimeAdjusted := departureTimeSplit[0] + ":" + departureTimeSplit[1]
+	timeSplit := strings.Split(timeString, ":")
+	timeAdjusted := timeSplit[0] + ":" + timeSplit[1]
 
-	return departureTimeAdjusted
+	return timeAdjusted
 }
 
 func FindRoutesByStop(stopNum string) []RouteByStop {
@@ -265,7 +265,7 @@ func GetRouteObjectsForDeparture(routesToSearch []MatchedRoute, departureTime st
 			if err != nil {
 				log.Println(err)
 			}
-			routeFromDatabaseWithOAndD.Id = routeFromDatabase.Id
+			routeFromDatabaseWithOAndD.Id = routeFromDatabase.Id[0]
 			routeFromDatabaseWithOAndD.Stops = routeFromDatabase.Stops
 			routeFromDatabaseWithOAndD.Shapes = routeFromDatabase.Shapes
 			routeFromDatabaseWithOAndD.Direction = routeFromDatabase.Direction
