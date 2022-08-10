@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+// ConnectToMongo is a function used specifically to handle the database connection
+// within the backend and remove some boilerplate code from individual function calls
+// elsewhere. It requires no parameters but returns a pointer to a Mongo client as well
+// as an error
 func ConnectToMongo() (*mongo.Client, error) {
 
 	mongoHost = os.Getenv("MONGO_INITDB_ROOT_HOST")
@@ -33,6 +37,12 @@ func ConnectToMongo() (*mongo.Client, error) {
 	return client, err
 }
 
+// GetTimeString is used to take a string that has a date and time represented in it
+// and then return in string format the time part specifically of that initial parameter.
+// This function takes a string with the date in the format "yyyy-mm-dd hh:mm:ss", with the
+// whitespace between calendar representation and time representation an important and
+// necessary element of this parameter. This function returns a string of the time that
+// was inputted into the function in the format "hh:mm:ss"
 func GetTimeString(date string) string {
 
 	dateStringSplit := strings.Split(date, " ")
@@ -41,6 +51,14 @@ func GetTimeString(date string) string {
 	return timeString
 }
 
+// CreateStopsSlice takes in the origin and destination bus stop numbers along
+// a route as strings, as well as the busRoute object that these stops belong to
+// and a RouteStop object (with empty fields or otherwise) and returns a slice
+// of RouteStop objects. This function is designed to handle the conversion of
+// the stops as taken from the document in the Mongo collection and transform them
+// into the format necessary for the return value of the function for the api call.
+// It also assigns values to other global variables that are necessary later for other
+// functions in the parent route matching function.
 func CreateStopsSlice(origin string, destination string,
 	route busRoute, stop RouteStop) []RouteStop {
 
@@ -77,6 +95,10 @@ func CreateStopsSlice(origin string, destination string,
 	return transformedStops
 }
 
+// CreateShapesSlice is a function that takes in a busRoute object and then returns
+// a slice of ShapeJSON objects that are then used for the final creation of the
+// busRouteJSON objects that are returned to the frontend following a successful route
+// finding operation.
 func CreateShapesSlice(route busRoute) []ShapeJSON {
 
 	shapes = []ShapeJSON{}
@@ -94,6 +116,10 @@ func CreateShapesSlice(route busRoute) []ShapeJSON {
 	return shapes
 }
 
+// CurateStopsSlice is a function that takes in the origin and destination
+// bus stop numbers on a journey as strings and then returns integers for their
+// respective indexes in the route object that is to be added to the resultJSON object
+// at the end of a route finding operation
 func CurateStopsSlice(origin string, destination string) (int, int) {
 
 	var originStopIndex int
@@ -111,6 +137,11 @@ func CurateStopsSlice(origin string, destination string) (int, int) {
 	return originStopIndex, destinationStopIndex
 }
 
+// CurateReturnedArrivalRoutes takes in as a string the original time that was queried
+// for the arrival time based query and the slice of busRouteJSON objects about to be
+// returned to the front end at the end of route finding sequence. This function selects
+// for routes that have an arrival time within one hour before of the specified time only
+// to limit the number of routes being returned and potentially improve the UX of the application
 func CurateReturnedArrivalRoutes(arrivalQueryTime string, routes []busRouteJSON) []busRouteJSON {
 
 	returnedRoutes := []busRouteJSON{}
@@ -131,6 +162,9 @@ func CurateReturnedArrivalRoutes(arrivalQueryTime string, routes []busRouteJSON)
 	return returnedRoutes
 }
 
+// GetTimeStringAsHoursAndMinutes is a function designed to take in a string representing
+// time of day in the format "hh:mm:ss" and return a string approximating this time by
+// removing the seconds component and just displaying "hh:mm"
 func GetTimeStringAsHoursAndMinutes(timeString string) string {
 
 	timeSplit := strings.Split(timeString, ":")
