@@ -401,6 +401,13 @@ func FindMatchingRouteForArrival(origin string,
 	for _, destinationStop := range destinationStops {
 		destinationStopNums = append(destinationStopNums, destinationStop.StopNumber)
 	}
+
+	log.Println("OriginStopNums:")
+	log.Println(originStopNums)
+	log.Println("")
+	log.Println("DestinationStopNums:")
+	log.Println(destinationStopNums)
+	log.Println("")
 	client, err := ConnectToMongo()
 
 	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
@@ -421,39 +428,14 @@ func FindMatchingRouteForArrival(origin string,
 		bson.D{
 			{"$match",
 				bson.D{
-					{"$and",
-						bson.A{
-							bson.D{
-								{"stops",
-									bson.D{
-										{"$elemMatch",
-											bson.D{
-												{"stop_number",
-													bson.D{
-														{"$in",
-															originStopNums,
-														},
-													},
-												},
-												{"arrival_time", bson.D{{"$lte", timeString}}},
-											},
-										},
-									},
-								},
-							},
-							bson.D{
-								{"stops",
-									bson.D{
-										{"$elemMatch",
-											bson.D{
-												{"stop_number",
-													bson.D{
-														{"$in",
-															destinationStopNums,
-														},
-													},
-												},
-												{"arrival_time", bson.D{{"$lte", timeString}}},
+					{"stops",
+						bson.D{
+							{"$elemMatch",
+								bson.D{
+									{"stop_number",
+										bson.D{
+											{"$in",
+												originStopNums,
 											},
 										},
 									},
@@ -461,10 +443,16 @@ func FindMatchingRouteForArrival(origin string,
 							},
 						},
 					},
+					{"stops.stop_number",
+						bson.D{
+							{"$in",
+								destinationStopNums,
+							},
+						},
+					},
 				},
 			},
 		},
-		bson.D{{"$sort", bson.D{{"stops.arrival_time", -1}}}},
 		bson.D{
 			{"$group",
 				bson.D{
@@ -475,8 +463,6 @@ func FindMatchingRouteForArrival(origin string,
 						},
 					},
 					{"stops", bson.D{{"$first", "$stops"}}},
-					{"shapes", bson.D{{"$first", "$shapes"}}},
-					{"direction", bson.D{{"$first", "$direction_id"}}},
 				},
 			},
 		},
@@ -487,16 +473,78 @@ func FindMatchingRouteForArrival(origin string,
 
 	// routes object used to decode the results of the query and prepare for
 	// transformation
-	var routes []busRoute
+	var routes []MatchedRoute
 
 	if err = query.All(ctx, &routes); err != nil {
 		log.Println(err)
 	}
 
+	log.Println("Results from first query:")
+	for _, value := range routes {
+		log.Println(value)
+	}
+	log.Println("")
+	var routesWithOAndD []MatchedRouteWithOAndD
+	var routeWithOAndD MatchedRouteWithOAndD
+	for _, matchingRoute := range routes {
+		routeWithOAndD.Id = matchingRoute.Id
+		routeWithOAndD.Stops = matchingRoute.Stops
+		routeWithOAndD.OriginStopNumber, _ = FindNearestStop(originStops,
+			matchingRoute.Stops, originCoordinates)
+		routeWithOAndD.DestinationStopNumber, _ = FindNearestStop(destinationStops,
+			matchingRoute.Stops, destinationCoordinates)
+		routesWithOAndD = append(routesWithOAndD, routeWithOAndD)
+	}
+
+	var fullRoutes []busRoute
+	var allRoutes []busRoute
+	for _, routeDocument := range routesWithOAndD {
+		query, err = collection.Aggregate(ctx, bson.A{
+			bson.D{{
+				"$match", bson.D{
+					{"route.route_short_name", routeDocument.Id[0]},
+					{"direction_id", routeDocument.Id[1]},
+					{"stops", bson.D{
+						{"$elemMatch", bson.D{
+							{"stop_number", routeDocument.DestinationStopNumber},
+							{"arrival_time", bson.D{
+								{"$lte", timeString},
+							},
+							}}},
+					}}},
+			}},
+			bson.D{{"$sort", bson.D{{"stops.arrival_time", -1}}}},
+			bson.D{
+				{"$group", bson.D{
+					{"_id", "$route.route_short_name"},
+					{"stops", bson.D{{"$first", "$stops"}}},
+					{"shapes", bson.D{{"$first", "$shapes"}}},
+					{"direction", bson.D{{"$first", "$direction_id"}}},
+				}},
+			},
+		})
+		if err != nil {
+			log.Println("Error from Mongo query")
+			log.Println(err)
+		}
+
+		if err = query.All(ctx, &fullRoutes); err != nil {
+			log.Println("Error reading query result into fullRoutes array")
+			log.Println(err)
+		}
+
+		allRoutes = append(allRoutes, fullRoutes...)
+
+	}
+
+	log.Println("All routes in busRoute format:")
+	log.Println(allRoutes)
+	log.Println("")
 	// Iterate over the result objects to transform them into suitable return
 	// objects while also generating travel time predictions and fare calculations
-	for _, currentRoute := range routes {
+	for _, currentRoute := range allRoutes {
 
+		log.Println(string(currentRoute.Id))
 		// Intermediary object to hold route information with fields for
 		// origin and destination stop numbers
 		var routeWithOAndD busRouteV2
@@ -504,7 +552,9 @@ func FindMatchingRouteForArrival(origin string,
 		routeWithOAndD.Stops = currentRoute.Stops
 		routeWithOAndD.Shapes = currentRoute.Shapes
 		routeWithOAndD.Direction = currentRoute.Direction
-
+		log.Println("Route with Origin and Destination:")
+		log.Println(routeWithOAndD)
+		log.Println("")
 		route.RouteNum = string(currentRoute.Id)
 
 		// Two flags used within main loop when checking for matching origin and destination
@@ -545,6 +595,9 @@ func FindMatchingRouteForArrival(origin string,
 			}
 		}
 
+		log.Println("Route with O and D after loop to check for origin and destination:")
+		log.Println(routeWithOAndD)
+		log.Println("")
 		// At the end of the iteration over all stops, if a matching origin
 		// and destination were never found, skip remaining steps and move on
 		// to next route document in result slice
@@ -618,10 +671,6 @@ func FindMatchingRouteForArrival(origin string,
 		resultJSON = append(resultJSON, route)
 	}
 
-	// The routes within the slice to be returned to the front-end are then
-	// adjusted to prevent routes with destination arrival times that differ
-	// greatly from the desired arrival time being returned
 	resultJSON = CurateReturnedArrivalRoutes(date, resultJSON)
-
 	return resultJSON
 }
