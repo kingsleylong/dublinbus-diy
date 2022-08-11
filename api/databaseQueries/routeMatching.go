@@ -110,20 +110,31 @@ func FindMatchingRouteForDeparture(destination string,
 	query, err := collection.Aggregate(ctx, bson.A{
 		bson.D{
 			{"$match",
-				bson.D{{
-					"stops", bson.D{{
-						"$elemMatch", bson.D{{
-							"stop_number", bson.D{{
-								"$in", originStopNums,
-							}},
-						}},
-					}},
-				},
+				bson.D{
+					{"stops",
+						bson.D{
+							{"$elemMatch",
+								bson.D{
+									{"stop_number",
+										bson.D{
+											{"$in",
+												originStopNums,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					{"stops.stop_number",
+						bson.D{
+							{"$in",
+								destinationStopNums,
+							},
+						},
+					},
 				},
 			},
-			{"stops.stop_number", bson.D{{
-				"$in", destinationStopNums,
-			}}},
 		},
 		bson.D{
 			{"$group",
@@ -134,7 +145,6 @@ func FindMatchingRouteForDeparture(destination string,
 							"$direction_id",
 						},
 					},
-					{"stops", bson.D{{"$first", "$stops"}}},
 				},
 			},
 		},
@@ -160,42 +170,46 @@ func FindMatchingRouteForDeparture(destination string,
 			matchingRoute.Stops, originCoordinates)
 		routeWithOAndD.DestinationStopNumber, _ = FindNearestStop(destinationStops,
 			matchingRoute.Stops, destinationCoordinates)
+		routesWithOAndD = append(routesWithOAndD, routeWithOAndD)
 	}
-	
+
 	var fullRoutes []busRoute
 	var allRoutes []busRoute
-	query, err = collection.Aggregate(ctx, bson.A{
-		bson.D{{
-			"$match", bson.D{
-				{"route.route_short_name", "ROUTE"},
-				{"direction_id", "DIRECTION"},
-				{"stops", bson.D{
-					{"$elemMatch", bson.D{
-						{"stop_number", "STOP"},
-						{"departure_time", bson.D{
-							{"$gt", timeString},
-						},
-						}}},
-				}}},
-		}},
-		bson.D{{"$sort", bson.D{{"stops.departure_time", 1}}}},
-		bson.D{
-			{"$group", bson.D{
-				{"_id", "$route.route_short_name"},
-				{"stops", bson.D{{"$first", "$stops"}}},
-				{"shapes", bson.D{{"$first", "$shapes"}}},
+	for _, routeDocument := range routesWithOAndD {
+		query, err = collection.Aggregate(ctx, bson.A{
+			bson.D{{
+				"$match", bson.D{
+					{"route.route_short_name", routeDocument.Id[0]},
+					{"direction_id", routeDocument.Id[1]},
+					{"stops", bson.D{
+						{"$elemMatch", bson.D{
+							{"stop_number", routeDocument.OriginStopNumber},
+							{"departure_time", bson.D{
+								{"$gt", timeString},
+							},
+							}}},
+					}}},
 			}},
-		},
-	})
-	if err != nil {
-		log.Println(err)
-	}
+			bson.D{{"$sort", bson.D{{"stops.departure_time", 1}}}},
+			bson.D{
+				{"$group", bson.D{
+					{"_id", "$route.route_short_name"},
+					{"stops", bson.D{{"$first", "$stops"}}},
+					{"shapes", bson.D{{"$first", "$shapes"}}},
+				}},
+			},
+		})
+		if err != nil {
+			log.Println(err)
+		}
 
-	if err = query.All(ctx, &fullRoutes); err != nil {
-		log.Println(err)
-	}
+		if err = query.All(ctx, &fullRoutes); err != nil {
+			log.Println(err)
+		}
 
-	allRoutes = append(allRoutes, fullRoutes...)
+		allRoutes = append(allRoutes, fullRoutes...)
+
+	}
 
 	// Iterate over the result objects to transform them into suitable return
 	// objects while also generating travel time predictions and fare calculations
