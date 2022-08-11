@@ -50,8 +50,10 @@ class TravelTimes {
   int? transitTime;
   int? transitTimeMin;
   int? transitTimeMax;
+  String scheduledDepartureTime;
 
-  TravelTimes(this.source, this.transitTime, this.transitTimeMin, this.transitTimeMax);
+  TravelTimes(this.source, this.transitTime, this.transitTimeMin, this.transitTimeMax,
+      this.scheduledDepartureTime);
 
   factory TravelTimes.fromJson(Map<String, dynamic> json) {
     return TravelTimes(
@@ -61,6 +63,7 @@ class TravelTimes {
       json['transit_time'],
       json['transit_time_minus_mae'],
       json['transit_time_plus_mae'],
+      json['scheduled_departure_time'],
     );
   }
 }
