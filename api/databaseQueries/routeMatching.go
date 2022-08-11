@@ -14,14 +14,9 @@ import (
 // Variables of both busRoute and busRouteJSON need to be initialised as
 // some unmarshalling from Mongo cannot be done automatically and
 // so must be done manually from one structure to another in the backend
-var result []busRoute
 var route busRouteJSON
 var stop RouteStop
 var shape ShapeJSON
-var originStopNumber string
-var destinationStopNumber string
-
-//var stops []RouteStop
 var shapes []ShapeJSON
 var originStopArrivalTime string
 var destinationStopArrivalTime string
@@ -33,10 +28,10 @@ var originDistTravelled float64
 var destinationDistTravelled float64
 
 // FindMatchingRoute is a function that takes in four parameters for its
-// api call - the origin bus stop, the destination bus stop, the type of
-// time being passed in (either an arrival or departure time) and finally
-// the time itself. This function calls the FindMatchingRouteForArrival or
-// the FindMatchingRouteForDeparture function depending on the time type
+// api call - the origin coordinates pair, the destination coordinates pair,
+// the type of time being passed in (either an arrival or departure time) and
+// finally the time itself. This function calls the FindMatchingRouteForArrival
+// or the FindMatchingRouteForDeparture function depending on the time type
 // that is passed in and then returns an array of busRouteJSON type containing
 // the routes found that match the query. It may also return a status 400 with
 // the appropriate string message if the time type passed in is invalid
@@ -48,10 +43,10 @@ func FindMatchingRoute(c *gin.Context) {
 	dateAndTime := c.Param("time")
 
 	if timeType == "arrival" {
-		busRoutes := FindMatchingRouteForArrivalV2(origin, destination, dateAndTime)
+		busRoutes := FindMatchingRouteForArrival(origin, destination, dateAndTime)
 		c.IndentedJSON(http.StatusOK, busRoutes)
 	} else if timeType == "departure" {
-		busRoutes := FindMatchingRouteForDepartureV2(destination, origin, dateAndTime)
+		busRoutes := FindMatchingRouteForDeparture(destination, origin, dateAndTime)
 		c.IndentedJSON(http.StatusOK, busRoutes)
 	} else {
 		c.IndentedJSON(http.StatusBadRequest, "Invalid time type parameter in request")
@@ -59,12 +54,23 @@ func FindMatchingRoute(c *gin.Context) {
 
 }
 
-func FindMatchingRouteForDepartureV2(destination string,
+// FindMatchingRouteForDeparture takes in the destination coordinates,
+// the origin coordinates and the date for a bus trip and returns a slice
+// of bus routes that match the given parameters. Its three parameters are all
+// taken in as strings and the returned bus routes are of type busRouteJSON. It's
+// internal query for the MongoDB database distinguishes it from the
+// FindMatchingRouteForArrival function by basing its query on the time
+// a bus leaves the origin
+func FindMatchingRouteForDeparture(destination string,
 	origin string,
 	date string) []busRouteJSON {
 
+	// resultJSON kept local so that routes from other calls don't persist
 	var resultJSON []busRouteJSON
 
+	// First step is taking in coordinates, locating the stops near those
+	// coordinates and then returning the 10 closest stops to that initial
+	// coordinate pair
 	originCoordinates := TurnParameterToCoordinates(origin)
 	destinationCoordinates := TurnParameterToCoordinates(destination)
 
@@ -74,6 +80,8 @@ func FindMatchingRouteForDepartureV2(destination string,
 	originStops := CurateNearbyStops(stopsNearOrigin, originCoordinates)
 	destinationStops := CurateNearbyStops(stopsNearDestination, destinationCoordinates)
 
+	// Stop numbers for the origin and destination are then extracted from the
+	// 10 nearest stops
 	originStopNums := []string{}
 	for _, originStop := range originStops {
 		originStopNums = append(originStopNums, originStop.StopNumber)
@@ -85,8 +93,6 @@ func FindMatchingRouteForDepartureV2(destination string,
 	}
 	client, err := ConnectToMongo()
 
-	// Create context variable and assign time for timeout
-	// Log any resulting error here also
 	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
 	err = client.Connect(ctx)
 	if err != nil {
@@ -94,6 +100,7 @@ func FindMatchingRouteForDepartureV2(destination string,
 	}
 	defer client.Disconnect(ctx) // defer has rest of function complete before disconnect
 
+	// Time of day portion of the date entered extracted here
 	timeString := GetTimeString(date)
 
 	// Aggregation pipeline created in Mongo Compass and then transformed to suit
@@ -168,14 +175,20 @@ func FindMatchingRouteForDepartureV2(destination string,
 		log.Println(err)
 	}
 
+	// routes object used to decode the results of the query and prepare for
+	// transformation
 	var routes []busRoute
 
 	if err = query.All(ctx, &routes); err != nil {
 		log.Println(err)
 	}
 
+	// Iterate over the result objects to transform them into suitable return
+	// objects while also generating travel time predictions and fare calculations
 	for _, currentRoute := range routes {
 
+		// Intermediary object to hold route information with fields for
+		// origin and destination stop numbers
 		var routeWithOAndD busRouteV2
 		routeWithOAndD.Id = currentRoute.Id[0]
 		routeWithOAndD.Stops = currentRoute.Stops
@@ -184,9 +197,15 @@ func FindMatchingRouteForDepartureV2(destination string,
 
 		route.RouteNum = currentRoute.Id[0]
 
+		// Two flags used within main loop when checking for matching origin and destination
 		originAndDestinationFound := false
 		originFound := false
+
+		// Main loop iterates over each stop in the route object
 		for _, allStops := range currentRoute.Stops {
+
+			// If origin isn't found then check against the array of origin
+			// stops for a match here. Otherwise, ignore this inner loop
 			if originFound == false {
 				for _, originStop := range originStops {
 					if allStops.StopNumber == originStop.StopNumber {
@@ -196,6 +215,9 @@ func FindMatchingRouteForDepartureV2(destination string,
 					}
 				}
 			}
+
+			// If origin has been found and destination hasn't yet, then check against
+			// destination stops array for a match. Once found, this step is skipped
 			if originFound == true && originAndDestinationFound == false {
 				for _, destinationStop := range destinationStops {
 					if allStops.StopNumber == destinationStop.StopNumber {
@@ -205,21 +227,31 @@ func FindMatchingRouteForDepartureV2(destination string,
 					}
 				}
 			}
+
+			// Finally check at the end of loop if both stops have been found
+			// and if they have, exit the loop
 			if originAndDestinationFound == true {
 				break
 			}
 		}
 
+		// At the end of the iteration over all stops, if a matching origin
+		// and destination were never found, skip remaining steps and move on
+		// to next route document in result slice
 		if originAndDestinationFound == false {
 			continue
 		}
+
+		// Slice for stops in route created along with time variables used later
 		route.Stops = CreateStopsSlice(routeWithOAndD.OriginStopNumber,
 			routeWithOAndD.DestinationStopNumber, currentRoute, stop)
 
-		// An empty slice of shapes is created here for each outer iteration for
-		// the same reason as the empty slice for the stops above
+		// Shapes slice created
 		route.Shapes = CreateShapesSlice(currentRoute)
 
+		// If the origin and destination were somehow found out of order then
+		// skip this iteration and move onto the next route document in result
+		// slice
 		if originStopSequence > destinationStopSequence {
 			continue
 		}
@@ -229,20 +261,29 @@ func FindMatchingRouteForDepartureV2(destination string,
 		route.Fares = CalculateFare(currentRoute,
 			routeWithOAndD.OriginStopNumber, routeWithOAndD.DestinationStopNumber)
 
+		// Set route direction variable so that it matches necessary direction input
+		// for travel time prediction
 		if currentRoute.Direction == "1" {
 			route.Direction = "2"
 		} else {
 			route.Direction = "1"
 		}
 
+		// Get travel time prediction as floating point numbers based on call to external api
+		// connecting to flask application
 		initialTravelTime, err := GetTravelTimePrediction(route.RouteNum, date, route.Direction)
 		if err != nil {
 			log.Println(err)
 		}
 
+		// Floating point travel time used in conjunction with static timetable time
+		// information to generate more user-friendly travel time information
 		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
 			destinationStopArrivalTime, firstStopArrivalTime, finalStopArrivalTime)
 
+		// If the travel time prediction could not be calculated then source will have
+		// been set to static, where now static timetable information is used for the
+		// travel time estimation returned to the user
 		if journeyTravelTime.Source == "static" {
 			staticTravelTime := GetStaticTime(originStopArrivalTime, destinationStopArrivalTime)
 			journeyTravelTime.TransitTime = staticTravelTime
@@ -254,9 +295,14 @@ func FindMatchingRouteForDepartureV2(destination string,
 		}
 		route.TravelTime = journeyTravelTime
 
+		// The stops slice is finally adjusted so that it only contains stops along the route being
+		// travelled
 		originStopIndex, destinationStopIndex := CurateStopsSlice(routeWithOAndD.OriginStopNumber,
 			routeWithOAndD.DestinationStopNumber)
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
+
+		// Static timetable departure time is used to provide the user of an estimate
+		// for how when a bus will arrive to begin their journey
 		route.TravelTime.ScheduledDepartureTime = GetTimeStringAsHoursAndMinutes(route.Stops[0].ArrivalTime)
 
 		resultJSON = append(resultJSON, route)
@@ -265,12 +311,23 @@ func FindMatchingRouteForDepartureV2(destination string,
 	return resultJSON
 }
 
-func FindMatchingRouteForArrivalV2(origin string,
+// FindMatchingRouteForArrival takes in the destination coordinates,
+// the origin coordinates and the date for a bus trip and returns a slice
+// of bus routes that match the given parameters. Its three parameters are all
+// taken in as strings and the returned bus routes are of type busRouteJSON. It
+// is distinct from the FindMatchingRouteForDeparture function as it bases
+// its MongoDb query on the arrival time at the destination stop rather
+// than the time to leave the origin stop
+func FindMatchingRouteForArrival(origin string,
 	destination string,
 	date string) []busRouteJSON {
 
+	// resultJSON kept local so that routes from other calls don't persist
 	var resultJSON []busRouteJSON
 
+	// First step is taking in coordinates, locating the stops near those
+	// coordinates and then returning the 10 closest stops to that initial
+	// coordinate pair
 	originCoordinates := TurnParameterToCoordinates(origin)
 	destinationCoordinates := TurnParameterToCoordinates(destination)
 
@@ -280,6 +337,8 @@ func FindMatchingRouteForArrivalV2(origin string,
 	originStops := CurateNearbyStops(stopsNearOrigin, originCoordinates)
 	destinationStops := CurateNearbyStops(stopsNearDestination, destinationCoordinates)
 
+	// Stop numbers for the origin and destination are then extracted from the
+	// 10 nearest stops
 	originStopNums := []string{}
 	for _, originStop := range originStops {
 		originStopNums = append(originStopNums, originStop.StopNumber)
@@ -291,8 +350,6 @@ func FindMatchingRouteForArrivalV2(origin string,
 	}
 	client, err := ConnectToMongo()
 
-	// Create context variable and assign time for timeout
-	// Log any resulting error here also
 	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
 	err = client.Connect(ctx)
 	if err != nil {
@@ -300,8 +357,8 @@ func FindMatchingRouteForArrivalV2(origin string,
 	}
 	defer client.Disconnect(ctx) // defer has rest of function complete before disconnect
 
+	// Time of day portion of the date entered extracted here
 	timeString := GetTimeString(date)
-	log.Println(timeString)
 
 	// Aggregation pipeline created in Mongo Compass and then transformed to suit
 	// the mongo driver in Go
@@ -375,14 +432,20 @@ func FindMatchingRouteForArrivalV2(origin string,
 		log.Println(err)
 	}
 
+	// routes object used to decode the results of the query and prepare for
+	// transformation
 	var routes []busRoute
 
 	if err = query.All(ctx, &routes); err != nil {
 		log.Println(err)
 	}
 
+	// Iterate over the result objects to transform them into suitable return
+	// objects while also generating travel time predictions and fare calculations
 	for _, currentRoute := range routes {
 
+		// Intermediary object to hold route information with fields for
+		// origin and destination stop numbers
 		var routeWithOAndD busRouteV2
 		routeWithOAndD.Id = currentRoute.Id[0]
 		routeWithOAndD.Stops = currentRoute.Stops
@@ -391,9 +454,15 @@ func FindMatchingRouteForArrivalV2(origin string,
 
 		route.RouteNum = currentRoute.Id[0]
 
+		// Two flags used within main loop when checking for matching origin and destination
 		originAndDestinationFound := false
 		originFound := false
+
+		// Main loop iterates over each stop in the route object
 		for _, allStops := range currentRoute.Stops {
+
+			// If origin isn't found then check against the array of origin
+			// stops for a match here. Otherwise, ignore this inner loop
 			if originFound == false {
 				for _, originStop := range originStops {
 					if allStops.StopNumber == originStop.StopNumber {
@@ -403,6 +472,9 @@ func FindMatchingRouteForArrivalV2(origin string,
 					}
 				}
 			}
+
+			// If origin has been found and destination hasn't yet, then check against
+			// destination stops array for a match. Once found, this step is skipped
 			if originFound == true && originAndDestinationFound == false {
 				for _, destinationStop := range destinationStops {
 					if allStops.StopNumber == destinationStop.StopNumber {
@@ -412,19 +484,31 @@ func FindMatchingRouteForArrivalV2(origin string,
 					}
 				}
 			}
+
+			// Finally check at the end of loop if both stops have been found
+			// and if they have, exit the loop
 			if originAndDestinationFound == true {
 				break
 			}
 		}
 
+		// At the end of the iteration over all stops, if a matching origin
+		// and destination were never found, skip remaining steps and move on
+		// to next route document in result slice
 		if originAndDestinationFound == false {
 			continue
 		}
+
+		// Slice for stops in route created along with time variables used later
 		route.Stops = CreateStopsSlice(routeWithOAndD.OriginStopNumber,
 			routeWithOAndD.DestinationStopNumber, currentRoute, stop)
 
+		// Shapes slice created
 		route.Shapes = CreateShapesSlice(currentRoute)
 
+		// If the origin and destination were somehow found out of order then
+		// skip this iteration and move onto the next route document in result
+		// slice
 		if originStopSequence > destinationStopSequence {
 			continue
 		}
@@ -434,20 +518,29 @@ func FindMatchingRouteForArrivalV2(origin string,
 		route.Fares = CalculateFare(currentRoute,
 			routeWithOAndD.OriginStopNumber, routeWithOAndD.DestinationStopNumber)
 
+		// Set route direction variable so that it matches necessary direction input
+		// for travel time prediction
 		if currentRoute.Direction == "1" {
 			route.Direction = "2"
 		} else {
 			route.Direction = "1"
 		}
 
+		// Get travel time prediction as floating point numbers based on call to external api
+		// connecting to flask application
 		initialTravelTime, err := GetTravelTimePrediction(route.RouteNum, date, route.Direction)
 		if err != nil {
 			log.Println(err)
 		}
 
+		// Floating point travel time used in conjunction with static timetable time
+		// information to generate more user-friendly travel time information
 		journeyTravelTime := AdjustTravelTime(initialTravelTime, originStopArrivalTime,
 			destinationStopArrivalTime, firstStopArrivalTime, finalStopArrivalTime)
 
+		// If the travel time prediction could not be calculated then source will have
+		// been set to static, where now static timetable information is used for the
+		// travel time estimation returned to the user
 		if journeyTravelTime.Source == "static" {
 			staticTravelTime := GetStaticTime(originStopArrivalTime, destinationStopArrivalTime)
 			journeyTravelTime.TransitTime = staticTravelTime
@@ -459,14 +552,22 @@ func FindMatchingRouteForArrivalV2(origin string,
 		}
 		route.TravelTime = journeyTravelTime
 
+		// The stops slice is finally adjusted so that it only contains stops along the route being
+		// travelled
 		originStopIndex, destinationStopIndex := CurateStopsSlice(routeWithOAndD.OriginStopNumber,
 			routeWithOAndD.DestinationStopNumber)
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
+
+		// Static timetable departure time is used to provide the user of an estimate
+		// for how when a bus will arrive to begin their journey
 		route.TravelTime.ScheduledDepartureTime = GetTimeStringAsHoursAndMinutes(route.Stops[0].ArrivalTime)
 
 		resultJSON = append(resultJSON, route)
 	}
 
+	// The routes within the slice to be returned to the front-end are then
+	// adjusted to prevent routes with destination arrival times that differ
+	// greatly from the desired arrival time being returned
 	resultJSON = CurateReturnedArrivalRoutes(date, resultJSON)
 
 	return resultJSON
