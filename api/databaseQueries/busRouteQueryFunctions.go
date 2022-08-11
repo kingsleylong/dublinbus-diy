@@ -1,11 +1,15 @@
 package databaseQueries
 
 import (
+	"errors"
 	"fmt"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"googlemaps.github.io/maps"
 	"log"
+	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -176,4 +180,33 @@ func GetTimeStringAsHoursAndMinutes(timeString string) string {
 	timeAdjusted := timeSplit[0] + ":" + timeSplit[1]
 
 	return timeAdjusted
+}
+
+func FindNearestStop(nearbyStops []StopWithCoordinates,
+	stopsOnRoute []BusStop, location maps.LatLng) (string, error) {
+
+	var closeStops []StopWithCoordinates
+
+	for _, stopToCheck := range nearbyStops {
+		for _, stopOnRoute := range stopsOnRoute {
+			if stopToCheck.StopNumber == stopOnRoute.StopNumber {
+			}
+			closeStops = append(closeStops, stopToCheck)
+		}
+	}
+
+	if len(closeStops) < 1 {
+		return "error", errors.New("none of origin stops were on given route")
+	} else if len(closeStops) == 1 {
+		return closeStops[0].StopNumber, nil
+	} else {
+		sort.Slice(closeStops, func(i, j int) bool {
+			distanceForPointI := math.Sqrt(math.Pow(closeStops[i].StopLon-location.Lng, 2) +
+				math.Pow(closeStops[i].StopLat-location.Lat, 2))
+			distanceForPointJ := math.Sqrt(math.Pow(closeStops[j].StopLon-location.Lng, 2) +
+				math.Pow(closeStops[j].StopLat-location.Lat, 2))
+			return distanceForPointI < distanceForPointJ
+		})
+		return closeStops[0].StopNumber, nil
+	}
 }
