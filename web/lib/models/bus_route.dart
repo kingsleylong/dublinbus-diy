@@ -73,9 +73,19 @@ class TravelTimes {
   int? transitTimeMin;
   int? transitTimeMax;
   String scheduledDepartureTime;
+  String estimatedArrivalTime;
+  String estimatedArrivalHighTime;
+  String estimatedArrivalLowTime;
 
-  TravelTimes(this.source, this.transitTime, this.transitTimeMin, this.transitTimeMax,
-      this.scheduledDepartureTime);
+  TravelTimes(
+      this.source,
+      this.transitTime,
+      this.transitTimeMin,
+      this.transitTimeMax,
+      this.scheduledDepartureTime,
+      this.estimatedArrivalTime,
+      this.estimatedArrivalHighTime,
+      this.estimatedArrivalLowTime);
 
   factory TravelTimes.fromJson(Map<String, dynamic> json) {
     return TravelTimes(
@@ -86,6 +96,9 @@ class TravelTimes {
       json['transit_time_minus_mae'],
       json['transit_time_plus_mae'],
       json['scheduled_departure_time'],
+      json['estimated_arrival_time'],
+      json['estimated_arrival_high_time'],
+      json['estimated_arrival_low_time'],
     );
   }
 
@@ -97,6 +110,9 @@ class TravelTimes {
     m['transit_time_minus_mae'] = transitTimeMin;
     m['transit_time_plus_mae'] = transitTimeMax;
     m['scheduled_departure_time'] = scheduledDepartureTime;
+    m['estimated_arrival_time'] = estimatedArrivalTime;
+    m['estimated_arrival_high_time'] = estimatedArrivalHighTime;
+    m['estimated_arrival_low_time'] = estimatedArrivalLowTime;
     return m;
   }
 }

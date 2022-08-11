@@ -83,13 +83,8 @@ class _RouteOptionsState extends State<RouteOptions> {
                           ),
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.only(right: 7),
-                      ),
-                      Text(busRoute.travelTimes.scheduledDepartureTime),
                     ],
                   ),
-                  buildFavoriteButton(busRoute, searchFormModel),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -122,8 +117,14 @@ class _RouteOptionsState extends State<RouteOptions> {
                       ),
                     ],
                   ),
+                  buildFavoriteButton(busRoute, searchFormModel),
                 ],
               ),
+              subtitle: Row(children: [
+                Text('${busRoute.travelTimes.scheduledDepartureTime}'
+                    ' - ${busRoute.travelTimes.estimatedArrivalTime}'
+                    ' from ${busRoute.stops[0].stopName}'),
+              ]),
             );
           },
           body: ListTile(
@@ -141,12 +142,18 @@ class _RouteOptionsState extends State<RouteOptions> {
             },
             title: Column(
               children: [
-                Text(item.expandedValue),
+                if (busRoute.travelTimes.source == TravelTimeSources.prediction)
+                  Text('Estimated arrival time range: '
+                      ' ${busRoute.travelTimes.estimatedArrivalLowTime}'
+                      ' ~ ${busRoute.travelTimes.estimatedArrivalHighTime}')
+                else
+                  const Text('No predictions. Travel time from time table.'),
                 FaresTable(fares: fares),
               ],
             ),
             subtitle: Column(
               children: [
+                Text(item.expandedValue),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
