@@ -8,6 +8,7 @@ import '../../models/map_polylines.dart';
 import '../../models/search_form.dart';
 import '../googlemap_mobile.dart';
 import 'fares_table.dart';
+import 'package:localstorage/localstorage.dart';
 
 class RouteOptions extends StatefulWidget {
   const RouteOptions({Key? key}) : super(key: key);
@@ -22,12 +23,13 @@ class _RouteOptionsState extends State<RouteOptions> {
     return Consumer<SearchFormModel>(
       builder: (context, model, child) =>
           Provider.of<SearchFormModel>(context).visibilityRouteOptions
-              ? SingleChildScrollView(child: _buildRouteOptionPanels(model.busRouteItems))
+              ? SingleChildScrollView(child: _buildRouteOptionPanels(model))
               : const Center(child: CircularProgressIndicator()),
     );
   }
 
-  _buildRouteOptionPanels(List<Item>? items) {
+  _buildRouteOptionPanels(SearchFormModel searchFormModel) {
+    var items = searchFormModel.busRouteItems;
     final TextTheme textTheme = Theme.of(context).textTheme;
     if (items == null || items.isEmpty) {
       return const Center(child: Text('No routes found.'));
@@ -55,6 +57,8 @@ class _RouteOptionsState extends State<RouteOptions> {
           canTapOnHeader: true,
           headerBuilder: (BuildContext context, bool isExpanded) {
             return ListTile(
+              // TODO: here need to add the fav icon button and create the list
+              // create the list for the fav route
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -79,10 +83,6 @@ class _RouteOptionsState extends State<RouteOptions> {
                           ),
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.only(right: 7),
-                      ),
-                      Text(busRoute.travelTimes.scheduledDepartureTime),
                     ],
                   ),
                   Row(
@@ -117,8 +117,14 @@ class _RouteOptionsState extends State<RouteOptions> {
                       ),
                     ],
                   ),
+                  buildFavoriteButton(busRoute, searchFormModel),
                 ],
               ),
+              subtitle: Row(children: [
+                Text('${busRoute.travelTimes.scheduledDepartureTime}'
+                    ' - ${busRoute.travelTimes.estimatedArrivalTime}'
+                    ' from ${busRoute.stops[0].stopName}'),
+              ]),
             );
           },
           body: ListTile(
@@ -136,12 +142,18 @@ class _RouteOptionsState extends State<RouteOptions> {
             },
             title: Column(
               children: [
-                Text(item.expandedValue),
+                if (busRoute.travelTimes.source == TravelTimeSources.prediction)
+                  Text('Estimated arrival time range: '
+                      ' ${busRoute.travelTimes.estimatedArrivalLowTime}'
+                      ' ~ ${busRoute.travelTimes.estimatedArrivalHighTime}')
+                else
+                  const Text('No predictions. Travel time from time table.'),
                 FaresTable(fares: fares),
               ],
             ),
             subtitle: Column(
               children: [
+                Text(item.expandedValue),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
@@ -156,6 +168,38 @@ class _RouteOptionsState extends State<RouteOptions> {
           isExpanded: item.isExpanded,
         );
       }).toList(),
+    );
+  }
+
+// tryinf to get a more dynamic key for the storage list - but this only saves one
+  gettingNewKeyValue() {
+//trying to set up values for keys
+    var keyValue = new List<int>.generate(20, (i) => i + 1);
+
+    // for (var keyValue_ in keyValue) {
+    // i'm need to have it as string beacuse otherwise it will not load the row with routes
+    // however this still doesn't create dynamic keys to save the routes
+    String stringValue = keyValue.toString();
+    for (int i = 0; i < stringValue.length; i++) {
+      // print(stringValue[i]);
+      return (stringValue[i]);
+    }
+  }
+
+  buildFavoriteButton(BusRoute busRoute, SearchFormModel searchFormModel) {
+    var favoriteRoute = searchFormModel.favoriteRoutes[busRoute.routeNumber];
+    bool isFavorite = false;
+    if (favoriteRoute != null) {
+      isFavorite = favoriteRoute.favourite;
+    }
+    return IconButton(
+      onPressed: () {
+        searchFormModel.toggleFavorite(busRoute);
+      },
+      icon: Icon(
+        Icons.favorite,
+        color: isFavorite ? Colors.red : Colors.grey,
+      ),
     );
   }
 }

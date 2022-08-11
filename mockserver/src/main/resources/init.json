@@ -1463,13 +1463,13 @@
             "child_cash": 0.9
           },
           "travel_time": {
-            "source": "static",
+            "source": "prediction",
             "transit_time": 17,
-            "transit_time_plus_mae": 17,
+            "transit_time_plus_mae": 18,
             "transit_time_minus_mae": 17,
             "estimated_arrival_time": "22:37",
-            "estimated_arrival_high_time": "22:37",
-            "estimated_arrival_low_time": "22:37",
+            "estimated_arrival_high_time": "22:38",
+            "estimated_arrival_low_time": "22:36",
             "scheduled_departure_time": "22:20"
           },
           "direction": "1"

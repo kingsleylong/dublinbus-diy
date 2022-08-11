@@ -10,4 +10,12 @@ class Shape {
       json['shape_pt_lon'],
     );
   }
+
+  toJson() {
+    Map<dynamic, dynamic> m = {};
+
+    m['shape_pt_lat'] = latitude;
+    m['shape_pt_lon'] = longitude;
+    return m;
+  }
 }

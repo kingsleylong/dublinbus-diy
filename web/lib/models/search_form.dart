@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:uuid/uuid.dart';
 
 import '../api/location_service.dart';
@@ -49,6 +50,14 @@ class SearchFormModel extends ChangeNotifier {
   // The available options for the time type toggle button
   List<TimeType> timeTypes = [TimeType.departure, TimeType.arrival];
 
+  // the state of local storage for Favorite routes
+  bool storageInitialized = false;
+
+  // the instance of local storage for Favorite routes
+  final LocalStorage favoritesStorage = LocalStorage('fav_routes');
+
+  // the favorite routes in the memory
+  Map<String, RouteItem> favoriteRoutes = {};
 
   // getters
   TextEditingController get dateTimePickerController => _dateTimePickerController;
@@ -177,6 +186,8 @@ class SearchFormModel extends ChangeNotifier {
       },
     );
 
+    await initializeFavoritesStorage();
+
     // stop loading, show route options
     visibilityRouteOptions = true;
     visibilityLoadingIcon = false;
@@ -191,7 +202,7 @@ class SearchFormModel extends ChangeNotifier {
         busRouteList =
             List.generate(busRoutesJson.length, (index) => BusRoute.fromJson(busRoutesJson[index]));
         _busRoutes = busRouteList;
-        _busRouteItems = generateItems(busRouteList);
+        _busRouteItems = generateItems(busRouteList, favoriteRoutes);
       } else {
         _busRoutes = [];
         _busRouteItems = [];
@@ -205,7 +216,7 @@ class SearchFormModel extends ChangeNotifier {
     }
   }
 
-  List<Item> generateItems(List<BusRoute> data) {
+  List<Item> generateItems(List<BusRoute> data, Map<String, RouteItem> favoriteRouteList) {
     return List<Item>.generate(data.length, (int index) {
       return Item(
         headerValue: data[index].routeNumber,
@@ -216,8 +227,76 @@ class SearchFormModel extends ChangeNotifier {
             .map((stop) => '${stop.stopName} - stop ${stop.stopNumber}')
             .reduce((value, element) => '$value\n$element'),
         busRoute: data[index],
+        favorite: favoriteRouteList[data[index].routeNumber]?.favourite ?? false,
       );
     });
+  }
+
+  // toggle the state of the selected route and update the route options state
+  toggleFavorite(BusRoute route) {
+    var favoriteRoute = favoriteRoutes[route.routeNumber];
+    if (favoriteRoute == null) {
+      favoriteRoutes[route.routeNumber] = RouteItem(favourite: true, route: route);
+    } else {
+      favoriteRoutes.remove(route.routeNumber);
+    }
+
+    updateRouteOptions();
+
+    saveToStorage();
+    notifyListeners();
+  }
+
+  // sync the favorite state to the route options
+  updateRouteOptions() {
+    if (_busRoutes != null) {
+      _busRouteItems = generateItems(_busRoutes!, favoriteRoutes);
+    }
+  }
+
+  // save the favorites to the local storage
+  saveToStorage() {
+    favoritesStorage.setItem('items', favoriteRoutes);
+    notifyListeners();
+  }
+
+  // create the local storage and load the saved routes into memory
+  initializeFavoritesStorage() async {
+    await favoritesStorage.ready;
+
+    if (!storageInitialized) {
+      final Map<String, dynamic> favoriteRoutesJson = await favoritesStorage.getItem("items") ?? {};
+      favoriteRoutesJson.forEach((key, value) {
+        favoriteRoutes.putIfAbsent(key, () => RouteItem.fromJson(value));
+      });
+
+      storageInitialized = true;
+      notifyListeners();
+    }
+  }
+}
+
+// The class that wraps the bus route and favorite status
+class RouteItem {
+  BusRoute route;
+
+  // The state that control the icon of the Favorite button
+  bool favourite;
+
+  RouteItem({required this.route, required this.favourite});
+
+  factory RouteItem.fromJson(Map<String, dynamic> json) {
+    return RouteItem(route: BusRoute.fromJson(json['route']), favourite: json['favourite']);
+  }
+
+  // This is the default method used to serialize the object to JSON before it's
+  // saved into the local storage
+  toJson() {
+    Map<dynamic, dynamic> m = {};
+
+    m['route'] = route;
+    m['favourite'] = favourite;
+    return m;
   }
 }
 
@@ -226,6 +305,7 @@ class Prediction {
   String mainText;
   String secondaryText;
   late PlaceDetail placeDetail;
+
   // List<String> items;
 
   Prediction(this.placeId, this.mainText, this.secondaryText);
@@ -276,6 +356,7 @@ class Item {
     this.isExpanded = false,
     required this.expandedValue,
     required this.expandedDetailsValue,
+    required this.favorite,
   });
 
   String headerValue;
@@ -283,4 +364,5 @@ class Item {
   BusRoute busRoute;
   String expandedValue;
   String expandedDetailsValue;
+  bool favorite;
 }

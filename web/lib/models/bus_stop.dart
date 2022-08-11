@@ -22,6 +22,17 @@ class BusStop {
     );
   }
 
+  toJson() {
+    Map<dynamic, dynamic> m = {};
+
+    m['stop_number'] = stopNumber;
+    m['stop_name'] = stopName;
+    m['stop_lat'] = latitude;
+    m['stop_lon'] = longitude;
+    m['arrival_time'] = arrivalTime;
+    return m;
+  }
+
   bool isEqual(BusStop s) {
     return stopNumber == s.stopNumber;
   }
