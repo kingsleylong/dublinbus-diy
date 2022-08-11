@@ -271,6 +271,7 @@ class SearchFormModel extends ChangeNotifier {
       });
 
       storageInitialized = true;
+      notifyListeners();
     }
   }
 }

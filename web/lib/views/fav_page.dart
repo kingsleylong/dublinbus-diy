@@ -15,14 +15,9 @@ class RouteFavOptions extends StatefulWidget {
 // create the fav page
 class FavoritePage extends State<RouteFavOptions> {
   @override
-  void initState() {
-    super.initState();
-    // init the local storage in case the search function was not called before this
-    Provider.of<SearchFormModel>(context, listen: false).initializeFavoritesStorage();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // init the local storage everytime creating this page to make sure it's loaded
+    Provider.of<SearchFormModel>(context, listen: false).initializeFavoritesStorage();
     return Scaffold(
         appBar: AppBar(
           title: const Text("Favourites"),
