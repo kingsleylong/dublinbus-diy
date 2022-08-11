@@ -94,7 +94,14 @@ class SearchFormModel extends ChangeNotifier {
     Uri request = Uri.http(
       googlemapApiHost,
       '/api/googlemaps/maps/api/place/autocomplete/json',
-      {'input': filter, 'inputtype': 'textquery', 'sessionToken': sessionToken},
+      {
+        'input': filter,
+        'inputtype': 'textquery',
+        'sessionToken': sessionToken,
+        'region': 'ie', // Ireland
+        'location': '53.34640516825308, -6.267271142573096', // Dublin City Center
+        'radius': '35000' // 35 km
+      },
     );
     print('request uri: $request');
     Response response = await http.get(request);
