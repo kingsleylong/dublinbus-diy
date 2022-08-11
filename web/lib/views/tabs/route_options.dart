@@ -94,18 +94,16 @@ class _RouteOptionsState extends State<RouteOptions> {
 
   @override
   Widget build(BuildContext context) {
-    if (Provider.of<SearchFormModel>(context).visibilityRouteOptions) {
-      return Consumer<SearchFormModel>(
-        builder: (context, model, child) => SingleChildScrollView(
-          child: _buildRouteOptionPanels(model.busRouteItems),
-        ),
-      );
-    } else {
-      return Container();
-    }
+    return Consumer<SearchFormModel>(
+      builder: (context, model, child) =>
+          Provider.of<SearchFormModel>(context).visibilityRouteOptions
+              ? SingleChildScrollView(child: _buildRouteOptionPanels(model.busRouteItems))
+              : const Center(child: CircularProgressIndicator()),
+    );
   }
 
   _buildRouteOptionPanels(List<Item>? items) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
     if (items == null || items.isEmpty) {
       return const Center(child: Text('No routes found.'));
     }
@@ -126,8 +124,8 @@ class _RouteOptionsState extends State<RouteOptions> {
       },
       children: items.map<ExpansionPanel>((Item item) {
         var busRoute = item.busRoute;
-        // print(busRoute.routeNumber);
-        var fares = item.busRoute.fares;
+        var fares = busRoute.fares;
+        var travelTimes = busRoute.travelTimes;
         return ExpansionPanel(
           canTapOnHeader: true,
           headerBuilder: (BuildContext context, bool isExpanded) {
@@ -140,30 +138,60 @@ class _RouteOptionsState extends State<RouteOptions> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Icon(Icons.directions_bus),
-                      Text(
-                        busRoute.routeNumber,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      const Padding(
+                        padding: EdgeInsets.only(right: 4),
+                        child: Icon(Icons.directions_bus),
                       ),
-                      // function call
-
-                      _buildButton(gettingNewKeyValue(), busRoute.routeNumber),
-
-                      Row(
-                        children: [
-                          const Icon(Icons.timer_outlined),
-                          Text(
-                            '${busRoute.travelTimes?.transitTimeMin} - ${busRoute.travelTimes?.transitTimeMax} min',
+                      Container(
+                        color: Colors.amberAccent,
+                        child: Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: Text(
+                            busRoute.routeNumber,
+                            textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ],
+                        ),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(right: 7),
+                      ),
+                      Text(busRoute.travelTimes.scheduledDepartureTime),
+                    ],
+                  ),
+                  _buildButton(gettingNewKeyValue(), busRoute.routeNumber),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: travelTimes.source == TravelTimeSources.static
+                          // tooltip: https://api.flutter.dev/flutter/material/Tooltip-class.html
+                              // travel time from static table
+                              ? const Tooltip(
+                                  message: 'Travel time from static time table',
+                                  child: Icon(Icons.timer_outlined),
+                                )
+                              // travel time from prediction
+                              : Tooltip(
+                                  message: 'Predicted travel time: ${travelTimes.transitTimeMin}'
+                                      ' - ${travelTimes.transitTimeMax} min',
+                                  child: const Icon(Icons.update),
+                                )),
+                      // sized box sets a fixed width of the text and align them vertically
+                      SizedBox(
+                        width: 60,
+                        child: Text(
+                          // '${busRoute.travelTimes?.transitTimeMin} - ${busRoute.travelTimes?.transitTimeMax} min',
+                          '${travelTimes.transitTime} min',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -172,26 +200,35 @@ class _RouteOptionsState extends State<RouteOptions> {
             );
           },
           body: ListTile(
+            onTap: () {
+              setState(() {
+                // always collapse the panel on tapping the body
+                item.isExpanded = false;
+              });
+              if (Provider.of<AppModel>(context, listen: false).screenSize == ScreenType.mobile) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => const GoogleMapMobileComponent()));
+              }
+            },
             title: Column(
               children: [
                 Text(item.expandedValue),
-                const Text('Fares:'),
-                // Use Wrap to arrange the children widgets horizontally
-                // https://stackoverflow.com/a/50096780
-                Wrap(spacing: 10, children: [
-                  // use the Null-coalescing operators to provide an alternative value
-                  // when the expression evaluates to null
-                  // https://dart.dev/codelabs/null-safety#exercise-null-coalescing-operators
-                  Text('Adult Leap: €${fares.adultLeap ?? '-'}'),
-                  Text('Adult Cash: €${fares.adultCash ?? '-'}'),
-                  Text('Child Cash: €${fares.childCash ?? '-'}'),
-                  Text('Child Leap: €${fares.childLeap ?? '-'}'),
-                  Text('Student Leap: €${fares.studentLeap ?? '-'}'),
-                ]),
+                FaresTable(fares: fares),
               ],
             ),
-            subtitle: Center(
-              child: Text(item.expandedDetailsValue),
+            subtitle: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Touch to see the route on map',
+                    style: textTheme.bodyLarge,
+                  ),
+                ),
+                Text(item.expandedDetailsValue),
+              ],
             ),
           ),
           isExpanded: item.isExpanded,
