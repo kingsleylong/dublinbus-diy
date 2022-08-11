@@ -10,35 +10,6 @@ import '../googlemap_mobile.dart';
 import 'fares_table.dart';
 import 'package:localstorage/localstorage.dart';
 
-List<String> favoriteRouteList = [];
-
-// Map<String, dynamic> favoriteRouteList = {};
-
-class RouteItem {
-  String route;
-  bool favourite;
-
-  RouteItem({required this.route, required this.favourite});
-
-  toJSONEncodable() {
-    Map<dynamic, dynamic> m = new Map();
-
-    m['route_num'] = route;
-    m['favourite'] = favourite;
-    return m;
-  }
-}
-
-class RouteList {
-  List<RouteItem> favoriteRouteList = [];
-
-  toJSONEncodable() {
-    return favoriteRouteList.map((item) {
-      return item.toJSONEncodable();
-    }).toList();
-  }
-}
-
 class RouteOptions extends StatefulWidget {
   const RouteOptions({Key? key}) : super(key: key);
 
@@ -47,62 +18,18 @@ class RouteOptions extends StatefulWidget {
 }
 
 class _RouteOptionsState extends State<RouteOptions> {
-  final RouteList list = new RouteList();
-  final LocalStorage storage = new LocalStorage('fav_routes');
-  bool initialized = false;
-
-  _toggleItem(RouteItem route) {
-    setState(() {
-      route.favourite = !route.favourite;
-      _saveToStorage();
-    });
-  }
-
-  _addItem(String route) {
-    setState(() {
-      final item = new RouteItem(route: route, favourite: false);
-      list.favoriteRouteList.add(item);
-      _saveToStorage();
-    });
-  }
-
-  _deleteItem(String route) {
-    setState(() {
-      final item = new RouteItem(route: route, favourite: false);
-      list.favoriteRouteList.remove(item);
-      _deleteFromStorage();
-    });
-  }
-
-  _saveToStorage() {
-    storage.setItem('favourite', list.toJSONEncodable());
-  }
-
-  _deleteFromStorage() {
-    storage.deleteItem('favourite');
-  }
-
-  _clearStorage() async {
-    await storage.clear();
-
-    setState(() {
-      list.favoriteRouteList = storage.getItem('favourite') ?? [];
-    });
-  }
-
-  bool isButtonPressed = false;
-
   @override
   Widget build(BuildContext context) {
     return Consumer<SearchFormModel>(
       builder: (context, model, child) =>
           Provider.of<SearchFormModel>(context).visibilityRouteOptions
-              ? SingleChildScrollView(child: _buildRouteOptionPanels(model.busRouteItems))
+              ? SingleChildScrollView(child: _buildRouteOptionPanels(model))
               : const Center(child: CircularProgressIndicator()),
     );
   }
 
-  _buildRouteOptionPanels(List<Item>? items) {
+  _buildRouteOptionPanels(SearchFormModel searchFormModel) {
+    var items = searchFormModel.busRouteItems;
     final TextTheme textTheme = Theme.of(context).textTheme;
     if (items == null || items.isEmpty) {
       return const Center(child: Text('No routes found.'));
@@ -162,14 +89,14 @@ class _RouteOptionsState extends State<RouteOptions> {
                       Text(busRoute.travelTimes.scheduledDepartureTime),
                     ],
                   ),
-                  _buildButton(gettingNewKeyValue(), busRoute.routeNumber),
+                  buildFavoriteButton(busRoute, searchFormModel),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
                           padding: const EdgeInsets.only(right: 4),
                           child: travelTimes.source == TravelTimeSources.static
-                          // tooltip: https://api.flutter.dev/flutter/material/Tooltip-class.html
+                              // tooltip: https://api.flutter.dev/flutter/material/Tooltip-class.html
                               // travel time from static table
                               ? const Tooltip(
                                   message: 'Travel time from static time table',
@@ -252,38 +179,20 @@ class _RouteOptionsState extends State<RouteOptions> {
     }
   }
 
-// function to change the button when it's pressed
-// to either add or remove the route from favourites
-
-// todo: button doesn't work when it's pressed a second time to remove the fav route
-  _buildButton(String key_, String value_) {
-    bool _isPressed = false;
-    return Row(
-      children: <Widget>[
-        IconButton(
-            icon: Icon(Icons.favorite),
-            onPressed: () {
-              setState(() {
-                _isPressed = !_isPressed;
-              });
-              if (_isPressed) {
-                Colors.amber;
-                // This block should be executed when button is pressed odd number of times.
-                // this saves the route to localstorage
-                storage.ready;
-                print("setting the route as favourite");
-                storage.setItem('$key_', '$value_');
-              }
-              if (!_isPressed) {
-                Colors.red;
-                // This block should be executed when button is pressed even number of times;
-                // this deletes the route to localstorage
-                storage.ready;
-                print("deleting the route from favourite");
-                storage.deleteItem('$key_');
-              }
-            }),
-      ],
+  buildFavoriteButton(BusRoute busRoute, SearchFormModel searchFormModel) {
+    var favoriteRoute = searchFormModel.favoriteRoutes[busRoute.routeNumber];
+    bool isFavorite = false;
+    if (favoriteRoute != null) {
+      isFavorite = favoriteRoute.favourite;
+    }
+    return IconButton(
+      onPressed: () {
+        searchFormModel.toggleFavorite(busRoute);
+      },
+      icon: Icon(
+        Icons.favorite,
+        color: isFavorite ? Colors.red : Colors.grey,
+      ),
     );
   }
 }

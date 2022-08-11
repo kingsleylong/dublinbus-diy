@@ -17,9 +17,20 @@ class BusRoute {
       json['route_num'].toString().toUpperCase(),
       stopsJson.map((busStopJson) => BusStop.fromJson(busStopJson, null)).toList(),
       shapesJson.map((shapeJson) => Shape.fromJson(shapeJson)).toList(),
-      Fares.fromJson(json['fares'] ?? {}),
-      TravelTimes.fromJson(json['travel_time'] ?? {}),
+      Fares.fromJson(json['fares']),
+      TravelTimes.fromJson(json['travel_time']),
     );
+  }
+
+  toJson() {
+    Map<dynamic, dynamic> m = {};
+
+    m['route_num'] = routeNumber;
+    m['stops'] = stops;
+    m['shapes'] = shapes;
+    m['fares'] = fares;
+    m['travel_time'] = travelTimes;
+    return m;
   }
 }
 
@@ -43,6 +54,17 @@ class Fares {
       (json['child_cash'] as num).toDouble(),
     );
   }
+
+  toJson() {
+    Map<dynamic, dynamic> m = {};
+
+    m['adult_leap'] = adultLeap;
+    m['adult_cash'] = adultCash;
+    m['student_leap'] = studentLeap;
+    m['child_leap'] = childLeap;
+    m['child_cash'] = childCash;
+    return m;
+  }
 }
 
 class TravelTimes {
@@ -65,6 +87,17 @@ class TravelTimes {
       json['transit_time_plus_mae'],
       json['scheduled_departure_time'],
     );
+  }
+
+  toJson() {
+    Map<dynamic, dynamic> m = {};
+
+    m['source'] = source.name;
+    m['transit_time'] = transitTime;
+    m['transit_time_minus_mae'] = transitTimeMin;
+    m['transit_time_plus_mae'] = transitTimeMax;
+    m['scheduled_departure_time'] = scheduledDepartureTime;
+    return m;
   }
 }
 
