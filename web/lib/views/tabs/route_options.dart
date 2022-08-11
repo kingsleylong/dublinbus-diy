@@ -8,7 +8,6 @@ import '../../models/map_polylines.dart';
 import '../../models/search_form.dart';
 import '../googlemap_mobile.dart';
 import 'fares_table.dart';
-import 'package:localstorage/localstorage.dart';
 
 class RouteOptions extends StatefulWidget {
   const RouteOptions({Key? key}) : super(key: key);
@@ -120,10 +119,19 @@ class _RouteOptionsState extends State<RouteOptions> {
                   buildFavoriteButton(busRoute, searchFormModel),
                 ],
               ),
-              subtitle: Row(children: [
-                Text('${busRoute.travelTimes.scheduledDepartureTime}'
-                    ' - ${busRoute.travelTimes.estimatedArrivalTime}'
-                    ' from ${busRoute.stops[0].stopName}'),
+              subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(
+                  children: [
+                    Text('${busRoute.travelTimes.scheduledDepartureTime}'
+                        ' - ${busRoute.travelTimes.estimatedArrivalTime}'),
+                    if (busRoute.travelTimes.source == TravelTimeSources.prediction)
+                      Text(' (arrive '
+                          ' ${busRoute.travelTimes.estimatedArrivalLowTime}'
+                          ' ~ ${busRoute.travelTimes.estimatedArrivalHighTime})')
+                  ],
+                ),
+                Text('from ${busRoute.stops[0].stopName}'
+                    ' to ${busRoute.stops[busRoute.stops.length - 1].stopName}'),
               ]),
             );
           },
@@ -162,6 +170,7 @@ class _RouteOptionsState extends State<RouteOptions> {
                   ),
                 ),
                 Text(item.expandedDetailsValue),
+                const Padding(padding: EdgeInsets.only(bottom: 15)),
               ],
             ),
           ),
