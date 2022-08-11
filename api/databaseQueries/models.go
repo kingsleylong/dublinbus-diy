@@ -7,12 +7,23 @@ package databaseQueries
 // The Stops array is made of type BusStop while the Shapes array is made of type
 // Shape.
 type busRoute struct {
-	Id        []string  `bson:"_id" json:"_id"`
+	Id        []byte    `bson:"_id" json:"_id"`
 	Direction string    `bson:"direction_id" json:"direction_id"`
 	Stops     []BusStop `bson:"stops" json:"stops"`
 	Shapes    []Shape   `bson:"shapes" json:"shapes"`
 }
 
+type RouteId struct {
+	RouteNum  string `bson:"route_num" json:"route_num"`
+	Direction string `bson:"direction" json:"direction"`
+}
+
+// busRouteV2 is a data model that is very similar to the busRoute model used to
+// read in the data found in the Mongo collection but it also contains the origin
+// and destination stop numbers as separate fields. Given the query structure for
+// querying by stops within an array, these fields are necessary to later have the
+// origin and destination stops for filtering out the correct length of the trip
+// for several elements of the route finding functionality later
 type busRouteV2 struct {
 	Id                    string    `bson:"_id" json:"_id"`
 	Direction             string    `bson:"direction_id" json:"direction_id"`
@@ -35,15 +46,6 @@ type busRouteJSON struct {
 	TravelTime TravelTimePrediction `bson:"travel_time,omitempty" json:"travel_time,omitempty"`
 	Direction  string               `bson:"direction" json:"direction"`
 }
-
-//type busRouteJSONV2 struct {
-//	RouteNum   string               `bson:"route_num" json:"route_num"`
-//	Stops      []RouteStop          `bson:"stops" json:"stops"`
-//	Shapes     []ShapeJSON          `bson:"shapes" json:"shapes"`
-//	Fares      busFares             `bson:"fares" json:"fares"`
-//	TravelTime TravelTimePrediction `bson:"travel_time,omitempty" json:"travel_time,omitempty"`
-//	Direction  string               `bson:"direction" json:"direction"`
-//}
 
 // RouteStop represents the stop information contained within the trips_n_stops
 // collection in MongoDB. The information contains the StopId that can be used
@@ -72,13 +74,15 @@ type RouteStop struct {
 // the bus route to be drawn on a map matching the road network of Dublin.
 // All fields map to type string from the database
 type Shape struct {
-	//ShapeId         string `bson:"shape_id" json:"shape_id"`
 	ShapePtLat      string `bson:"shape_pt_lat" json:"shape_pt_lat"`
 	ShapePtLon      string `bson:"shape_pt_lon" json:"shape_pt_lon"`
 	ShapePtSequence string `bson:"shape_pt_sequence" json:"shape_pt_sequence"`
 	ShapeDistTravel string `bson:"shape_dist_traveled" json:"shape_dist_traveled"`
 }
 
+// ShapeJSON is similar in design to the Shape model in but this new
+// ShapeJSON model converts the latitudes and longitudes of each point
+// into floats to be passed back to the front-end in this format
 type ShapeJSON struct {
 	ShapePtLat      float64 `bson:"shape_pt_lat" json:"shape_pt_lat"`
 	ShapePtLon      float64 `bson:"shape_pt_lon" json:"shape_pt_lon"`
@@ -139,18 +143,34 @@ type busFares struct {
 	ChildCash   float64 `bson:"child_cash" json:"child_cash"`
 }
 
+// TravelTimePredictionString contains the three different travel time
+// fields (the initial prediction time for the whole route, that time plus
+// the mean average error and that whole route time minus the mean average error)
+// as strings in the format that they are returned from the flask application
+// handling unpickling the pickle files containing the prediction models
 type TravelTimePredictionString struct {
 	TransitTime         string `bson:"transit_time" json:"transit_time"`
 	TransitTimePlusMAE  string `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
 	TransitTimeMinusMAE string `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
 }
 
+// TravelTimePredictionFloat contains the exact same three fields as TravelTimePredictionString
+// but these fields are all converted into floating point numbers to facilitate additional
+// calculcations in the back-end based on these values
 type TravelTimePredictionFloat struct {
 	TransitTime         float64 `bson:"transit_time" json:"transit_time"`
 	TransitTimePlusMAE  float64 `bson:"transit_time_plus_mae" json:"transit_time_plus_mae"`
 	TransitTimeMinusMAE float64 `bson:"transit_time_minus_mae" json:"transit_time_minus_mae"`
 }
 
+// TravelTimePrediction is the data model holding all the necessary information for the
+// travel time prediction for a route object. It contains a source field determining if
+// the prediction was generated statically from the timetable or dynamically using predictive
+// models; three fields for the travel time as per TravelTimePredictionFloat but these fields
+// are now integers rounded to the nearest minute; three fields with the travel time added to
+// the static scheduled departure from the first stop to find the estimated arrival time for the
+// given destination; and the scheduled departure time from the static timetable for the
+// given origin
 type TravelTimePrediction struct {
 	Source                   string `bson:"source" json:"source"`
 	TransitTime              int    `bson:"transit_time" json:"transit_time"`
@@ -162,17 +182,31 @@ type TravelTimePrediction struct {
 	ScheduledDepartureTime   string `bson:"scheduled_departure_time" json:"scheduled_departure_time"`
 }
 
+// RouteByStop contains the id of a given route as its route number and the slice
+// of stops along that route, each of which is type BusStop
 type RouteByStop struct {
 	Id    string    `bson:"_id" json:"_id"`
 	Stops []BusStop `bson:"stops" json:"stops"`
 }
 
+// MatchedRoute is a data model that contains the origin stop number,
+// the destination stop number and the route number for a route that has been
+// matched in the database all as strings
 type MatchedRoute struct {
-	OriginStop      string `bson:"origin_stop" json:"origin_stop"`
-	DestinationStop string `bson:"destination_stop" json:"destination_stop"`
-	RouteNumber     string `bson:"route_number" json:"route_number"`
+	Id    []string  `bson:"_id" json:"_id"`
+	Stops []BusStop `bson:"stops" json:"stops"`
 }
 
+type MatchedRouteWithOAndD struct {
+	Id                    []string  `bson:"_id" json:"_id"`
+	Stops                 []BusStop `bson:"stops" json:"stops"`
+	OriginStopNumber      string    `bson:"origin_stop_number" json:"origin_stop_number"`
+	DestinationStopNumber string    `bson:"destination_stop_number" json:"destination_stop_number"`
+}
+
+// GeolocatedStop is a data model that contains the stop information for a given
+// bus stop in string format (i.e. its stop id, stop name, stop number and coordinates
+// on a map) as well as the internal Mongo id for the data entry
 type GeolocatedStop struct {
 	ID         string `bson:"_id,omitempty" json:"_id,omitempty"`
 	StopId     string `bson:"stop_id" json:"stop_id"`
