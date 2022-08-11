@@ -192,6 +192,13 @@ type MatchedRoute struct {
 	Stops []BusStop `bson:"stops" json:"stops"`
 }
 
+type MatchedRouteWithOAndD struct {
+	Id                    []string  `bson:"_id" json:"_id"`
+	Stops                 []BusStop `bson:"stops" json:"stops"`
+	OriginStopNumber      string    `bson:"origin_stop_number" json:"origin_stop_number"`
+	DestinationStopNumber string    `bson:"destination_stop_number" json:"destination_stop_number"`
+}
+
 // GeolocatedStop is a data model that contains the stop information for a given
 // bus stop in string format (i.e. its stop id, stop name, stop number and coordinates
 // on a map) as well as the internal Mongo id for the data entry

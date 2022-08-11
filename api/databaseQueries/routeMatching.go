@@ -151,6 +151,17 @@ func FindMatchingRouteForDeparture(destination string,
 		log.Println(err)
 	}
 
+	var routesWithOAndD []MatchedRouteWithOAndD
+	var routeWithOAndD MatchedRouteWithOAndD
+	for _, matchingRoute := range routes {
+		routeWithOAndD.Id = matchingRoute.Id
+		routeWithOAndD.Stops = matchingRoute.Stops
+		routeWithOAndD.OriginStopNumber, _ = FindNearestStop(originStops,
+			matchingRoute.Stops, originCoordinates)
+		routeWithOAndD.DestinationStopNumber, _ = FindNearestStop(destinationStops,
+			matchingRoute.Stops, destinationCoordinates)
+	}
+	
 	var fullRoutes []busRoute
 	var allRoutes []busRoute
 	query, err = collection.Aggregate(ctx, bson.A{
