@@ -65,14 +65,24 @@ class _RouteOptionsState extends State<RouteOptions> {
                         padding: EdgeInsets.only(right: 4),
                         child: Icon(Icons.directions_bus),
                       ),
-                      Text(
-                        busRoute.routeNumber,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      Container(
+                        color: Colors.amberAccent,
+                        child: Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: Text(
+                            busRoute.routeNumber,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
+                      const Padding(
+                        padding: EdgeInsets.only(right: 7),
+                      ),
+                      Text(busRoute.travelTimes.scheduledDepartureTime),
                     ],
                   ),
                   Row(
@@ -81,7 +91,7 @@ class _RouteOptionsState extends State<RouteOptions> {
                       Padding(
                           padding: const EdgeInsets.only(right: 4),
                           child: travelTimes.source == TravelTimeSources.static
-                          // tooltip: https://api.flutter.dev/flutter/material/Tooltip-class.html
+                              // tooltip: https://api.flutter.dev/flutter/material/Tooltip-class.html
                               // travel time from static table
                               ? const Tooltip(
                                   message: 'Travel time from static time table',
