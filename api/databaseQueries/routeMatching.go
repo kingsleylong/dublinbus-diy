@@ -91,6 +91,13 @@ func FindMatchingRouteForDeparture(destination string,
 	for _, destinationStop := range destinationStops {
 		destinationStopNums = append(destinationStopNums, destinationStop.StopNumber)
 	}
+
+	log.Println("OriginStopNums:")
+	log.Println(originStopNums)
+	log.Println("")
+	log.Println("DestinationStopNums:")
+	log.Println(destinationStopNums)
+	log.Println("")
 	client, err := ConnectToMongo()
 
 	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
@@ -145,6 +152,7 @@ func FindMatchingRouteForDeparture(destination string,
 							"$direction_id",
 						},
 					},
+					{"stops", bson.D{{"$first", "$stops"}}},
 				},
 			},
 		},
@@ -161,6 +169,11 @@ func FindMatchingRouteForDeparture(destination string,
 		log.Println(err)
 	}
 
+	log.Println("Results from first query:")
+	for _, value := range routes {
+		log.Println(value)
+	}
+	log.Println("")
 	var routesWithOAndD []MatchedRouteWithOAndD
 	var routeWithOAndD MatchedRouteWithOAndD
 	for _, matchingRoute := range routes {
@@ -196,14 +209,17 @@ func FindMatchingRouteForDeparture(destination string,
 					{"_id", "$route.route_short_name"},
 					{"stops", bson.D{{"$first", "$stops"}}},
 					{"shapes", bson.D{{"$first", "$shapes"}}},
+					{"direction", bson.D{{"$first", "$direction_id"}}},
 				}},
 			},
 		})
 		if err != nil {
+			log.Println("Error from Mongo query")
 			log.Println(err)
 		}
 
 		if err = query.All(ctx, &fullRoutes); err != nil {
+			log.Println("Error reading query result into fullRoutes array")
 			log.Println(err)
 		}
 
@@ -211,19 +227,25 @@ func FindMatchingRouteForDeparture(destination string,
 
 	}
 
+	log.Println("All routes in busRoute format:")
+	log.Println(allRoutes)
+	log.Println("")
 	// Iterate over the result objects to transform them into suitable return
 	// objects while also generating travel time predictions and fare calculations
 	for _, currentRoute := range allRoutes {
 
+		log.Println(string(currentRoute.Id))
 		// Intermediary object to hold route information with fields for
 		// origin and destination stop numbers
 		var routeWithOAndD busRouteV2
-		routeWithOAndD.Id = currentRoute.Id[0]
+		routeWithOAndD.Id = string(currentRoute.Id)
 		routeWithOAndD.Stops = currentRoute.Stops
 		routeWithOAndD.Shapes = currentRoute.Shapes
 		routeWithOAndD.Direction = currentRoute.Direction
-
-		route.RouteNum = currentRoute.Id[0]
+		log.Println("Route with Origin and Destination:")
+		log.Println(routeWithOAndD)
+		log.Println("")
+		route.RouteNum = string(currentRoute.Id)
 
 		// Two flags used within main loop when checking for matching origin and destination
 		originAndDestinationFound := false
@@ -263,6 +285,9 @@ func FindMatchingRouteForDeparture(destination string,
 			}
 		}
 
+		log.Println("Route with O and D after loop to check for origin and destination:")
+		log.Println(routeWithOAndD)
+		log.Println("")
 		// At the end of the iteration over all stops, if a matching origin
 		// and destination were never found, skip remaining steps and move on
 		// to next route document in result slice
@@ -475,12 +500,12 @@ func FindMatchingRouteForArrival(origin string,
 		// Intermediary object to hold route information with fields for
 		// origin and destination stop numbers
 		var routeWithOAndD busRouteV2
-		routeWithOAndD.Id = currentRoute.Id[0]
+		routeWithOAndD.Id = string(currentRoute.Id)
 		routeWithOAndD.Stops = currentRoute.Stops
 		routeWithOAndD.Shapes = currentRoute.Shapes
 		routeWithOAndD.Direction = currentRoute.Direction
 
-		route.RouteNum = currentRoute.Id[0]
+		route.RouteNum = string(currentRoute.Id)
 
 		// Two flags used within main loop when checking for matching origin and destination
 		originAndDestinationFound := false
