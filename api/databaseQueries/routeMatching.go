@@ -110,51 +110,21 @@ func FindMatchingRouteForDeparture(destination string,
 	query, err := collection.Aggregate(ctx, bson.A{
 		bson.D{
 			{"$match",
-				bson.D{
-					{"$and",
-						bson.A{
-							bson.D{
-								{"stops",
-									bson.D{
-										{"$elemMatch",
-											bson.D{
-												{"stop_number",
-													bson.D{
-														{"$in",
-															originStopNums,
-														},
-													},
-												},
-												{"arrival_time", bson.D{{"$gte", timeString}}},
-											},
-										},
-									},
-								},
-							},
-							bson.D{
-								{"stops",
-									bson.D{
-										{"$elemMatch",
-											bson.D{
-												{"stop_number",
-													bson.D{
-														{"$in",
-															destinationStopNums,
-														},
-													},
-												},
-												{"arrival_time", bson.D{{"$gte", timeString}}},
-											},
-										},
-									},
-								},
-							},
-						},
-					},
+				bson.D{{
+					"stops", bson.D{{
+						"$elemMatch", bson.D{{
+							"stop_number", bson.D{{
+								"$in", originStopNums,
+							}},
+						}},
+					}},
+				},
 				},
 			},
+			{"stops.stop_number", bson.D{{
+				"$in", destinationStopNums,
+			}}},
 		},
-		bson.D{{"$sort", bson.D{{"stops.arrival_time", 1}}}},
 		bson.D{
 			{"$group",
 				bson.D{
@@ -165,8 +135,6 @@ func FindMatchingRouteForDeparture(destination string,
 						},
 					},
 					{"stops", bson.D{{"$first", "$stops"}}},
-					{"shapes", bson.D{{"$first", "$shapes"}}},
-					{"direction", bson.D{{"$first", "$direction_id"}}},
 				},
 			},
 		},
@@ -177,15 +145,50 @@ func FindMatchingRouteForDeparture(destination string,
 
 	// routes object used to decode the results of the query and prepare for
 	// transformation
-	var routes []busRoute
+	var routes []MatchedRoute
 
 	if err = query.All(ctx, &routes); err != nil {
 		log.Println(err)
 	}
 
+	var fullRoutes []busRoute
+	var allRoutes []busRoute
+	query, err = collection.Aggregate(ctx, bson.A{
+		bson.D{{
+			"$match", bson.D{
+				{"route.route_short_name", "ROUTE"},
+				{"direction_id", "DIRECTION"},
+				{"stops", bson.D{
+					{"$elemMatch", bson.D{
+						{"stop_number", "STOP"},
+						{"departure_time", bson.D{
+							{"$gt", timeString},
+						},
+						}}},
+				}}},
+		}},
+		bson.D{{"$sort", bson.D{{"stops.departure_time", 1}}}},
+		bson.D{
+			{"$group", bson.D{
+				{"_id", "$route.route_short_name"},
+				{"stops", bson.D{{"$first", "$stops"}}},
+				{"shapes", bson.D{{"$first", "$shapes"}}},
+			}},
+		},
+	})
+	if err != nil {
+		log.Println(err)
+	}
+
+	if err = query.All(ctx, &fullRoutes); err != nil {
+		log.Println(err)
+	}
+
+	allRoutes = append(allRoutes, fullRoutes...)
+
 	// Iterate over the result objects to transform them into suitable return
 	// objects while also generating travel time predictions and fare calculations
-	for _, currentRoute := range routes {
+	for _, currentRoute := range allRoutes {
 
 		// Intermediary object to hold route information with fields for
 		// origin and destination stop numbers

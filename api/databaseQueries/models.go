@@ -188,9 +188,8 @@ type RouteByStop struct {
 // the destination stop number and the route number for a route that has been
 // matched in the database all as strings
 type MatchedRoute struct {
-	OriginStop      string `bson:"origin_stop" json:"origin_stop"`
-	DestinationStop string `bson:"destination_stop" json:"destination_stop"`
-	RouteNumber     string `bson:"route_number" json:"route_number"`
+	Id    []string  `bson:"_id" json:"_id"`
+	Stops []BusStop `bson:"stops" json:"stops"`
 }
 
 // GeolocatedStop is a data model that contains the stop information for a given
