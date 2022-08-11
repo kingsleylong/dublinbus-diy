@@ -19,6 +19,7 @@ func main() {
 	// Bus Route queries
 	router.GET("route/matchingRoute/:origin/:destination/:timeType/:time",
 		databaseQueries.FindMatchingRoute)
+	router.GET("findNearByStopsTest/:coordinates", databaseQueries.FindNearbyStopsAPI)
 
 	err := router.Run("0.0.0.0:8080")
 	if err != nil {

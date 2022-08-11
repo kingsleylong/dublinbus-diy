@@ -14,7 +14,7 @@
 # compiling time configuration (web/index.html). It should be placed in the
 # first stage - configs - so that the later stages can use it.
 FROM dublinbus-config AS configs
-RUN ls -lR /config
+# RUN ls -lR /config # this command may cause error in building so comment it out
 
 # 2.=======================BUILD FLUTTER===========================
 # The build container will only compile flutter project
