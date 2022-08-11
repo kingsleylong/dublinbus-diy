@@ -135,6 +135,10 @@ func FindNearbyStops(stopSearch string) []StopWithCoordinates {
 	return matchingStops
 }
 
+// FindNearbyStopsV2 is the updated version of the FindNearbyStops function. It
+// takes in coordinates in the format of maps.LatLng, a type defined in the Google
+// Maps api, and then returns a slice of type StopWithCoordinates that contains
+// all the bus stops within a half mile of that location
 func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
 
 	halfMileAdjustment := 0.008
@@ -144,14 +148,15 @@ func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
 	minLon := stopCoordinates.Lng - halfMileAdjustment
 	maxLon := stopCoordinates.Lng + halfMileAdjustment
 
+	// The floating points that were used for initially creating the search
+	// square from the provided coordinates are turned into strings to enable
+	// use in the Mongo query and labelled as the corners they represent to
+	// assist in understanding the logic of the query
 	SWLatString := strconv.FormatFloat(minLat, 'f', 6, 64)
 	SWLonString := strconv.FormatFloat(minLon, 'f', 6, 64)
 	NELatString := strconv.FormatFloat(maxLat, 'f', 6, 64)
 	NELonString := strconv.FormatFloat(maxLon, 'f', 6, 64)
 
-	log.Println("NE corner: " + NELatString + ", " + NELonString)
-	log.Println("SW corner: " + SWLatString + ", " + SWLonString)
-	log.Println()
 	client, err := ConnectToMongo()
 
 	stopsFilter := bson.D{
@@ -184,7 +189,6 @@ func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
 	if err != nil {
 		log.Print(err)
 	}
-	log.Println(stops)
 
 	// The coordinates from the database are read in a string
 	// representation and so can't be automatically unmarshalled
@@ -195,7 +199,6 @@ func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
 		if err != nil {
 			log.Println(err)
 		}
-		log.Println("Looking at stop number " + currentStop.StopNumber)
 		currentLat, _ := strconv.ParseFloat(currentStop.StopLat, 64)
 		currentLon, _ := strconv.ParseFloat(currentStop.StopLon, 64)
 		currentStopWithCoordinates.StopID = currentStop.StopId
@@ -209,6 +212,10 @@ func FindNearbyStopsV2(stopCoordinates maps.LatLng) []StopWithCoordinates {
 	return matchingStops
 }
 
+// TurnParameterToCoordinates takes in a pair of coordinates as type string and
+// then returns a maps.LatLng object that can be used later for locating nearby
+// stops. The coordinates string is inputted in the format "lat,lng", with no
+// whitespace present
 func TurnParameterToCoordinates(coordinates string) maps.LatLng {
 
 	coordinatesSplit := strings.Split(coordinates, ",")
@@ -219,6 +226,9 @@ func TurnParameterToCoordinates(coordinates string) maps.LatLng {
 	return coordinatesLatLng
 }
 
+// FindNearbyStopsAPI is a demo api that is used to test the functionality of query
+// to find stops near a certain pair of coordinates. This function will be deprecated
+// and removed prior to the final product being released
 func FindNearbyStopsAPI(c *gin.Context) {
 
 	coordinates := c.Param("coordinates")
@@ -239,9 +249,6 @@ func FindNearbyStopsAPI(c *gin.Context) {
 	NELatString := strconv.FormatFloat(maxLat, 'f', 6, 64)
 	NELonString := strconv.FormatFloat(maxLon, 'f', 6, 64)
 
-	log.Println("NE corner: " + NELatString + ", " + NELonString)
-	log.Println("SW corner: " + SWLatString + ", " + SWLonString)
-	log.Println()
 	client, err := ConnectToMongo()
 
 	stopsFilter := bson.D{
@@ -274,7 +281,6 @@ func FindNearbyStopsAPI(c *gin.Context) {
 	if err != nil {
 		log.Print(err)
 	}
-	log.Println(stops)
 
 	// The coordinates from the database are read in a string
 	// representation and so can't be automatically unmarshalled
@@ -285,7 +291,6 @@ func FindNearbyStopsAPI(c *gin.Context) {
 		if err != nil {
 			log.Println(err)
 		}
-		log.Println("Looking at stop number " + currentStop.StopNumber)
 		currentLat, _ := strconv.ParseFloat(currentStop.StopLat, 64)
 		currentLon, _ := strconv.ParseFloat(currentStop.StopLon, 64)
 		currentStopWithCoordinates.StopID = currentStop.StopId
