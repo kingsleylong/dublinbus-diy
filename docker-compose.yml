@@ -1,5 +1,8 @@
 version: "3.5"
 services:
+  # IMPORTANT !!!
+  # The web, certbot, api, and swaggerui service must be deployed on dublinbus-diy.site server for https to work
+  # The scraper and mongodb service will continue to be deployed on the vm ipa-003.ucd.ie
   web:
     build:
       context: web/
@@ -65,6 +68,9 @@ services:
     volumes:
       - /usr/local/dublinbus/database:/data/db
     ports:
+      # the mongodb host is ipa-003.ucd.ie, but the port number is not open
+      # an ssh tunnel is necessary to connect to the mongodb from other servers, i.e.: api
+      # 
       - 10100:27017
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
@@ -78,4 +84,5 @@ services:
 networks:
   default:
     # this name will be used by other docker compose files to share the same network
+    # see https://stackoverflow.com/a/71383328
     name: my_app

@@ -14,4 +14,6 @@ services:
 networks:
   my-proxy-net:
     external:
+      # the referenced external network is defined at the end of ../docker-compose.yml
+      # see https://stackoverflow.com/a/71383328
       name: my_app
