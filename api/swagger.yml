@@ -7,7 +7,7 @@ info:
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "https://dublinbus-diy.site/api"
+host: "dublinbus-diy.site"
 # The base path will be added by Nginx for reverse proxy.
 # It's not required in the api module.
 basePath: "/api"
