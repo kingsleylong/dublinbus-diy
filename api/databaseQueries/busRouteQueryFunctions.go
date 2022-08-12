@@ -185,13 +185,14 @@ func GetTimeStringAsHoursAndMinutes(timeString string) string {
 func FindNearestStop(nearbyStops []StopWithCoordinates,
 	stopsOnRoute []BusStop, location maps.LatLng) (string, error) {
 
+	log.Println("Finding Nearest stop:")
 	var closeStops []StopWithCoordinates
 
 	for _, stopToCheck := range nearbyStops {
 		for _, stopOnRoute := range stopsOnRoute {
 			if stopToCheck.StopNumber == stopOnRoute.StopNumber {
+				closeStops = append(closeStops, stopToCheck)
 			}
-			closeStops = append(closeStops, stopToCheck)
 		}
 	}
 

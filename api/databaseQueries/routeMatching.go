@@ -184,12 +184,16 @@ func FindMatchingRouteForDeparture(destination string,
 			matchingRoute.Stops, originCoordinates)
 		routeWithOAndD.DestinationStopNumber, _ = FindNearestStop(destinationStops,
 			matchingRoute.Stops, destinationCoordinates)
+		log.Println("Matching Route with O and D for route:", routeWithOAndD.Id[0])
+		log.Println(routeWithOAndD)
 		routesWithOAndD = append(routesWithOAndD, routeWithOAndD)
 	}
 
 	var fullRoutes []busRoute
 	var allRoutes []busRoute
 	for _, routeDocument := range routesWithOAndD {
+		log.Println("Route document id field 0 = " + routeDocument.Id[0])
+		log.Println("Route document id field 01 = " + routeDocument.Id[1])
 		query, err = collection.Aggregate(ctx, bson.A{
 			bson.D{{
 				"$match", bson.D{
@@ -225,7 +229,8 @@ func FindMatchingRouteForDeparture(destination string,
 		}
 
 		allRoutes = append(allRoutes, fullRoutes...)
-
+		log.Println("Full Routes array after reading in query result:")
+		log.Println(fullRoutes)
 	}
 
 	log.Println("All routes in busRoute format:")
