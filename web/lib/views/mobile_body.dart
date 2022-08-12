@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'tabs/plan_journey_mobile_tabview.dart';
 import 'about_us.dart';
+import 'fav_page.dart';
 
 class MobileBody extends StatefulWidget {
   const MobileBody({Key? key, required this.tabController}) : super(key: key);
@@ -28,7 +29,16 @@ class _MobileBodyState extends State<MobileBody> {
                 MaterialPageRoute(builder: (context) => const AboutUs()),
               );
             },
-          )
+          ),
+          ElevatedButton(
+            child: const Text('Favourites'),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => RouteFavOptions()),
+              );
+            },
+          ),
         ],
         // bottom: TabBar(
         //   // expand the tab bar out of range and slide the bar when clicking
