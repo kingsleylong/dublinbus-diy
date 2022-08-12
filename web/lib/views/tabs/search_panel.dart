@@ -343,6 +343,8 @@ class _SearchFormState extends State<SearchForm> {
   }
 
   isMobilePlatform() {
+    // Fixing `Caught error: Unsupported operation: Platform._operatingSystem` issue
+    // https://www.wafrat.com/fixing-caught-error-unsupported-operation-platform-_operatingsystem/
     return !kIsWeb && (Platform.isIOS || Platform.isAndroid);
   }
 }
