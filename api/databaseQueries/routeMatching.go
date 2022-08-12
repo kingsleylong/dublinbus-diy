@@ -14,7 +14,7 @@ import (
 // Variables of both busRoute and busRouteJSON need to be initialised as
 // some unmarshalling from Mongo cannot be done automatically and
 // so must be done manually from one structure to another in the backend
-var route busRouteJSON
+
 var stop RouteStop
 var shape ShapeJSON
 var shapes []ShapeJSON
@@ -67,6 +67,7 @@ func FindMatchingRouteForDeparture(destination string,
 
 	// resultJSON kept local so that routes from other calls don't persist
 	var resultJSON []busRouteJSON
+	var route busRouteJSON
 
 	// First step is taking in coordinates, locating the stops near those
 	// coordinates and then returning the 10 closest stops to that initial
@@ -183,12 +184,16 @@ func FindMatchingRouteForDeparture(destination string,
 			matchingRoute.Stops, originCoordinates)
 		routeWithOAndD.DestinationStopNumber, _ = FindNearestStop(destinationStops,
 			matchingRoute.Stops, destinationCoordinates)
+		log.Println("Matching Route with O and D for route:", routeWithOAndD.Id[0])
+		log.Println(routeWithOAndD)
 		routesWithOAndD = append(routesWithOAndD, routeWithOAndD)
 	}
 
-	var fullRoutes []busRoute
-	var allRoutes []busRoute
+	var fullRoutes = []busRoute{}
+	var allRoutes = []busRoute{}
 	for _, routeDocument := range routesWithOAndD {
+		log.Println("Route document id field 0 = " + routeDocument.Id[0])
+		log.Println("Route document id field 01 = " + routeDocument.Id[1])
 		query, err = collection.Aggregate(ctx, bson.A{
 			bson.D{{
 				"$match", bson.D{
@@ -224,7 +229,8 @@ func FindMatchingRouteForDeparture(destination string,
 		}
 
 		allRoutes = append(allRoutes, fullRoutes...)
-
+		log.Println("Full Routes array after reading in query result:")
+		log.Println(fullRoutes)
 	}
 
 	log.Println("All routes in busRoute format:")
@@ -351,7 +357,7 @@ func FindMatchingRouteForDeparture(destination string,
 		// The stops slice is finally adjusted so that it only contains stops along the route being
 		// travelled
 		originStopIndex, destinationStopIndex := CurateStopsSlice(routeWithOAndD.OriginStopNumber,
-			routeWithOAndD.DestinationStopNumber)
+			routeWithOAndD.DestinationStopNumber, route)
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
 
 		// Static timetable departure time is used to provide the user of an estimate
@@ -377,7 +383,7 @@ func FindMatchingRouteForArrival(origin string,
 
 	// resultJSON kept local so that routes from other calls don't persist
 	var resultJSON []busRouteJSON
-
+	var route busRouteJSON
 	// First step is taking in coordinates, locating the stops near those
 	// coordinates and then returning the 10 closest stops to that initial
 	// coordinate pair
@@ -661,7 +667,7 @@ func FindMatchingRouteForArrival(origin string,
 		// The stops slice is finally adjusted so that it only contains stops along the route being
 		// travelled
 		originStopIndex, destinationStopIndex := CurateStopsSlice(routeWithOAndD.OriginStopNumber,
-			routeWithOAndD.DestinationStopNumber)
+			routeWithOAndD.DestinationStopNumber, route)
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
 
 		// Static timetable departure time is used to provide the user of an estimate
