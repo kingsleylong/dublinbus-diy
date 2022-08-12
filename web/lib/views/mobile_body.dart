@@ -1,4 +1,6 @@
+import 'package:dublin_bus_diy/models/map_polylines.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'tabs/plan_journey_mobile_tabview.dart';
 import 'about_us.dart';
@@ -22,7 +24,7 @@ class _MobileBodyState extends State<MobileBody> {
         title: const Text("Dublin Bus DIYs"),
         actions: <Widget>[
           ElevatedButton(
-            child: const Text('About Us'),
+            child: const Text('About'),
             onPressed: () {
               Navigator.push(
                 context,
@@ -31,11 +33,12 @@ class _MobileBodyState extends State<MobileBody> {
             },
           ),
           ElevatedButton(
-            child: const Text('Favourites'),
+            child: const Icon(Icons.favorite),
             onPressed: () {
+              Provider.of<PolylinesModel>(context, listen: false).removeAll();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => RouteFavOptions()),
+                MaterialPageRoute(builder: (context) => const RouteFavOptions()),
               );
             },
           ),

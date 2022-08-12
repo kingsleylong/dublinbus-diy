@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/search_form.dart';
 import '../models/bus_route.dart';
 import '../models/map_polylines.dart';
-import '../views/googlemap_mobile.dart';
+import 'googlemap.dart';
 
 class RouteFavOptions extends StatefulWidget {
   const RouteFavOptions({Key? key}) : super(key: key);
@@ -20,17 +20,18 @@ class FavoritePage extends State<RouteFavOptions> {
     // init the local storage everytime creating this page to make sure it's loaded
     Provider.of<SearchFormModel>(context, listen: false).initializeFavoritesStorage();
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("Favourites"),
-          centerTitle: true,
-          backgroundColor: Colors.blue,
-        ),
-        body: Row(
-          children: [
-            Expanded(child: createListItemFromLocalStorage()),
-            const Expanded(child: GoogleMapMobileComponent()),
-          ],
-        ));
+      appBar: AppBar(
+        title: const Text("Favourite Routes"),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+      ),
+      body: Stack(
+        children: [
+          const GoogleMapComponent(),
+          createListItemFromLocalStorage(),
+        ],
+      ),
+    );
   }
 
 // function to get items from local storage
@@ -72,7 +73,8 @@ class FavoritePage extends State<RouteFavOptions> {
                           const Padding(
                             padding: EdgeInsets.only(right: 7),
                           ),
-                          Text(routeItem.travelTimes.scheduledDepartureTime),
+                          Text('${routeItem.stops.first.stopName}'
+                              ' to ${routeItem.stops.last.stopName}'),
                         ],
                       ),
                       buildFavoriteButton(routeItem, searchFormModel)
