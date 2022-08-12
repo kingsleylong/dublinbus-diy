@@ -2,12 +2,16 @@ import 'dart:convert';
 
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:uuid/uuid.dart';
 
+import '../api/location_service.dart';
 import '../env.dart';
 import 'bus_route.dart';
 import 'bus_route_filter.dart';
-import 'bus_stop.dart';
 
 /// The model for the search form
 class SearchFormModel extends ChangeNotifier {
@@ -21,10 +25,12 @@ class SearchFormModel extends ChangeNotifier {
   bool visibilityLoadingIcon = false;
 
   // The instance field that holds the state of origin dropdown list
-  final _originSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
+  final _originSelectionKey = GlobalKey<DropdownSearchState<Prediction>>();
+  PlaceDetail? originPlaceDetail;
 
   // The instance field that holds the state of destination dropdown list
-  final _destinationSelectionKey = GlobalKey<DropdownSearchState<BusStop>>();
+  final _destinationSelectionKey = GlobalKey<DropdownSearchState<Prediction>>();
+  PlaceDetail? destinationPlaceDetail;
 
   // The instance field that holds the state of the datetime picker
   final TextEditingController _dateTimePickerController =
@@ -44,6 +50,15 @@ class SearchFormModel extends ChangeNotifier {
   // The available options for the time type toggle button
   List<TimeType> timeTypes = [TimeType.departure, TimeType.arrival];
 
+  // the state of local storage for Favorite routes
+  bool storageInitialized = false;
+
+  // the instance of local storage for Favorite routes
+  final LocalStorage favoritesStorage = LocalStorage('fav_routes');
+
+  // the favorite routes in the memory
+  Map<String, RouteItem> favoriteRoutes = {};
+
   // getters
   TextEditingController get dateTimePickerController => _dateTimePickerController;
 
@@ -57,6 +72,123 @@ class SearchFormModel extends ChangeNotifier {
 
   List<BusRoute>? get busRoutes => _busRoutes;
 
+  // The sessionToken is very important for billing!!!
+  // refer to https://developers.google.com/maps/documentation/places/web-service/autocomplete#sessiontoken
+  late String sessionToken;
+
+  SearchFormModel() {
+    // initialize the token
+    sessionToken = generateUuid();
+  }
+
+  String generateUuid() => const Uuid().v4();
+
+  // Use the Place Autocomplete service to implement the address searching feature
+  // https://developers.google.com/maps/documentation/places/web-service/autocomplete#place_autocomplete_requests
+  Future<List<Prediction>> autocompleteAddress(String filter) async {
+    if (filter.isEmpty) return [];
+
+    print('Places autocomplete API sessionToken: $sessionToken');
+
+    String googlemapApiHost = googleMapApiHost;
+    Uri request = Uri.https(
+      googlemapApiHost,
+      '/api/googlemaps/maps/api/place/autocomplete/json',
+      {
+        'input': filter,
+        'inputtype': 'textquery',
+        'sessionToken': sessionToken,
+        'region': 'ie', // Ireland
+        'location': '53.34640516825308, -6.267271142573096', // Dublin City Center
+        'radius': '35000' // 35 km
+      },
+    );
+    print('request uri: $request');
+    Response response = await http.get(request);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      // response structure: https://developers.google.com/maps/documentation/places/web-service/autocomplete#place_autocomplete_responses
+      if (responseBody['status'] == 'OK') {
+        List predictionsJson = responseBody['predictions'];
+        List<Prediction> predictions =
+            predictionsJson.map((predictJson) => Prediction.fromJson(predictJson)).toList();
+        return predictions;
+      }
+    } else {
+      print('Error fetch the predictions');
+    }
+    return [];
+  }
+
+  // Place Details requests
+  // https://developers.google.com/maps/documentation/places/web-service/detailsk
+  Future fetchPlaceDetails(Prediction? prediction, String type) async {
+    print('Places autocomplete API sessionToken: $sessionToken');
+
+    if (type == 'origin') {
+      originPlaceDetail = null;
+    } else if (type == 'destination') {
+      destinationPlaceDetail = null;
+    }
+
+    if (prediction == null) return;
+
+    // TODO delay the logic to when the submit button is clicked??
+    if (prediction.placeId == 'here') {
+      Position? position;
+      try {
+        position = await determinePosition();
+      } catch (e) {
+        print('error determine location:\n $e');
+        if (type == 'origin') {
+          print('clear origin selection');
+          _originSelectionKey.currentState?.clear();
+        } else if (type == 'destination') {
+          print('clear destination selection');
+          _destinationSelectionKey.currentState?.clear();
+        }
+        rethrow;
+        // return Future.error(e);
+      }
+      print('get position: $position');
+      var placeDetail = PlaceDetail(position.latitude, position.longitude);
+      if (type == 'origin') {
+        originPlaceDetail = placeDetail;
+      } else if (type == 'destination') {
+        destinationPlaceDetail = placeDetail;
+      }
+      return;
+    }
+    var placeId = prediction.placeId;
+    String googlemapApiHost = googleMapApiHost;
+    Uri request = Uri.https(
+      googlemapApiHost,
+      '/api/googlemaps/maps/api/place/details/json',
+      {'place_id': placeId, 'fields': 'geometry', 'sessionToken': sessionToken},
+    );
+    print('fetchPlaceDetails request uri: $request');
+    Response response = await http.get(request);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseJson = jsonDecode(response.body);
+      // response structure: https://developers.google.com/maps/documentation/places/web-service/details#PlaceDetailsResponses
+      if (responseJson['status'] == 'OK') {
+        var placeDetail = PlaceDetail.fromJson(responseJson['result']);
+        print('placeDetail: $placeDetail');
+        if (type == 'origin') {
+          originPlaceDetail = placeDetail;
+        } else if (type == 'destination') {
+          destinationPlaceDetail = placeDetail;
+        }
+      }
+    } else {
+      print('Error fetch the predictions');
+    }
+
+    // Important!! sessionToken must be regenerated before return to finish this search session!!
+    sessionToken = generateUuid();
+    print('reset sessionToken: $sessionToken');
+  }
+
   Future<void> fetchBusRoute(BusRouteSearchFilter searchFilter) async {
     // start loading, hide route options
     visibilityRouteOptions = false;
@@ -66,15 +198,16 @@ class SearchFormModel extends ChangeNotifier {
     // notify immediately because the below code will block execution until api returned
     notifyListeners();
 
-    String url = '$apiHost/api/route/matchingRoute';
-    url += '/${searchFilter.originStopNumber}/${searchFilter.destinationStopNumber}'
+    String pathParams = '/${searchFilter.originStopNumber}/${searchFilter.destinationStopNumber}'
         '/${searchFilter.timeType.name}/${searchFilter.time}';
     final response = await http.get(
-      Uri.parse(url),
+      Uri.https(apiHost, "/api/route/matchingRoute$pathParams"),
       headers: {
         "Accept": "application/json",
       },
     );
+
+    await initializeFavoritesStorage();
 
     // stop loading, show route options
     visibilityRouteOptions = true;
@@ -90,7 +223,7 @@ class SearchFormModel extends ChangeNotifier {
         busRouteList =
             List.generate(busRoutesJson.length, (index) => BusRoute.fromJson(busRoutesJson[index]));
         _busRoutes = busRouteList;
-        _busRouteItems = generateItems(busRouteList);
+        _busRouteItems = generateItems(busRouteList, favoriteRoutes);
       } else {
         _busRoutes = [];
         _busRouteItems = [];
@@ -104,7 +237,7 @@ class SearchFormModel extends ChangeNotifier {
     }
   }
 
-  List<Item> generateItems(List<BusRoute> data) {
+  List<Item> generateItems(List<BusRoute> data, Map<String, RouteItem> favoriteRouteList) {
     return List<Item>.generate(data.length, (int index) {
       return Item(
         headerValue: data[index].routeNumber,
@@ -115,8 +248,125 @@ class SearchFormModel extends ChangeNotifier {
             .map((stop) => '${stop.stopName} - stop ${stop.stopNumber}')
             .reduce((value, element) => '$value\n$element'),
         busRoute: data[index],
+        favorite: favoriteRouteList[data[index].routeNumber]?.favourite ?? false,
       );
     });
+  }
+
+  // toggle the state of the selected route and update the route options state
+  toggleFavorite(BusRoute route) {
+    var favoriteRoute = favoriteRoutes[route.routeNumber];
+    if (favoriteRoute == null) {
+      favoriteRoutes[route.routeNumber] = RouteItem(favourite: true, route: route);
+    } else {
+      favoriteRoutes.remove(route.routeNumber);
+    }
+
+    updateRouteOptions();
+
+    saveToStorage();
+    notifyListeners();
+  }
+
+  // sync the favorite state to the route options
+  updateRouteOptions() {
+    if (_busRoutes != null) {
+      _busRouteItems = generateItems(_busRoutes!, favoriteRoutes);
+    }
+  }
+
+  // save the favorites to the local storage
+  saveToStorage() {
+    favoritesStorage.setItem('items', favoriteRoutes);
+    notifyListeners();
+  }
+
+  // create the local storage and load the saved routes into memory
+  initializeFavoritesStorage() async {
+    await favoritesStorage.ready;
+
+    if (!storageInitialized) {
+      final Map<String, dynamic> favoriteRoutesJson = await favoritesStorage.getItem("items") ?? {};
+      favoriteRoutesJson.forEach((key, value) {
+        favoriteRoutes.putIfAbsent(key, () => RouteItem.fromJson(value));
+      });
+
+      storageInitialized = true;
+      notifyListeners();
+    }
+  }
+}
+
+// The class that wraps the bus route and favorite status
+class RouteItem {
+  BusRoute route;
+
+  // The state that control the icon of the Favorite button
+  bool favourite;
+
+  RouteItem({required this.route, required this.favourite});
+
+  factory RouteItem.fromJson(Map<String, dynamic> json) {
+    return RouteItem(route: BusRoute.fromJson(json['route']), favourite: json['favourite']);
+  }
+
+  // This is the default method used to serialize the object to JSON before it's
+  // saved into the local storage
+  toJson() {
+    Map<dynamic, dynamic> m = {};
+
+    m['route'] = route;
+    m['favourite'] = favourite;
+    return m;
+  }
+}
+
+class Prediction {
+  String placeId;
+  String mainText;
+  String secondaryText;
+  late PlaceDetail placeDetail;
+
+  // List<String> items;
+
+  Prediction(this.placeId, this.mainText, this.secondaryText);
+
+  // response structure
+  // https://developers.google.com/maps/documentation/places/web-service/autocomplete#place_autocomplete_responses
+  factory Prediction.fromJson(Map<String, dynamic> json) {
+    return Prediction(
+      json['place_id'],
+      json['structured_formatting']['main_text'],
+      json['structured_formatting']['secondary_text'],
+      // json['items'],
+    );
+  }
+
+  @override
+  String toString() {
+    return mainText;
+  }
+}
+
+class PlaceDetail {
+  double latitude;
+  double longitude;
+
+  PlaceDetail(this.latitude, this.longitude);
+
+  // response structure
+  // https://developers.google.com/maps/documentation/places/web-service/details#PlaceDetailsResponses
+  factory PlaceDetail.fromJson(Map<String, dynamic> json) {
+    var location = json['geometry']['location'];
+    return PlaceDetail(
+      (location['lat'] as num).toDouble(),
+      (location['lng'] as num).toDouble(),
+    );
+  }
+
+  @override
+  String toString() {
+    return '$latitude,$longitude';
   }
 }
 
@@ -127,6 +377,7 @@ class Item {
     this.isExpanded = false,
     required this.expandedValue,
     required this.expandedDetailsValue,
+    required this.favorite,
   });
 
   String headerValue;
@@ -134,4 +385,5 @@ class Item {
   BusRoute busRoute;
   String expandedValue;
   String expandedDetailsValue;
+  bool favorite;
 }

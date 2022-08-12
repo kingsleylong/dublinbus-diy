@@ -14,7 +14,7 @@
 # compiling time configuration (web/index.html). It should be placed in the
 # first stage - configs - so that the later stages can use it.
 FROM dublinbus-config AS configs
-RUN ls -lR /config
+# RUN ls -lR /config # this command may cause error in building so comment it out
 
 # 2.=======================BUILD FLUTTER===========================
 # The build container will only compile flutter project
@@ -30,6 +30,8 @@ RUN chown -R flutter:flutter .
 USER flutter
 # permission needs to be in accordance with flutter user
 COPY --chown=flutter:flutter . .
+# remove ios and android folder before building to avoid errors - we only build web platform on the server
+RUN rm -r android ios
 # copy the compiling time config file to the source folder.
 # the web/index.html can't be loaded using volume as it is required by flutter
 # when building the release packages.

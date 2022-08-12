@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'googlemap.dart';
 import 'tab_views.dart';
+import 'about_us.dart';
+import 'fav_page.dart';
+import '../views/tabs/route_options.dart';
 
 class DesktopBody extends StatefulWidget {
   const DesktopBody({Key? key, required this.tabController}) : super(key: key);
@@ -12,12 +15,32 @@ class DesktopBody extends StatefulWidget {
 }
 
 class _DesktopBodyState extends State<DesktopBody> {
-  final GoogleMapComponent googleMapComponent = const GoogleMapComponent();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("Dublin Bus DIY")),
+        appBar: AppBar(
+          title: const Text("Dublin Bus DIY"),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('About Us'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AboutUs()),
+                );
+              },
+            ),
+            ElevatedButton(
+              child: const Text('Favourites'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RouteFavOptions()),
+                );
+              },
+            ),
+          ],
+        ),
         body: Row(
           // alignment: Alignment.topLeft,
           children: [
@@ -43,8 +66,8 @@ class _DesktopBodyState extends State<DesktopBody> {
         // disable swiping from TabBarView
         // https://flutteragency.com/how-to-disable-swipe-tabbar-in-flutter/
         physics: const NeverScrollableScrollPhysics(),
-        children: <Widget>[
-          googleMapComponent,
+        children: const <Widget>[
+          GoogleMapComponent(),
         ]);
   }
 
@@ -59,7 +82,7 @@ class _DesktopBodyState extends State<DesktopBody> {
 
   SizedBox buildLeftBar() {
     return SizedBox(
-      width: 350,
+      width: 400,
       child: Column(
         children: [
           // ColoredBox(
@@ -84,5 +107,35 @@ class _DesktopBodyState extends State<DesktopBody> {
         ],
       ),
     );
+  }
+}
+
+// change the homepage to the about us page
+void onItemPressed(BuildContext context, {required int index}) {
+  Navigator.pop(context);
+
+  switch (index) {
+    case 0:
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const AboutUs()));
+      break;
+    default:
+      Navigator.pop(context);
+      break;
+  }
+}
+
+// change the homepage to the favourite routes page
+void onItemPressed2(BuildContext context, {required int index}) {
+  Navigator.pop(context);
+
+  switch (index) {
+    case 0:
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => RouteFavOptions()));
+      break;
+    default:
+      Navigator.pop(context);
+      break;
   }
 }

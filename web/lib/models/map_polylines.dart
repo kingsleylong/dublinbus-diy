@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -91,6 +92,17 @@ class PolylinesModel extends ChangeNotifier {
 
   _buildPoints(BusRoute busRoute) {
     return busRoute.shapes.map<LatLng>((shape) => LatLng(shape.latitude, shape.longitude)).toList();
+  }
+
+  void showSingleMarkerPosition(double latitude, double longitude) {
+    removeAll();
+    _markers.add(Marker(
+      markerId: MarkerId(Random().toString()),
+      position: LatLng(latitude, longitude),
+      infoWindow: const InfoWindow(title: 'You are here.'),
+      consumeTapEvents: false,
+    ));
+    notifyListeners();
   }
 
   /// Removes all Polylines and Markers from the map.

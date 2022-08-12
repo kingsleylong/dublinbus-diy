@@ -1,15 +1,16 @@
+import 'dart:io';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-import '../../api/fetch_bus_stop.dart';
+import '../../api/location_service.dart';
 import '../../models/bus_route.dart';
 import '../../models/bus_route_filter.dart';
-import '../../models/bus_stop.dart';
 import '../../models/map_polylines.dart';
 import '../../models/responsive.dart';
 import '../../models/search_form.dart';
@@ -27,43 +28,18 @@ class SearchForm extends StatefulWidget {
 class _SearchFormState extends State<SearchForm> {
   late Future<List<BusRoute>> futureBusRoutes;
 
-  // get user location https://docs.page/Lyokone/flutterlocation
-  Location location = Location();
-  late bool _serviceEnabled;
-  late PermissionStatus _permissionGranted;
-  late LocationData _locationData;
+  var defaultDropdown = [Prediction('here', 'Use my location', '')];
 
   @override
   void initState() {
     super.initState();
-    checkState();
+    checkLocation();
   }
 
-  checkState() async {
-    try {
-      _serviceEnabled = await location.serviceEnabled();
-      if (!_serviceEnabled) {
-        _serviceEnabled = await location.requestService();
-        if (!_serviceEnabled) {
-          return;
-        }
-      }
-      _permissionGranted = await location.hasPermission();
-      if (_permissionGranted == PermissionStatus.denied) {
-        _permissionGranted = await location.requestPermission();
-        if (_permissionGranted != PermissionStatus.granted) {
-          return;
-        }
-      }
-      _locationData = await location.getLocation();
-      print('${_locationData.latitude},${_locationData.longitude},${_locationData.accuracy}, '
-          '${_locationData.headingAccuracy},${_locationData.provider}');
-    } catch (e) {
-      print('error getting location: ${e.toString()}');
-    }
+  checkLocation() async {
+    Position here = await determinePosition();
+    print(here);
   }
-
-  // late List<Item> items;
 
   @override
   Widget build(BuildContext context) {
@@ -85,27 +61,16 @@ class _SearchFormState extends State<SearchForm> {
                   child: Row(
                     children: [
                       Expanded(child: buildSearchableOriginDropdownList(searchFormModel)),
-                      IconButton(
-                        icon: const Icon(Icons.location_searching),
-                        tooltip: 'Increase volume by 10',
-                        onPressed: () {
-                          setState(() {
-                            print('click location search');
-                            checkState();
-                          });
-                        },
-                      ),
-                      // Text('Volume')
                     ],
                   ),
                 ),
                 // Destination dropdown list
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
                   child: buildSearchableDestinationDropdownList(searchFormModel),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
                   child: ToggleSwitch(
                     // https://pub.dev/packages/toggle_switch
                     // Here, default theme colors are used for activeBgColor, activeFgColor, inactiveBgColor and inactiveFgColor
@@ -122,7 +87,7 @@ class _SearchFormState extends State<SearchForm> {
                 ),
                 // Departure/Arrival time
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
                   child: DateTimePicker(
                     // Data time picker: https://pub.dev/packages/date_time_picker
                     type: DateTimePickerType.dateTimeSeparate,
@@ -152,9 +117,11 @@ class _SearchFormState extends State<SearchForm> {
                       if (searchFormModel.formKey.currentState!.validate()) {
                         Provider.of<PolylinesModel>(context, listen: false).removeAll();
                         print(
-                            'Selected origin: ${searchFormModel.originSelectionKey.currentState?.getSelectedItem?.stopNumber}');
+                            'Selected origin: ${searchFormModel.originSelectionKey.currentState?.getSelectedItem}');
                         print(
-                            'Selected destination: ${searchFormModel.destinationSelectionKey.currentState?.getSelectedItem?.stopNumber}');
+                            'coordinates: ${searchFormModel.originPlaceDetail} ${searchFormModel.destinationPlaceDetail}');
+                        print(
+                            'Selected destination: ${searchFormModel.destinationSelectionKey.currentState?.getSelectedItem}');
                         print(
                             'Selected datetime: ${searchFormModel.dateTimePickerController.value.text}');
 
@@ -166,19 +133,14 @@ class _SearchFormState extends State<SearchForm> {
                             'parseTime: $parseTime  ${DateFormat('yyyy-MM-dd HH:mm:ss').format(parseTime)}');
 
                         BusRouteSearchFilter searchFilter = BusRouteSearchFilter(
-                            searchFormModel
-                                .originSelectionKey.currentState?.getSelectedItem?.stopNumber,
-                            searchFormModel
-                                .destinationSelectionKey.currentState?.getSelectedItem?.stopNumber,
+                            searchFormModel.originPlaceDetail.toString(),
+                            searchFormModel.destinationPlaceDetail.toString(),
                             searchFormModel.timeTypes[searchFormModel.timeTypeToggleIndex ?? 0],
                             DateFormat('yyyy-MM-dd HH:mm:ss').format(parseTime));
 
                         // futureBusRoutes = fetchBusRoutes(searchFilter);
                         Provider.of<SearchFormModel>(context, listen: false)
                             .fetchBusRoute(searchFilter);
-                        // Provider.of<SearchFormModel>(context, listen: false)
-                        //     .visibilityRouteOptions = true;
-                        // searchFormModel.busRoutes = futureBusRoutes;
 
                         // Use a new route to show the route options
                         // https://docs.flutter.dev/cookbook/navigation/navigation-basics
@@ -202,10 +164,44 @@ class _SearchFormState extends State<SearchForm> {
   Widget buildSearchableOriginDropdownList(SearchFormModel searchFormModel) {
     // DropdownSearch widget plugin: https://pub.dev/packages/dropdown_search
     // Check the examples code for usage: https://github.com/salim-lachdhaf/searchable_dropdown
-    return DropdownSearch<BusStop>(
+    // TODO replace secondary text by location
+    return DropdownSearch<Prediction>(
       key: searchFormModel.originSelectionKey,
-      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'ucd belfield' : filter),
-      compareFn: (i, s) => i.isEqual(s),
+      asyncItems: (filter) => searchFormModel.autocompleteAddress(filter),
+      compareFn: (i, s) => i.placeId == s.placeId,
+      onChanged: (value) {
+        var future = searchFormModel.fetchPlaceDetails(value, 'origin');
+        future.catchError((err) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: const Text('Location service has not been enabled'),
+              content: const Text('Please enable the location service to allow the app to get the '
+                  'current location.'),
+              actions: <Widget>[
+                TextButton(
+                  child: buildMessageByPlatform(),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    if (isMobilePlatform()) {
+                      Geolocator.openAppSettings();
+                    }
+                  },
+                ),
+                if (isMobilePlatform())
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Dismiss')),
+              ],
+            ),
+          );
+        });
+      },
+      // TODO may add a history list
+      items: defaultDropdown,
       dropdownDecoratorProps: const DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
           labelText: 'Origin',
@@ -215,7 +211,7 @@ class _SearchFormState extends State<SearchForm> {
       ),
       popupProps: PopupProps.menu(
         showSearchBox: true,
-        title: const Text('Search origin bus stop'),
+        title: const Text('Search origin address'),
         isFilterOnline: true,
         showSelectedItems: true,
         itemBuilder: _dropdownPopupItemBuilder,
@@ -232,17 +228,53 @@ class _SearchFormState extends State<SearchForm> {
       ),
       validator: (value) {
         if (value == null) {
-          return "Please select the origin stop";
+          return "Please search the origin address";
         }
+        if (searchFormModel.originPlaceDetail == null) {
+          return "Trying to get the curren location. Please try later.";
+        }
+        return null;
       },
     );
   }
 
   Widget buildSearchableDestinationDropdownList(SearchFormModel searchFormModel) {
-    return DropdownSearch<BusStop>(
+    return DropdownSearch<Prediction>(
       key: searchFormModel.destinationSelectionKey,
-      asyncItems: (filter) => fetchFutureBusStopsByName(filter == '' ? 'dawson street' : filter),
-      compareFn: (i, s) => i.isEqual(s),
+      asyncItems: (filter) => searchFormModel.autocompleteAddress(filter),
+      compareFn: (i, s) => i.placeId == s.placeId,
+      items: defaultDropdown,
+      onChanged: (value) {
+        var future = searchFormModel.fetchPlaceDetails(value, 'destination');
+        future.catchError((err) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: const Text('Location service has not been enabled'),
+              content: const Text('Please enable the location service to allow the app to get the '
+                  'current location.'),
+              actions: <Widget>[
+                TextButton(
+                  child: buildMessageByPlatform(),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    if (isMobilePlatform()) {
+                      Geolocator.openAppSettings();
+                    }
+                  },
+                ),
+                if (isMobilePlatform())
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Dismiss')),
+              ],
+            ),
+          );
+        });
+      },
       dropdownDecoratorProps: const DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
           labelText: 'Destination',
@@ -252,7 +284,7 @@ class _SearchFormState extends State<SearchForm> {
       ),
       popupProps: PopupProps.menu(
         showSearchBox: true,
-        title: const Text('Search destination bus stop'),
+        title: const Text('Search destination address'),
         isFilterOnline: true,
         showSelectedItems: true,
         itemBuilder: _dropdownPopupItemBuilder,
@@ -267,13 +299,17 @@ class _SearchFormState extends State<SearchForm> {
       ),
       validator: (value) {
         if (value == null) {
-          return "Please select the destination stop";
+          return "Please search the destination address";
         }
+        if (searchFormModel.destinationPlaceDetail == null) {
+          return "Trying to get the curren location. Please try later.";
+        }
+        return null;
       },
     );
   }
 
-  Widget _dropdownPopupItemBuilder(BuildContext context, BusStop item, bool isSelected) {
+  Widget _dropdownPopupItemBuilder(BuildContext context, Prediction prediction, bool isSelected) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       decoration: !isSelected
@@ -285,21 +321,36 @@ class _SearchFormState extends State<SearchForm> {
             ),
       child: ListTile(
         selected: isSelected,
-        title: Text(item.stopName),
-        subtitle: Text(item.stopNumber.toString()),
+        // title: Text(item.terms.map((e) => e.value).reduce((value, element) => '$value, $element')),
+        title: Text(prediction.mainText),
+        subtitle: Text(prediction.secondaryText),
         leading: CircleAvatar(
-          child: buildBusStopAvatarByType(item),
+          child: buildBusStopAvatarByType(prediction),
         ),
       ),
     );
   }
 
   // use icon to distinguish the bus stop type
-  buildBusStopAvatarByType(BusStop item) {
-    if (item.type == BusStopType.matched) {
-      return const Icon(Icons.search);
+  buildBusStopAvatarByType(Prediction prediction) {
+    if (prediction.placeId == 'here') {
+      return const Icon(Icons.place);
     } else {
       return const Icon(Icons.location_searching);
     }
+  }
+
+  buildMessageByPlatform() {
+    if (isMobilePlatform()) {
+      return const Text('Go to location settings');
+    } else {
+      return const Text('Dismiss');
+    }
+  }
+
+  isMobilePlatform() {
+    // Fixing `Caught error: Unsupported operation: Platform._operatingSystem` issue
+    // https://www.wafrat.com/fixing-caught-error-unsupported-operation-platform-_operatingsystem/
+    return !kIsWeb && (Platform.isIOS || Platform.isAndroid);
   }
 }
