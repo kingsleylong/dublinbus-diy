@@ -129,7 +129,7 @@ func CreateShapesSlice(route busRoute) []ShapeJSON {
 // bus stop numbers on a journey as strings and then returns integers for their
 // respective indexes in the route object that is to be added to the resultJSON object
 // at the end of a route finding operation
-func CurateStopsSlice(origin string, destination string) (int, int) {
+func CurateStopsSlice(origin string, destination string, route busRouteJSON) (int, int) {
 
 	var originStopIndex int
 	var destinationStopIndex int
@@ -185,15 +185,18 @@ func GetTimeStringAsHoursAndMinutes(timeString string) string {
 func FindNearestStop(nearbyStops []StopWithCoordinates,
 	stopsOnRoute []BusStop, location maps.LatLng) (string, error) {
 
+	log.Println("Finding Nearest stop:")
 	var closeStops []StopWithCoordinates
 
 	for _, stopToCheck := range nearbyStops {
 		for _, stopOnRoute := range stopsOnRoute {
 			if stopToCheck.StopNumber == stopOnRoute.StopNumber {
+				closeStops = append(closeStops, stopToCheck)
 			}
-			closeStops = append(closeStops, stopToCheck)
 		}
 	}
+	log.Println("Stops on route found in nearby stop array:")
+	log.Println(closeStops)
 
 	if len(closeStops) < 1 {
 		return "error", errors.New("none of origin stops were on given route")
