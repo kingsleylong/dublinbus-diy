@@ -1,11 +1,17 @@
-version: "3.3"
+version: "3.5"
 services:
-  api:
+  ml_api:
     build: .
     volumes:
       - /usr/local/dublinbus/config/scraper:/app/scripts/config:ro
       - /usr/local/dublinbus/data:/app/scripts/data:ro
       - /usr/local/dublinbus/data:/usr/local/dublinbus/data:ro
     ports:
-      - "80:5000"
+      - "5000:5000"
     restart: always
+    networks:
+      - my-proxy-net
+networks:
+  my-proxy-net:
+    external:
+      name: my_app

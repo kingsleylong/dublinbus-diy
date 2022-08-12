@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.5"
 services:
   web:
     build:
@@ -10,24 +10,31 @@ services:
         - API_HOST=${NGINX_HOST}
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       # Nginx settings refer to http://nginx.org/en/docs/beginners_guide.html
       - /usr/local/dublinbus/config/web/nginx.conf:/etc/nginx/nginx.conf:ro
       # The files for download
       - /usr/local/dublinbus/files:/data/files:ro
+      # The certbot that servers the https certification
+      - /usr/local/dublinbus/certbot/www:/var/www/certbot:ro
+      - /usr/local/dublinbus/certbot/conf:/etc/nginx/ssl/:ro
     environment:
       - NGINX_HOST=${NGINX_HOST}
       - NGINX_PORT=80
     depends_on:
       - api
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - /usr/local/dublinbus/certbot/www:/var/www/certbot/:rw
+      - /usr/local/dublinbus/certbot/conf:/etc/letsencrypt/:rw
   api:
     build: api/
     volumes:
       - /usr/local/dublinbus/config/api:/app/config:ro
     ports:
-      - 10000:8080
-#    depends_on:
-#      - mongodb
+      - 8080:8080
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
@@ -68,3 +75,7 @@ services:
       - SWAGGER_JSON=/foo/swagger.yml
     volumes:
       - ./api/:/foo
+networks:
+  default:
+    # this name will be used by other docker compose files to share the same network
+    name: my_app
