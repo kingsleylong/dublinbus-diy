@@ -195,6 +195,8 @@ func FindNearestStop(nearbyStops []StopWithCoordinates,
 			}
 		}
 	}
+	log.Println("Stops on route found in nearby stop array:")
+	log.Println(closeStops)
 
 	if len(closeStops) < 1 {
 		return "error", errors.New("none of origin stops were on given route")

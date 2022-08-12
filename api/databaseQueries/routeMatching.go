@@ -189,8 +189,8 @@ func FindMatchingRouteForDeparture(destination string,
 		routesWithOAndD = append(routesWithOAndD, routeWithOAndD)
 	}
 
-	var fullRoutes []busRoute
-	var allRoutes []busRoute
+	var fullRoutes = []busRoute{}
+	var allRoutes = []busRoute{}
 	for _, routeDocument := range routesWithOAndD {
 		log.Println("Route document id field 0 = " + routeDocument.Id[0])
 		log.Println("Route document id field 01 = " + routeDocument.Id[1])
