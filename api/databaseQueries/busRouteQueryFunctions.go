@@ -129,7 +129,7 @@ func CreateShapesSlice(route busRoute) []ShapeJSON {
 // bus stop numbers on a journey as strings and then returns integers for their
 // respective indexes in the route object that is to be added to the resultJSON object
 // at the end of a route finding operation
-func CurateStopsSlice(origin string, destination string) (int, int) {
+func CurateStopsSlice(origin string, destination string, route busRouteJSON) (int, int) {
 
 	var originStopIndex int
 	var destinationStopIndex int

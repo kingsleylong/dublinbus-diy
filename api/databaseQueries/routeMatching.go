@@ -14,7 +14,7 @@ import (
 // Variables of both busRoute and busRouteJSON need to be initialised as
 // some unmarshalling from Mongo cannot be done automatically and
 // so must be done manually from one structure to another in the backend
-var route busRouteJSON
+
 var stop RouteStop
 var shape ShapeJSON
 var shapes []ShapeJSON
@@ -67,6 +67,7 @@ func FindMatchingRouteForDeparture(destination string,
 
 	// resultJSON kept local so that routes from other calls don't persist
 	var resultJSON []busRouteJSON
+	var route busRouteJSON
 
 	// First step is taking in coordinates, locating the stops near those
 	// coordinates and then returning the 10 closest stops to that initial
@@ -351,7 +352,7 @@ func FindMatchingRouteForDeparture(destination string,
 		// The stops slice is finally adjusted so that it only contains stops along the route being
 		// travelled
 		originStopIndex, destinationStopIndex := CurateStopsSlice(routeWithOAndD.OriginStopNumber,
-			routeWithOAndD.DestinationStopNumber)
+			routeWithOAndD.DestinationStopNumber, route)
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
 
 		// Static timetable departure time is used to provide the user of an estimate
@@ -377,7 +378,7 @@ func FindMatchingRouteForArrival(origin string,
 
 	// resultJSON kept local so that routes from other calls don't persist
 	var resultJSON []busRouteJSON
-
+	var route busRouteJSON
 	// First step is taking in coordinates, locating the stops near those
 	// coordinates and then returning the 10 closest stops to that initial
 	// coordinate pair
@@ -661,7 +662,7 @@ func FindMatchingRouteForArrival(origin string,
 		// The stops slice is finally adjusted so that it only contains stops along the route being
 		// travelled
 		originStopIndex, destinationStopIndex := CurateStopsSlice(routeWithOAndD.OriginStopNumber,
-			routeWithOAndD.DestinationStopNumber)
+			routeWithOAndD.DestinationStopNumber, route)
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
 
 		// Static timetable departure time is used to provide the user of an estimate
