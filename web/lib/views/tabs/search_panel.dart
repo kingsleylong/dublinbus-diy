@@ -230,6 +230,9 @@ class _SearchFormState extends State<SearchForm> {
         if (value == null) {
           return "Please search the origin address";
         }
+        if (searchFormModel.originPlaceDetail == null) {
+          return "Trying to get the curren location. Please try later.";
+        }
         return null;
       },
     );
@@ -297,6 +300,9 @@ class _SearchFormState extends State<SearchForm> {
       validator: (value) {
         if (value == null) {
           return "Please search the destination address";
+        }
+        if (searchFormModel.destinationPlaceDetail == null) {
+          return "Trying to get the curren location. Please try later.";
         }
         return null;
       },

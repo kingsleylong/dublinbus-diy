@@ -140,6 +140,13 @@ class SearchFormModel extends ChangeNotifier {
         position = await determinePosition();
       } catch (e) {
         print('error determine location:\n $e');
+        if (type == 'origin') {
+          print('clear origin selection');
+          _originSelectionKey.currentState?.clear();
+        } else if (type == 'destination') {
+          print('clear destination selection');
+          _destinationSelectionKey.currentState?.clear();
+        }
         rethrow;
         // return Future.error(e);
       }
