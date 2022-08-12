@@ -171,6 +171,24 @@ func CurateReturnedArrivalRoutes(arrivalQueryTime string, routes []busRouteJSON)
 	return returnedRoutes
 }
 
+func CurateReturnedDepartureRoutes(departureQueryTime string, routes []busRouteJSON) []busRouteJSON {
+
+	returnedRoutes := []busRouteJSON{}
+	dateTimeSplit := strings.Split(departureQueryTime, " ")
+	querySeconds := convertStringTimeToTotalSeconds(dateTimeSplit[1])
+	var departureSeconds float64
+
+	for _, route := range routes {
+		departureSeconds = convertStringTimeToTotalSeconds(route.Stops[0].DepartureTime)
+		if querySeconds+float64(60*60) < departureSeconds {
+			continue
+		}
+		returnedRoutes = append(returnedRoutes, route)
+	}
+
+	return returnedRoutes
+}
+
 // GetTimeStringAsHoursAndMinutes is a function designed to take in a string representing
 // time of day in the format "hh:mm:ss" and return a string approximating this time by
 // removing the seconds component and just displaying "hh:mm"
