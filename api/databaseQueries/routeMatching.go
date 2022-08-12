@@ -5,7 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
+	"math"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -184,8 +186,6 @@ func FindMatchingRouteForDeparture(destination string,
 			matchingRoute.Stops, originCoordinates)
 		routeWithOAndD.DestinationStopNumber, _ = FindNearestStop(destinationStops,
 			matchingRoute.Stops, destinationCoordinates)
-		//log.Println("Matching Route with O and D for route:", routeWithOAndD.Id[0])
-		//log.Println(routeWithOAndD)
 		routesWithOAndD = append(routesWithOAndD, routeWithOAndD)
 	}
 
@@ -235,14 +235,11 @@ func FindMatchingRouteForDeparture(destination string,
 		allRoutes = append(allRoutes, fullRoutes...)
 		log.Println("Full Routes array after reading in query result:")
 		log.Println(fullRoutes)
-		//log.Println(fullRoutes[0].Direction)
-		//log.Println(len(fullRoutes[0].Id))
-		//log.Println(string(fullRoutes[0].Id[1]))
 	}
 
-	log.Println("All routes in busRoute format:")
-	log.Println(allRoutes)
-	log.Println("")
+	//log.Println("All routes in busRoute format:")
+	//log.Println(allRoutes)
+	//log.Println("")
 	// Iterate over the result objects to transform them into suitable return
 	// objects while also generating travel time predictions and fare calculations
 	for _, currentRoute := range allRoutes {
@@ -257,8 +254,8 @@ func FindMatchingRouteForDeparture(destination string,
 		routeWithOAndD.Stops = currentRoute.Stops
 		routeWithOAndD.Shapes = currentRoute.Shapes
 		log.Println(currentRoute.Direction, routeWithOAndD.Direction)
-		log.Println("Route with Origin and Destination:")
-		log.Println(routeWithOAndD)
+		//log.Println("Route with Origin and Destination:")
+		//log.Println(routeWithOAndD)
 		log.Println("")
 		route.RouteNum = string(currentRoute.Id)
 
@@ -316,6 +313,23 @@ func FindMatchingRouteForDeparture(destination string,
 
 		// Shapes slice created
 		route.Shapes = CreateShapesSlice(currentRoute)
+		//if route.Shapes[0].ShapePtSequence != "1" {
+		//	shapeDistance, _ := strconv.ParseFloat(route.Shapes[0].ShapeDistTravel, 64)
+		//	log.Println()
+		//	if math.Sqrt(math.Pow(shapeDistance-route.Stops[0].DistanceTravelled, 2)) > 100 {
+		//		log.Println("Mismatch between the route shape and the actual route - route removed")
+		//		continue
+		//	}
+		//}
+		for stopShapeIndex, stopShapeCheck := range route.Stops {
+			for shapeIndex, currentShape := range route.Shapes {
+				currentShapeDist, _ := strconv.ParseFloat(currentShape.ShapeDistTravel, 64)
+				if currentShapeDist == stopShapeCheck.DistanceTravelled {
+					log.Println("Found match for shape", shapeIndex, "with stop", stopShapeIndex)
+					break
+				}
+			}
+		}
 
 		// If the origin and destination were somehow found out of order then
 		// skip this iteration and move onto the next route document in result
@@ -368,6 +382,14 @@ func FindMatchingRouteForDeparture(destination string,
 		originStopIndex, destinationStopIndex := CurateStopsSlice(routeWithOAndD.OriginStopNumber,
 			routeWithOAndD.DestinationStopNumber, route)
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
+
+		if route.Shapes[0].ShapePtSequence != "1" {
+			shapeDistance, _ := strconv.ParseFloat(route.Shapes[0].ShapeDistTravel, 64)
+			if math.Sqrt(math.Pow(shapeDistance-route.Stops[0].DistanceTravelled, 2)) > 100 {
+				log.Println("Mismatch between the route shape and the actual route - route removed")
+				continue
+			}
+		}
 
 		// Static timetable departure time is used to provide the user of an estimate
 		// for how when a bus will arrive to begin their journey
@@ -547,6 +569,10 @@ func FindMatchingRouteForArrival(origin string,
 			log.Println("Error reading query result into fullRoutes array")
 			log.Println(err)
 		}
+		log.Println("Number of routes found:", len(fullRoutes))
+		for index, _ := range fullRoutes {
+			fullRoutes[index].Direction = routeDocument.Id[1]
+		}
 
 		allRoutes = append(allRoutes, fullRoutes...)
 
@@ -627,6 +653,22 @@ func FindMatchingRouteForArrival(origin string,
 
 		// Shapes slice created
 		route.Shapes = CreateShapesSlice(currentRoute)
+		//if route.Shapes[0].ShapePtSequence != "1" {
+		//	shapeDistance, _ := strconv.ParseFloat(route.Shapes[0].ShapeDistTravel, 64)
+		//	if math.Sqrt(math.Pow(shapeDistance-route.Stops[0].DistanceTravelled, 2)) > 100 {
+		//		log.Println("Mismatch between the route shape and the actual route - route removed")
+		//		continue
+		//	}
+		//}
+		for stopShapeIndex, stopShapeCheck := range route.Stops {
+			for shapeIndex, currentShape := range route.Shapes {
+				currentShapeDist, _ := strconv.ParseFloat(currentShape.ShapeDistTravel, 64)
+				if currentShapeDist == stopShapeCheck.DistanceTravelled {
+					log.Println("Found match for shape", shapeIndex, "with stop", stopShapeIndex)
+					break
+				}
+			}
+		}
 
 		// If the origin and destination were somehow found out of order then
 		// skip this iteration and move onto the next route document in result
@@ -680,6 +722,13 @@ func FindMatchingRouteForArrival(origin string,
 			routeWithOAndD.DestinationStopNumber, route)
 		route.Stops = route.Stops[originStopIndex : destinationStopIndex+1]
 
+		if route.Shapes[0].ShapePtSequence != "1" {
+			shapeDistance, _ := strconv.ParseFloat(route.Shapes[0].ShapeDistTravel, 64)
+			if math.Sqrt(math.Pow(shapeDistance-route.Stops[0].DistanceTravelled, 2)) > 100 {
+				log.Println("Mismatch between the route shape and the actual route - route removed")
+				continue
+			}
+		}
 		// Static timetable departure time is used to provide the user of an estimate
 		// for how when a bus will arrive to begin their journey
 		route.TravelTime.ScheduledDepartureTime = GetTimeStringAsHoursAndMinutes(route.Stops[0].ArrivalTime)
