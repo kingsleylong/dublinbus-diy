@@ -91,7 +91,7 @@ class SearchFormModel extends ChangeNotifier {
     print('Places autocomplete API sessionToken: $sessionToken');
 
     String googlemapApiHost = googleMapApiHost;
-    Uri request = Uri.http(
+    Uri request = Uri.https(
       googlemapApiHost,
       '/api/googlemaps/maps/api/place/autocomplete/json',
       {
@@ -122,7 +122,7 @@ class SearchFormModel extends ChangeNotifier {
 
   // Place Details requests
   // https://developers.google.com/maps/documentation/places/web-service/detailsk
-  fetchPlaceDetails(Prediction? prediction, String type) async {
+  Future fetchPlaceDetails(Prediction? prediction, String type) async {
     print('Places autocomplete API sessionToken: $sessionToken');
 
     if (type == 'origin') {
@@ -135,7 +135,21 @@ class SearchFormModel extends ChangeNotifier {
 
     // TODO delay the logic to when the submit button is clicked??
     if (prediction.placeId == 'here') {
-      Position position = await determinePosition();
+      Position? position;
+      try {
+        position = await determinePosition();
+      } catch (e) {
+        print('error determine location:\n $e');
+        if (type == 'origin') {
+          print('clear origin selection');
+          _originSelectionKey.currentState?.clear();
+        } else if (type == 'destination') {
+          print('clear destination selection');
+          _destinationSelectionKey.currentState?.clear();
+        }
+        rethrow;
+        // return Future.error(e);
+      }
       print('get position: $position');
       var placeDetail = PlaceDetail(position.latitude, position.longitude);
       if (type == 'origin') {
@@ -147,7 +161,7 @@ class SearchFormModel extends ChangeNotifier {
     }
     var placeId = prediction.placeId;
     String googlemapApiHost = googleMapApiHost;
-    Uri request = Uri.http(
+    Uri request = Uri.https(
       googlemapApiHost,
       '/api/googlemaps/maps/api/place/details/json',
       {'place_id': placeId, 'fields': 'geometry', 'sessionToken': sessionToken},
@@ -187,7 +201,7 @@ class SearchFormModel extends ChangeNotifier {
     String pathParams = '/${searchFilter.originStopNumber}/${searchFilter.destinationStopNumber}'
         '/${searchFilter.timeType.name}/${searchFilter.time}';
     final response = await http.get(
-      Uri.http(apiHost, "/api/route/matchingRoute$pathParams"),
+      Uri.https(apiHost, "/api/route/matchingRoute$pathParams"),
       headers: {
         "Accept": "application/json",
       },

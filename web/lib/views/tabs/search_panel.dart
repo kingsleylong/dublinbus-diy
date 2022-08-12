@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
@@ -168,7 +170,35 @@ class _SearchFormState extends State<SearchForm> {
       asyncItems: (filter) => searchFormModel.autocompleteAddress(filter),
       compareFn: (i, s) => i.placeId == s.placeId,
       onChanged: (value) {
-        searchFormModel.fetchPlaceDetails(value, 'origin');
+        var future = searchFormModel.fetchPlaceDetails(value, 'origin');
+        future.catchError((err) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: const Text('Location service has not been enabled'),
+              content: const Text('Please enable the location service to allow the app to get the '
+                  'current location.'),
+              actions: <Widget>[
+                TextButton(
+                  child: buildMessageByPlatform(),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    if (isMobilePlatform()) {
+                      Geolocator.openAppSettings();
+                    }
+                  },
+                ),
+                if (isMobilePlatform())
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Dismiss')),
+              ],
+            ),
+          );
+        });
       },
       // TODO may add a history list
       items: defaultDropdown,
@@ -200,6 +230,9 @@ class _SearchFormState extends State<SearchForm> {
         if (value == null) {
           return "Please search the origin address";
         }
+        if (searchFormModel.originPlaceDetail == null) {
+          return "Trying to get the curren location. Please try later.";
+        }
         return null;
       },
     );
@@ -212,7 +245,35 @@ class _SearchFormState extends State<SearchForm> {
       compareFn: (i, s) => i.placeId == s.placeId,
       items: defaultDropdown,
       onChanged: (value) {
-        searchFormModel.fetchPlaceDetails(value, 'destination');
+        var future = searchFormModel.fetchPlaceDetails(value, 'destination');
+        future.catchError((err) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: const Text('Location service has not been enabled'),
+              content: const Text('Please enable the location service to allow the app to get the '
+                  'current location.'),
+              actions: <Widget>[
+                TextButton(
+                  child: buildMessageByPlatform(),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    if (isMobilePlatform()) {
+                      Geolocator.openAppSettings();
+                    }
+                  },
+                ),
+                if (isMobilePlatform())
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Dismiss')),
+              ],
+            ),
+          );
+        });
       },
       dropdownDecoratorProps: const DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
@@ -239,6 +300,9 @@ class _SearchFormState extends State<SearchForm> {
       validator: (value) {
         if (value == null) {
           return "Please search the destination address";
+        }
+        if (searchFormModel.destinationPlaceDetail == null) {
+          return "Trying to get the curren location. Please try later.";
         }
         return null;
       },
@@ -274,5 +338,19 @@ class _SearchFormState extends State<SearchForm> {
     } else {
       return const Icon(Icons.location_searching);
     }
+  }
+
+  buildMessageByPlatform() {
+    if (isMobilePlatform()) {
+      return const Text('Go to location settings');
+    } else {
+      return const Text('Dismiss');
+    }
+  }
+
+  isMobilePlatform() {
+    // Fixing `Caught error: Unsupported operation: Platform._operatingSystem` issue
+    // https://www.wafrat.com/fixing-caught-error-unsupported-operation-platform-_operatingsystem/
+    return !kIsWeb && (Platform.isIOS || Platform.isAndroid);
   }
 }

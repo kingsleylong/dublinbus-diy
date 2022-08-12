@@ -1,7 +1,7 @@
 const String apiHost = String.fromEnvironment(
   "API_HOST",
-  defaultValue: "ipa-003.ucd.ie"
-  // defaultValue: "localhost:1080"
+  defaultValue: "dublinbus-diy.site",
+  // defaultValue: "172.16.30.190:1080",
 );
 
-const String googleMapApiHost = "ipa-003.ucd.ie";
+const String googleMapApiHost = "dublinbus-diy.site";

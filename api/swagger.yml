@@ -1,26 +1,23 @@
 swagger: "2.0"
 info:
   description: "The API for DublinBus web service"
-  version: "0.0.2"
-  title: "Dublin Bus"
+  version: "0.0.3"
+  title: "Dublin Bus DIY"
   termsOfService: "http://swagger.io/terms/"
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "ipa-003.ucd.ie"
+host: "dublinbus-diy.site"
 # The base path will be added by Nginx for reverse proxy.
 # It's not required in the api module.
 basePath: "/api"
 tags:
   - name: "stop"
     description: "The bus stops from GTFS static files"
-    externalDocs:
-      description: "TODO: GTFS static files reference"
-      url: "http://TO_BE_REPLACED.ucd.ie"
   - name: "route"
     description: "Plan the journey"
 schemes:
-  # - "https"
+  - "https"
   - "http"
 paths:
   /stop/findByAddress:
