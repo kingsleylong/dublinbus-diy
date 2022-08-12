@@ -91,7 +91,7 @@ class SearchFormModel extends ChangeNotifier {
     print('Places autocomplete API sessionToken: $sessionToken');
 
     String googlemapApiHost = googleMapApiHost;
-    Uri request = Uri.http(
+    Uri request = Uri.https(
       googlemapApiHost,
       '/api/googlemaps/maps/api/place/autocomplete/json',
       {
@@ -147,7 +147,7 @@ class SearchFormModel extends ChangeNotifier {
     }
     var placeId = prediction.placeId;
     String googlemapApiHost = googleMapApiHost;
-    Uri request = Uri.http(
+    Uri request = Uri.https(
       googlemapApiHost,
       '/api/googlemaps/maps/api/place/details/json',
       {'place_id': placeId, 'fields': 'geometry', 'sessionToken': sessionToken},
@@ -187,7 +187,7 @@ class SearchFormModel extends ChangeNotifier {
     String pathParams = '/${searchFilter.originStopNumber}/${searchFilter.destinationStopNumber}'
         '/${searchFilter.timeType.name}/${searchFilter.time}';
     final response = await http.get(
-      Uri.http(apiHost, "/api/route/matchingRoute$pathParams"),
+      Uri.https(apiHost, "/api/route/matchingRoute$pathParams"),
       headers: {
         "Accept": "application/json",
       },

@@ -28,7 +28,7 @@ func GetTravelTimePrediction(routeNum string,
 
 	// URL is encoded here to prevent there being an issue with
 	// whitespace in the path with some error checks also present
-	baseUrl, err := url.Parse("http://3.250.172.35/prediction/")
+	baseUrl, err := url.Parse("https://dublinbus-diy.site/ml/prediction/")
 	if err != nil {
 		log.Println("Url Issue: ")
 		log.Println(err.Error())
