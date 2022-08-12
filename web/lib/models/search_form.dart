@@ -122,7 +122,7 @@ class SearchFormModel extends ChangeNotifier {
 
   // Place Details requests
   // https://developers.google.com/maps/documentation/places/web-service/detailsk
-  fetchPlaceDetails(Prediction? prediction, String type) async {
+  Future fetchPlaceDetails(Prediction? prediction, String type) async {
     print('Places autocomplete API sessionToken: $sessionToken');
 
     if (type == 'origin') {
@@ -135,7 +135,14 @@ class SearchFormModel extends ChangeNotifier {
 
     // TODO delay the logic to when the submit button is clicked??
     if (prediction.placeId == 'here') {
-      Position position = await determinePosition();
+      Position? position;
+      try {
+        position = await determinePosition();
+      } catch (e) {
+        print('error determine location:\n $e');
+        rethrow;
+        // return Future.error(e);
+      }
       print('get position: $position');
       var placeDetail = PlaceDetail(position.latitude, position.longitude);
       if (type == 'origin') {
