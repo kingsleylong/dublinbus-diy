@@ -82,7 +82,7 @@ class _DesktopBodyState extends State<DesktopBody> {
 
   SizedBox buildLeftBar() {
     return SizedBox(
-      width: 350,
+      width: 400,
       child: Column(
         children: [
           // ColoredBox(
